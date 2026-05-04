@@ -9,6 +9,7 @@ const cityRoutes = require("./routes/cityRoutes");
 const cityPointRoutes = require("./routes/cityPointRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use("/api/cities", cityRoutes);
 app.use("/api/city-points", cityPointRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/cart", cartRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Rayna Tours API is running" });

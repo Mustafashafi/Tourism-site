@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { X, ShoppingCart, Briefcase, Globe, Languages, FileText, ShieldCheck, Info, Phone, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginModal from './LoginModal';
+import { useCart } from '../context/CartContext';
 
 const UserSidebar = ({ isOpen, onClose }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const { clearCart } = useCart();
 
   useEffect(() => {
     if (isOpen) {
@@ -19,6 +21,7 @@ const UserSidebar = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   const handleLogout = () => {
+    clearCart();
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     window.location.reload();

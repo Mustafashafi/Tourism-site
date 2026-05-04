@@ -3,6 +3,7 @@ import axios from 'axios';
 import { X, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
+import { useCart } from '../context/CartContext';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [showEmailField, setShowEmailField] = useState(false);
@@ -10,6 +11,7 @@ const LoginModal = ({ isOpen, onClose }) => {
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState('');
+  const { fetchCartData } = useCart();
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -25,6 +27,8 @@ const LoginModal = ({ isOpen, onClose }) => {
         // Store user data and token
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.user));
+
+        await fetchCartData();
 
         // Reload to reflect changes or handle state locally
         window.location.reload(); 

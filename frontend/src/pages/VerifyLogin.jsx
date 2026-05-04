@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
+import { useCart } from "../context/CartContext";
 
 const VerifyLogin = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState("verifying"); // verifying, success, error
   const [errorMsg, setErrorMsg] = useState("");
+  const { fetchCartData } = useCart();
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -27,6 +29,8 @@ const VerifyLogin = () => {
         if (res.data.user) {
           localStorage.setItem("user", JSON.stringify(res.data.user));
         }
+
+        await fetchCartData();
 
         setStatus("success");
         
