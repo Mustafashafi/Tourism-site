@@ -21,6 +21,8 @@ const initialProduct = {
   contentSections: [{ title: "", description: "" }, { title: "", description: "" }],
   actualPrice: "",
   discountPrice: "",
+  childPrice: "",
+  infantPrice: "",
   currency: "AED",
   rating: '',
   reviews: '',
@@ -139,6 +141,8 @@ const ProductSection = ({ categories, cities, cityPoints }) => {
     pricing: {
       actualPrice: Number(form.actualPrice),
       discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
+      childPrice: form.childPrice !== "" ? Number(form.childPrice) : undefined,
+      infantPrice: form.infantPrice !== "" ? Number(form.infantPrice) : undefined,
       currency: form.currency || "AED",
     },
     rating: Number(form.rating),
@@ -240,6 +244,8 @@ const ProductSection = ({ categories, cities, cityPoints }) => {
       contentSections: (product.contentSections || []).map((item) => ({ title: item.title, description: item.description })),
       actualPrice: product.pricing?.actualPrice ?? "",
       discountPrice: product.pricing?.discountPrice ?? "",
+      childPrice: product.pricing?.childPrice ?? "",
+      infantPrice: product.pricing?.infantPrice ?? "",
       currency: product.pricing?.currency || "AED",
       rating: product.rating || 0,
       reviews: product.reviews || 0,
@@ -376,6 +382,8 @@ const ProductSection = ({ categories, cities, cityPoints }) => {
         </div>
         <input className="input" type="number" placeholder="Actual price" value={form.actualPrice} onChange={(e) => onChange("actualPrice", e.target.value)} required />
         <input className="input" type="number" placeholder="Discount price" value={form.discountPrice} onChange={(e) => onChange("discountPrice", e.target.value)} />
+        <input className="input" type="number" placeholder="Child price" value={form.childPrice} onChange={(e) => onChange("childPrice", e.target.value)} />
+        <input className="input" type="number" placeholder="Infant price" value={form.infantPrice} onChange={(e) => onChange("infantPrice", e.target.value)} />
         <input className="input" type="number" step="0.1" max="5" placeholder="Rating (0-5)" value={form.rating} onChange={(e) => onChange("rating", e.target.value)} />
         <input className="input" type="number" placeholder="Review count" value={form.reviews} onChange={(e) => onChange("reviews", e.target.value)} />
 

@@ -66,6 +66,14 @@ const pricingSchema = new mongoose.Schema(
         message: "discountPrice cannot be greater than actualPrice.",
       },
     },
+    childPrice: {
+      type: Number,
+      min: 0,
+    },
+    infantPrice: {
+      type: Number,
+      min: 0,
+    },
     currency: {
       type: String,
       trim: true,

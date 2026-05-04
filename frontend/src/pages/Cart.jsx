@@ -168,9 +168,9 @@ const Cart = () => {
                       <div className="flex items-center text-[12px] text-gray-500 gap-1.5">
                         <Users size={13} className="text-gray-400" />
                         <span>
-                          {item.options?.adults ? `${item.options.adults} Adult ` : '1 Adult '}
-                          {item.options?.children ? `${item.options.children} Child ` : ''}
-                          {item.options?.infants ? `${item.options.infants} Infant ` : ''}
+                          {item.options?.guests?.adult || item.options?.adults ? `${item.options?.guests?.adult || item.options?.adults} Adult ` : '1 Adult '}
+                          {item.options?.guests?.child || item.options?.children ? `${item.options?.guests?.child || item.options?.children} Child ` : ''}
+                          {item.options?.guests?.infant || item.options?.infants ? `${item.options?.guests?.infant || item.options?.infants} Infant ` : ''}
                         </span>
                       </div>
                       <div className="mt-2.5">

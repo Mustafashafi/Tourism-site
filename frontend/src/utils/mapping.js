@@ -54,6 +54,8 @@ export const mapProductToCard = (product) => {
     subtext: product.city?.name || product.manualCity || "",
     price,
     originalPrice: actualPrice,
+    childPrice: pricing.childPrice,
+    infantPrice: pricing.infantPrice,
     discountPercentage,
     rating: product.rating,
     reviews: product.reviews,

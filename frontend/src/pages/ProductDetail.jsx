@@ -54,7 +54,7 @@ function BookingCalendar({ product, price, currency = "AED" }) {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selected, setSelected] = useState(null);
-  const [guests, setGuests] = useState(1);
+  const [guests, setGuests] = useState({ adult: 1, child: 0, infant: 0 });
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -71,7 +71,24 @@ function BookingCalendar({ product, price, currency = "AED" }) {
   const isSelected = (d) =>
     selected?.d === d && selected?.m === month && selected?.y === year;
 
-  const total = price && guests ? (price * guests).toLocaleString() : null;
+  const childPrice = product?.pricing?.childPrice != null ? product.pricing.childPrice : price;
+  const infantPrice = product?.pricing?.infantPrice != null ? product.pricing.infantPrice : 0;
+
+  const updateGuests = (type, delta) => {
+    setGuests(prev => ({
+      ...prev,
+      [type]: Math.max(type === 'adult' ? 1 : 0, prev[type] + delta)
+    }));
+  };
+
+  const totalRaw = price ? (
+    (guests.adult * price) +
+    (guests.child * childPrice) +
+    (guests.infant * infantPrice)
+  ) : 0;
+  
+  const total = totalRaw.toLocaleString();
+  const totalGuests = guests.adult + guests.child + guests.infant;
 
   return (
     <div className="space-y-4">
@@ -124,32 +141,40 @@ function BookingCalendar({ product, price, currency = "AED" }) {
       </div>
 
       {/* Guests */}
-      <div className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50">
-        <div className="flex items-center gap-2 text-sm text-gray-700">
-          <Users size={15} className="text-gray-400" />
-          <span>Guests</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setGuests((g) => Math.max(1, g - 1))}
-            className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-orange-400 hover:text-orange-500 transition-colors text-lg leading-none"
-          >
-            −
-          </button>
-          <span className="text-sm font-semibold w-4 text-center">{guests}</span>
-          <button
-            onClick={() => setGuests((g) => g + 1)}
-            className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-orange-400 hover:text-orange-500 transition-colors text-lg leading-none"
-          >
-            +
-          </button>
-        </div>
+      <div className="space-y-2">
+        {[
+          { id: 'adult', label: 'Adult' },
+          { id: 'child', label: 'Child' },
+          { id: 'infant', label: 'Infant' }
+        ].map((row) => (
+          <div key={row.id} className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50">
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <Users size={15} className="text-gray-400" />
+              <span>{row.label}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => updateGuests(row.id, -1)}
+                className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-orange-400 hover:text-orange-500 transition-colors text-lg leading-none"
+              >
+                −
+              </button>
+              <span className="text-sm font-semibold w-4 text-center">{guests[row.id]}</span>
+              <button
+                onClick={() => updateGuests(row.id, 1)}
+                className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-orange-400 hover:text-orange-500 transition-colors text-lg leading-none"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Total */}
       {selected && total && (
         <div className="bg-orange-50 border border-orange-100 rounded-xl px-4 py-3 flex justify-between items-center">
-          <span className="text-xs text-gray-600">Total ({guests} guest{guests > 1 ? "s" : ""})</span>
+          <span className="text-xs text-gray-600">Total ({totalGuests} guest{totalGuests > 1 ? "s" : ""})</span>
           <span className="text-base font-bold text-orange-600">
             {currency} {total}
           </span>
@@ -162,9 +187,8 @@ function BookingCalendar({ product, price, currency = "AED" }) {
           if (!selected) return;
           addToCart(product, {
             date: new Date(year, month, selected.d).toISOString(),
-            adults: guests,
-            children: 0,
-            totalPrice: price
+            guests,
+            totalPrice: totalRaw
           });
         }}
         className={`w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all

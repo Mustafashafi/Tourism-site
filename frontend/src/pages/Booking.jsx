@@ -54,7 +54,7 @@ const Booking = () => {
             dayName: d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
             monthName: d.toLocaleDateString('en-US', { month: 'short' }),
             dayNum: d.getDate(),
-            price: data.pricing?.fromPrice || data.pricing?.actualPrice
+            price: data.pricing?.discountPrice || data.pricing?.fromPrice || data.pricing?.actualPrice
           });
         }
         setDates(generatedDates);
@@ -83,8 +83,14 @@ const Booking = () => {
     }));
   };
 
+  const basePrice = selectedDate?.price || product?.pricing?.discountPrice || product?.pricing?.actualPrice || 0;
+  const childPrice = product?.pricing?.childPrice != null ? product.pricing.childPrice : basePrice;
+  const infantPrice = product?.pricing?.infantPrice != null ? product.pricing.infantPrice : 0;
+
   const totalPrice = product ? (
-    (guests.adult + guests.child) * (selectedDate?.price || product.pricing?.actualPrice || 0)
+    (guests.adult * basePrice) +
+    (guests.child * childPrice) +
+    (guests.infant * infantPrice)
   ) : 0;
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading booking...</div>;
@@ -214,7 +220,7 @@ const Booking = () => {
                                         dayName: dateObj.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
                                         monthName: dateObj.toLocaleDateString('en-US', { month: 'short' }),
                                         dayNum: dateObj.getDate(),
-                                        price: product.pricing?.fromPrice || product.pricing?.actualPrice
+                                        price: product.pricing?.discountPrice || product.pricing?.fromPrice || product.pricing?.actualPrice
                                       });
                                       setIsCalendarOpen(false);
                                     }}
@@ -312,11 +318,18 @@ const Booking = () => {
                     <div className="space-y-3">
                       <div className="space-y-1">
                         <span className="text-[11px] text-gray-400 font-medium">from</span>
-                        <div className="text-xl font-black text-gray-900">{currencySymbol} {convertPrice(selectedDate?.price || product.pricing?.actualPrice).toFixed(2)}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-xl font-black text-gray-900">{currencySymbol} {convertPrice(basePrice).toFixed(2)}</div>
+                          {product?.pricing?.discountPrice && (
+                            <div className="text-[13px] text-gray-400 line-through">{currencySymbol} {convertPrice(product.pricing.actualPrice).toFixed(2)}</div>
+                          )}
+                        </div>
                       </div>
                       <div className="text-[11px] text-gray-500 font-medium">
-                        {guests.adult} Adult {guests.child > 0 && `× ${guests.child} Child`} × {convertPrice(selectedDate?.price).toFixed(2)}<br />
-                        All taxes and fees included
+                        <div>{guests.adult} Adult × {currencySymbol} {convertPrice(basePrice).toFixed(2)}</div>
+                        {guests.child > 0 && <div>{guests.child} Child × {currencySymbol} {convertPrice(childPrice).toFixed(2)}</div>}
+                        {guests.infant > 0 && <div>{guests.infant} Infant × {currencySymbol} {convertPrice(infantPrice).toFixed(2)}</div>}
+                        <div className="mt-1">All taxes and fees included</div>
                       </div>
                     </div>
                     <button
