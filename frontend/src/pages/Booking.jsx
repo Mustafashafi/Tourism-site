@@ -9,6 +9,7 @@ import {
 import { homeApi } from "../services/homeApi";
 import { useCart } from "../context/CartContext";
 import { useLanguageCurrency } from "../context/LanguageCurrencyContext";
+import { toast } from "react-hot-toast";
 
 const Booking = () => {
    const { slug } = useParams();
@@ -34,6 +35,7 @@ const Booking = () => {
    const [isExpanded, setIsExpanded] = useState(false);
    const [selectedTransfer, setSelectedTransfer] = useState(null);
    const [isAddedToCart, setIsAddedToCart] = useState(false);
+   const isLoggedIn = !!localStorage.getItem("user");
 
   // Dates generation
   const [dates, setDates] = useState([]);
@@ -423,6 +425,20 @@ const Booking = () => {
                               <>
                                 <button 
                                   onClick={() => {
+                                    if (!isLoggedIn) {
+                                      toast.error("Please login to add tours to your cart", {
+                                        duration: 3000,
+                                        position: "top-center",
+                                        style: {
+                                          background: "#333",
+                                          color: "#fff",
+                                          borderRadius: "10px",
+                                          fontSize: "14px",
+                                          fontWeight: "bold"
+                                        }
+                                      });
+                                      return;
+                                    }
                                     if (editItemId) {
                                       updateCartItem(editItemId, {
                                         options: {
@@ -452,6 +468,20 @@ const Booking = () => {
                                 </button>
                                 <button
                                   onClick={() => {
+                                    if (!isLoggedIn) {
+                                      toast.error("Please login to proceed with booking", {
+                                        duration: 3000,
+                                        position: "top-center",
+                                        style: {
+                                          background: "#333",
+                                          color: "#fff",
+                                          borderRadius: "10px",
+                                          fontSize: "14px",
+                                          fontWeight: "bold"
+                                        }
+                                      });
+                                      return;
+                                    }
                                     if (editItemId) {
                                       updateCartItem(editItemId, {
                                         options: {
@@ -469,7 +499,7 @@ const Booking = () => {
                                         totalPrice
                                       });
                                     }
-                                    setTimeout(() => navigate('/cart'), 0);
+                                    setTimeout(() => navigate('/checkout'), 0);
                                   }}
                                   className="flex-1 md:flex-none px-10 py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200"
                                 >
@@ -602,6 +632,20 @@ const Booking = () => {
                   <>
                     <button 
                       onClick={() => {
+                        if (!isLoggedIn) {
+                          toast.error("Please login to add tours to your cart", {
+                            duration: 3000,
+                            position: "top-center",
+                            style: {
+                              background: "#333",
+                              color: "#fff",
+                              borderRadius: "10px",
+                              fontSize: "14px",
+                              fontWeight: "bold"
+                            }
+                          });
+                          return;
+                        }
                         if (editItemId) {
                           updateCartItem(editItemId, {
                             options: {
@@ -629,6 +673,20 @@ const Booking = () => {
                     </button>
                     <button
                       onClick={() => {
+                        if (!isLoggedIn) {
+                          toast.error("Please login to proceed with booking", {
+                            duration: 3000,
+                            position: "top-center",
+                            style: {
+                              background: "#333",
+                              color: "#fff",
+                              borderRadius: "10px",
+                              fontSize: "14px",
+                              fontWeight: "bold"
+                            }
+                          });
+                          return;
+                        }
                         if (editItemId) {
                           updateCartItem(editItemId, {
                             options: {
@@ -646,7 +704,7 @@ const Booking = () => {
                             totalPrice
                           });
                         }
-                        setTimeout(() => navigate('/cart'), 0);
+                        setTimeout(() => navigate('/checkout'), 0);
                       }}
                       className="w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg shadow-gray-100"
                     >

@@ -18,12 +18,16 @@ import { LanguageCurrencyProvider } from "./context/LanguageCurrencyContext";
 import { CartProvider } from "./context/CartContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import { Toaster } from "react-hot-toast";
+
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
     <GoogleOAuthProvider clientId="860874102599-d8jog91f7t0cfb5olp881l2hq6bio6jc.apps.googleusercontent.com">
       <LanguageCurrencyProvider>
         <CartProvider>
+          <Toaster position="top-center" reverseOrder={false} />
           <Navbar onOpenUserMenu={() => setIsSidebarOpen(true)}/>
           <UserSidebar 
         isOpen={isSidebarOpen} 
@@ -51,6 +55,7 @@ function App() {
 
         {/* ── Other pages ── */}
         <Route path="/cart" element={<Cart/>}/>
+        <Route path="/checkout" element={<Checkout/>}/>
         <Route path="/about-us" element={<AboutUs/>}/>
         <Route path="/login" element={<Login />} />
         <Route path="/verify-login" element={<VerifyLogin />} />
