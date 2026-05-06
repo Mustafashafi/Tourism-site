@@ -48,6 +48,19 @@ const faqSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const transferOptionSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    type: { type: String, enum: ["without_transfer", "shared", "private"], default: "without_transfer" },
+    adultPrice: { type: Number, required: true, min: 0 },
+    childPrice: { type: Number, min: 0, default: 0 },
+    infantPrice: { type: Number, min: 0, default: 0 },
+    actualPrice: { type: Number, min: 0 }, // For showing discounts if needed
+    description: { type: String, trim: true },
+  },
+  { _id: true }
+);
+
 const pricingSchema = new mongoose.Schema(
   {
     actualPrice: {
@@ -138,6 +151,10 @@ const productSchema = new mongoose.Schema(
     pricing: {
       type: pricingSchema,
       required: true,
+    },
+    transferOptions: {
+      type: [transferOptionSchema],
+      default: [],
     },
     rating: {
       type: Number,

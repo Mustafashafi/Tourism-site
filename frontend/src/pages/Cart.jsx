@@ -68,14 +68,15 @@ const Cart = () => {
             {/* Left Column: Cart Items */}
             <div className="flex-1 space-y-6 w-full">
               {cartItems.map((item) => (
-                <div key={item.id} className="bg-white rounded-[20px] p-5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-gray-100/50 flex flex-col gap-4 relative">
+                <div key={item.id || item._id} className="bg-white rounded-[20px] p-5 shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-gray-100/50 flex flex-col gap-4 relative">
                   
                   {/* 3 Dots Menu */}
                   <div className="absolute top-5 right-5 z-10">
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        setActiveMenu(activeMenu === item.id ? null : item.id);
+                        const id = item.id || item._id;
+                        setActiveMenu(activeMenu === id ? null : id);
                       }}
                       className="text-gray-400 hover:text-gray-700 transition-colors"
                     >
@@ -83,24 +84,27 @@ const Cart = () => {
                     </button>
 
                     {/* Dropdown Menu */}
-                    {activeMenu === item.id && (
+                    {activeMenu === (item.id || item._id) && (
                       <div 
                         className="absolute right-0 top-6 w-52 bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden py-1 animate-in fade-in zoom-in-95"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors text-left group">
+                        <Link 
+                          to={`/booking/${item.product?.slug}?edit=${item.id || item._id}`}
+                          className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors text-left group"
+                        >
                           <div className="flex items-center gap-3 text-gray-800">
                             <Edit size={18} strokeWidth={2} />
                             <span className="text-[14.5px] font-medium">Update Details</span>
                           </div>
                           <ChevronRight size={16} className="text-gray-800" />
-                        </button>
+                        </Link>
                         
                         <div className="h-px bg-gray-100 mx-4 my-0.5"></div>
                         
                         <button 
                           onClick={() => {
-                            setItemToDelete(item.id);
+                            setItemToDelete(item.id || item._id);
                             setActiveMenu(null);
                           }}
                           className="w-full flex items-center justify-between px-4 py-3 hover:bg-red-50 transition-colors text-left group"
@@ -119,7 +123,7 @@ const Cart = () => {
                   <div className="flex gap-4">
                     <div className="w-[100px] h-[100px] rounded-xl overflow-hidden bg-gray-100 shrink-0">
                       <img 
-                        src={item.product?.image || 'https://images.unsplash.com/photo-1512453979436-5a50ce8c6d18?w=800&q=80'} 
+                        src={item.product?.images?.[0] || item.product?.image || 'https://images.unsplash.com/photo-1512453979436-5a50ce8c6d18?w=800&q=80'} 
                         alt={item.product?.name || 'Experience'} 
                         className="w-full h-full object-cover"
                       />
@@ -159,7 +163,7 @@ const Cart = () => {
                     <div className="space-y-1.5">
                       <div className="flex items-center text-[12px] text-gray-400 gap-1.5">
                         <Car size={13} className="text-gray-300" />
-                        <span>{item.options?.transfer || 'Private Transfers'}</span>
+                        <span>{item.options?.transfer?.name || item.options?.transfer || 'Private Transfers'}</span>
                       </div>
                       <div className="flex items-center text-[12px] text-gray-500 gap-1.5">
                         <Clock size={13} className="text-gray-400" />

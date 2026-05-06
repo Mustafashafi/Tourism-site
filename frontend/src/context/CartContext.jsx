@@ -94,9 +94,21 @@ export const CartProvider = ({ children }) => {
         newCart[existingItemIndex].quantity += 1;
         return newCart;
       } else {
+        // Only store essential product info to keep payload small
+        const essentialProduct = {
+          _id: product._id,
+          name: product.name,
+          slug: product.slug,
+          images: product.images || [],
+          pricing: product.pricing,
+          location: product.location,
+          duration: product.duration,
+          category: product.category
+        };
+
         return [...prev, {
           id: Date.now().toString(), // Unique ID for cart item
-          product,
+          product: essentialProduct,
           options,
           quantity: 1
         }];
@@ -120,10 +132,21 @@ export const CartProvider = ({ children }) => {
     localStorage.removeItem('cart');
   };
 
+  const updateCartItem = (cartItemId, updates) => {
+    setCartItems(prev => prev.map(item => {
+      const id = item.id || item._id;
+      if (id === cartItemId) {
+        return { ...item, ...updates };
+      }
+      return item;
+    }));
+  };
+
   return (
     <CartContext.Provider value={{
       cartItems,
       addToCart,
+      updateCartItem,
       removeFromCart,
       updateQuantity,
       clearCart,

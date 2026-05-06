@@ -501,6 +501,7 @@ const ProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { currency: selectedCurrency, convertPrice, currencySymbol } = useLanguageCurrency();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -656,7 +657,6 @@ const ProductDetail = () => {
   }
 
   // ── Derived values ─────────────────────────────────────────────────────────
-  const { currency: selectedCurrency, convertPrice, currencySymbol } = useLanguageCurrency();
   const pricing = product.pricing || {};
   const actualPriceAED = pricing.actualPrice ?? 0;
   const discountPriceAED = pricing.discountPrice;
