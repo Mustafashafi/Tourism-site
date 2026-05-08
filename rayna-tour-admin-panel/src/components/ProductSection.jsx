@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiService } from "../api";
+import toast from "react-hot-toast";
 import RichTextEditor from "./RichTextEditor";
 
 const makeEmptyImageSlot = () => ({
@@ -95,7 +96,7 @@ const ProductSection = ({ categories, cities }) => {
       setProducts(result.items);
       setMeta(result.meta);
     } catch (err) {
-      setError(err.message);
+      toast.error(`Failed to load products: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -131,11 +132,11 @@ const ProductSection = ({ categories, cities }) => {
     location: form.location.trim(),
     images,
     highlights: form.highlights
-      .filter((h) => h.title || h.description)
-      .map((h) => ({ title: h.title, description: h.description, icon: h.icon })),
+      .filter((h) => h.title)
+      .map((h) => ({ title: h.title, description: h.description || "", icon: h.icon })),
     contentSections: form.contentSections
-      .filter((c) => c.title || c.description)
-      .map((c) => ({ title: c.title, description: c.description })),
+      .filter((c) => c.title)
+      .map((c) => ({ title: c.title, description: c.description || "" })),
     pricing: {
       actualPrice: Number(form.actualPrice),
       discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
@@ -195,12 +196,18 @@ const ProductSection = ({ categories, cities }) => {
       }
 
       const payload = buildPayload([...keptRemoteUrls, ...uploadedUrls]);
-      if (editingId) await apiService.updateProduct(editingId, payload);
-      else await apiService.createProduct(payload);
+      if (editingId) {
+        await apiService.updateProduct(editingId, payload);
+        toast.success('Product updated successfully! ✅');
+      } else {
+        await apiService.createProduct(payload);
+        toast.success('Product created successfully! 🎉');
+      }
       reset();
       fetchProducts(page);
     } catch (err) {
-      setError(err.message);
+      toast.error(`Failed to ${editingId ? 'update' : 'create'} product: ${err.message}`);
+      console.error('[ProductSection] Submit error:', err);
     } finally {
       setImageBusy(false);
     }
@@ -279,7 +286,7 @@ const ProductSection = ({ categories, cities }) => {
   const onImageSelect = async (slotId, file) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setError("Only image files are allowed.");
+      toast.error("Only image files are allowed.");
       return;
     }
 
@@ -314,7 +321,7 @@ const ProductSection = ({ categories, cities }) => {
         return { ...prev, images: upsertTrailingEmptySlot(next) };
       });
     } catch (err) {
-      setError(err.message);
+      toast.error(`Failed to remove image: ${err.message}`);
     } finally {
       setImageBusy(false);
     }
@@ -325,9 +332,10 @@ const ProductSection = ({ categories, cities }) => {
     setError("");
     try {
       await apiService.deleteProduct(id);
+      toast.success('Product deleted successfully');
       fetchProducts(page);
     } catch (err) {
-      setError(err.message);
+      toast.error(`Failed to delete product: ${err.message}`);
     }
   };
 
