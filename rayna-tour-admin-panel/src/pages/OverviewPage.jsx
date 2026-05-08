@@ -15,13 +15,9 @@ const OverviewPage = () => {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatCard label="Categories" value={loading ? "..." : stats.categoryCount} />
         <StatCard label="Cities" value={loading ? "..." : stats.cityCount} />
-        <StatCard
-          label="City Points"
-          value={loading ? "..." : stats.cityPointCount}
-        />
         <StatCard label="Products" value={loading ? "..." : stats.productCount} />
       </div>
     </section>

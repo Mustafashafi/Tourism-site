@@ -2,12 +2,10 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const City = require("../models/City");
-const CityPoint = require("../models/CityPoint");
 
 const PRODUCT_POPULATE = [
   { path: "category", select: "name slug" },
   { path: "city", select: "name slug" },
-  { path: "cityPoint", select: "name slug" },
 ];
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -104,12 +102,11 @@ const normalizePayload = (payload) => {
   return normalized;
 };
 
-const ensureReferencesExist = async ({ category, city, cityPoint, manualCity }) => {
+const ensureReferencesExist = async ({ category, city, manualCity }) => {
   const checks = [];
   const ok = { ok: true };
 
   if (manualCity) {
-    // If manual city is used, we still need to check category if provided
     if (category !== undefined) {
       if (!isValidObjectId(category)) {
         return { ok: false, message: "Invalid category id." };
@@ -134,13 +131,6 @@ const ensureReferencesExist = async ({ category, city, cityPoint, manualCity }) 
     checks.push(City.exists({ _id: city }));
   }
 
-  if (cityPoint !== undefined) {
-    if (!isValidObjectId(cityPoint)) {
-      return { ok: false, message: "Invalid cityPoint id." };
-    }
-    checks.push(CityPoint.exists({ _id: cityPoint }));
-  }
-
   const results = await Promise.all(checks);
 
   let idx = 0;
@@ -149,9 +139,6 @@ const ensureReferencesExist = async ({ category, city, cityPoint, manualCity }) 
   }
   if (city !== undefined && !results[idx++]) {
     return { ok: false, message: "City not found." };
-  }
-  if (cityPoint !== undefined && !results[idx++]) {
-    return { ok: false, message: "CityPoint not found." };
   }
 
   return { ok: true };
@@ -164,7 +151,6 @@ exports.createProduct = async (req, res) => {
       slug,
       category,
       city,
-      cityPoint,
       location,
       pricing,
       images,
@@ -194,17 +180,16 @@ exports.createProduct = async (req, res) => {
       !slug ||
       !category ||
       (!city && !manualCity) ||
-      (!cityPoint && !manualCity) ||
       !location ||
       !pricing
     ) {
       return res.status(400).json({
         message:
-          "name, slug, category, location, and pricing are required. Also provide either a city/cityPoint or a manualCity.",
+          "name, slug, category, location, and pricing are required. Also provide either a city or a manualCity.",
       });
     }
 
-    const referenceCheck = await ensureReferencesExist({ category, city, cityPoint, manualCity });
+    const referenceCheck = await ensureReferencesExist({ category, city, manualCity });
     if (!referenceCheck.ok) {
       return res.status(400).json({ message: referenceCheck.message });
     }
@@ -214,7 +199,6 @@ exports.createProduct = async (req, res) => {
       slug,
       category,
       city,
-      cityPoint,
       location,
       pricing,
       images,
@@ -280,12 +264,7 @@ exports.getProducts = async (req, res) => {
       filter.city = req.query.city;
     }
 
-    if (req.query.cityPoint) {
-      if (!isValidObjectId(req.query.cityPoint)) {
-        return res.status(400).json({ message: "Invalid cityPoint id." });
-      }
-      filter.cityPoint = req.query.cityPoint;
-    }
+
 
     if (req.query.search) {
       filter.$or = [
@@ -415,7 +394,6 @@ exports.updateProduct = async (req, res) => {
     const referenceCheck = await ensureReferencesExist({ 
       category: payload.category, 
       city: payload.city, 
-      cityPoint: payload.cityPoint, 
       manualCity: payload.manualCity 
     });
     if (!referenceCheck.ok) {

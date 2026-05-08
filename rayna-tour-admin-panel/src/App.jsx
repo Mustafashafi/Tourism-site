@@ -4,7 +4,6 @@ import AdminLayout from "./layouts/AdminLayout";
 import OverviewPage from "./pages/OverviewPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import CitiesPage from "./pages/CitiesPage";
-import CityPointsPage from "./pages/CityPointsPage";
 import ProductsPage from "./pages/ProductsPage";
 import LoginPage from "./pages/LoginPage";
 
@@ -23,7 +22,6 @@ const App = () => {
         <Route index element={<OverviewPage />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="cities" element={<CitiesPage />} />
-        <Route path="city-points" element={<CityPointsPage />} />
         <Route path="products" element={<ProductsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

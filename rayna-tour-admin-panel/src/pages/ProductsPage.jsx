@@ -2,7 +2,7 @@ import ProductSection from "../components/ProductSection";
 import { useDashboardData } from "../hooks/useDashboardData";
 
 const ProductsPage = () => {
-  const { categories, cities, cityPoints, loading, error } = useDashboardData();
+  const { categories, cities, loading, error } = useDashboardData();
 
   return (
     <section className="space-y-4">
@@ -20,7 +20,6 @@ const ProductsPage = () => {
         <ProductSection
           categories={categories}
           cities={cities}
-          cityPoints={cityPoints}
         />
       )}
     </section>

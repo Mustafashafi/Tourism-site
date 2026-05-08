@@ -40,17 +40,15 @@ export const apiService = {
 
   async getDashboardMeta() {
     try {
-      const [categories, cities, points, products] = await Promise.all([
+      const [categories, cities, products] = await Promise.all([
         api.get("/categories"),
         api.get("/cities"),
-        api.get("/city-points"),
         api.get("/products?limit=1"),
       ]);
 
       return {
         categoryCount: categories.data?.data?.length || 0,
         cityCount: cities.data?.data?.length || 0,
-        cityPointCount: points.data?.data?.length || 0,
         productCount: products.data?.meta?.totalItems || 0,
       };
     } catch (error) {

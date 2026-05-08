@@ -10,26 +10,22 @@ const DashboardPage = () => {
   const [stats, setStats] = useState({
     categoryCount: 0,
     cityCount: 0,
-    cityPointCount: 0,
     productCount: 0,
   });
   const [categories, setCategories] = useState([]);
   const [cities, setCities] = useState([]);
-  const [cityPoints, setCityPoints] = useState([]);
   const [error, setError] = useState("");
 
   const loadLookups = async () => {
     try {
-      const [categoryItems, cityItems, cityPointItems, dashboardStats] =
+      const [categoryItems, cityItems, dashboardStats] =
         await Promise.all([
           apiService.listResource("/categories"),
           apiService.listResource("/cities"),
-          apiService.listResource("/city-points"),
           apiService.getDashboardMeta(),
         ]);
       setCategories(categoryItems);
       setCities(cityItems);
-      setCityPoints(cityPointItems);
       setStats(dashboardStats);
     } catch (err) {
       setError(err.message);
@@ -67,23 +63,20 @@ const DashboardPage = () => {
       <main className="mx-auto max-w-7xl space-y-6 px-6 py-8">
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <section className="grid gap-4 md:grid-cols-4">
+        <section className="grid gap-4 md:grid-cols-3">
           <StatCard label="Categories" value={stats.categoryCount} />
           <StatCard label="Cities" value={stats.cityCount} />
-          <StatCard label="City Points" value={stats.cityPointCount} />
           <StatCard label="Products" value={stats.productCount} />
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-3">
+        <section className="grid gap-6 xl:grid-cols-2">
           <ResourceSection title="Categories" resourcePath="/categories" />
           <ResourceSection title="Cities" resourcePath="/cities" />
-          <ResourceSection title="City Points" resourcePath="/city-points" />
         </section>
 
         <ProductSection
           categories={categories}
           cities={cities}
-          cityPoints={cityPoints}
         />
       </main>
     </div>

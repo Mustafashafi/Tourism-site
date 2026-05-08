@@ -122,10 +122,6 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "City",
     },
-    cityPoint: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "CityPoint",
-    },
     manualCity: {
       type: String,
       trim: true,
@@ -232,7 +228,7 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-productSchema.index({ category: 1, city: 1, cityPoint: 1 });
+productSchema.index({ category: 1, city: 1 });
 productSchema.index({ slug: 1 }, { unique: true });
 
 module.exports = mongoose.model("Product", productSchema);

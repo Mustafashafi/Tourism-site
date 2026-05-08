@@ -5,12 +5,10 @@ export const useDashboardData = () => {
   const [stats, setStats] = useState({
     categoryCount: 0,
     cityCount: 0,
-    cityPointCount: 0,
     productCount: 0,
   });
   const [categories, setCategories] = useState([]);
   const [cities, setCities] = useState([]);
-  const [cityPoints, setCityPoints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -18,17 +16,15 @@ export const useDashboardData = () => {
     setLoading(true);
     setError("");
     try {
-      const [categoryItems, cityItems, cityPointItems, dashboardStats] =
+      const [categoryItems, cityItems, dashboardStats] =
         await Promise.all([
           apiService.listResource("/categories"),
           apiService.listResource("/cities"),
-          apiService.listResource("/city-points"),
           apiService.getDashboardMeta(),
         ]);
 
       setCategories(categoryItems);
       setCities(cityItems);
-      setCityPoints(cityPointItems);
       setStats(dashboardStats);
     } catch (err) {
       setError(err.message);
@@ -45,7 +41,6 @@ export const useDashboardData = () => {
     stats,
     categories,
     cities,
-    cityPoints,
     loading,
     error,
     reload,

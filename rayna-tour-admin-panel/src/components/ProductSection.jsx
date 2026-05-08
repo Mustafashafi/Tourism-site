@@ -14,7 +14,6 @@ const initialProduct = {
   slug: "",
   category: "",
   city: "",
-  cityPoint: "",
   location: "",
   images: [makeEmptyImageSlot()],
   highlights: [{ title: "", description: "", icon: "" }, { title: "", description: "", icon: "" }],
@@ -65,7 +64,7 @@ const extractCloudinaryPublicId = (url = "") => {
   }
 };
 
-const ProductSection = ({ categories, cities, cityPoints }) => {
+const ProductSection = ({ categories, cities }) => {
   const [products, setProducts] = useState([]);
   const [meta, setMeta] = useState({});
   const [page, setPage] = useState(1);
@@ -81,7 +80,7 @@ const ProductSection = ({ categories, cities, cityPoints }) => {
         form.name &&
         (form.slug || toSlug(form.name)) &&
         form.category &&
-        (form.manualCity || (form.city && form.cityPoint)) &&
+        (form.manualCity || form.city) &&
         form.location &&
         form.actualPrice !== ""
       ),
@@ -128,7 +127,6 @@ const ProductSection = ({ categories, cities, cityPoints }) => {
     slug: (form.slug.trim() || toSlug(form.name)).toLowerCase(),
     category: form.category,
     city: form.manualCity ? null : form.city,
-    cityPoint: form.manualCity ? null : form.cityPoint,
     manualCity: form.manualCity.trim() || undefined,
     location: form.location.trim(),
     images,
@@ -237,7 +235,6 @@ const ProductSection = ({ categories, cities, cityPoints }) => {
       slug: product.slug || "",
       category: product.category?._id || "",
       city: product.city?._id || "",
-      cityPoint: product.cityPoint?._id || "",
       location: product.location || "",
       images: imageSlots,
       highlights: (product.highlights || []).map((item) => ({ title: item.title, description: item.description, icon: item.icon })),
@@ -349,10 +346,6 @@ const ProductSection = ({ categories, cities, cityPoints }) => {
           <option value="">Select city</option>
           {cities.map((item) => <option key={item._id} value={item._id}>{item.name}</option>)}
         </select>
-        <select className="input" value={form.cityPoint} onChange={(e) => onChange("cityPoint", e.target.value)} required={!form.manualCity} disabled={!!form.manualCity}>
-          <option value="">Select city point</option>
-          {cityPoints.filter(cp => cp.city?._id === form.city || cp.city === form.city).map((item) => <option key={item._id} value={item._id}>{item.name}</option>)}
-        </select>
 
         <div className="flex flex-col gap-2">
           <label className="flex items-center gap-2 cursor-pointer p-2 border border-surface-200 rounded-xl bg-surface-50/50">
@@ -363,7 +356,7 @@ const ProductSection = ({ categories, cities, cityPoints }) => {
                 if (!e.target.checked) {
                   setForm(prev => ({ ...prev, manualCity: "", isManualMode: false }));
                 } else {
-                  setForm(prev => ({ ...prev, city: "", cityPoint: "", isManualMode: true }));
+                  setForm(prev => ({ ...prev, city: "", isManualMode: true }));
                 }
               }}
               className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
