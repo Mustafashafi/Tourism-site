@@ -134,6 +134,7 @@ export default function BestCities({
             title={`${cardHeadingPrefix} ${item?.city_name || ""}`.trim()}
             subtext={item?.country_name || ""}
             variant="city"
+            citySlug={item?.slug || ""}
           />
         ))}
       </div>

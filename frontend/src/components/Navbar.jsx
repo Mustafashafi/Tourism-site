@@ -79,6 +79,15 @@ const Navbar = ({ onOpenUserMenu }) => {
   // Hide categories row on product detail and cart pages
   const isCompactNavbar = /\/(activities|holidays|visas|cruises)\/[^/]+/.test(location.pathname) || location.pathname === '/cart' || location.pathname === '/checkout';
 
+  // Detect city detail page and extract city name from slug
+  const cityPageMatch = location.pathname.match(/^\/city\/([^/]+)/);
+  const isCityPage = !!cityPageMatch;
+  const citySlugFromUrl = cityPageMatch ? cityPageMatch[1] : "";
+  const cityNameFromUrl = citySlugFromUrl
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
@@ -339,7 +348,14 @@ const Navbar = ({ onOpenUserMenu }) => {
       {/* Bottom Row: Categories & Search — hidden on product detail, cart, and booking pages */}
       {!isCompactNavbar && !location.pathname.startsWith('/booking') && (
         <div className="max-w-[99%] mx-auto px-6 flex justify-between items-center">
-        {/* Left Category Pills */}
+        {/* Left: Category Pills OR City Title */}
+        {isCityPage ? (
+          <div className="flex items-center space-x-2">
+            <span className="text-lg font-bold text-gray-800">
+              Things to do in {cityNameFromUrl}
+            </span>
+          </div>
+        ) : (
         <div className="flex items-center space-x-3">
           {loadingCats ? (
             // Skeleton placeholders while loading
@@ -382,6 +398,7 @@ const Navbar = ({ onOpenUserMenu }) => {
             })
           )}
         </div>
+        )}
 
         {/* Right Search Bar */}
         <div 

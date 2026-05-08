@@ -60,6 +60,7 @@ const TourCard = ({
   isGrid = false,
   slug,
   categorySlug,
+  citySlug,
 }) => {
   // ── Normalise images into an array ──────────────────────────────────────────
   const imageArray = Array.isArray(image)
@@ -112,9 +113,11 @@ const TourCard = ({
 
   // ── Navigation Logic ────────────────────────────────────────────────────────
   const detailPath = slug && categorySlug ? `/${categorySlug}/${slug}` : null;
+  const cityPath = isCity && citySlug ? `/city/${citySlug}` : null;
 
   const CardWrapper = ({ children }) => {
-    if (isCity || !detailPath) {
+    const linkTo = cityPath || detailPath;
+    if (!linkTo) {
       return (
         <div className={`group cursor-pointer ${widthClass} ${wrapperClass}`}>
           {children}
@@ -122,7 +125,7 @@ const TourCard = ({
       );
     }
     return (
-      <Link to={detailPath} className={`group cursor-pointer block ${widthClass} ${wrapperClass}`}>
+      <Link to={linkTo} className={`group cursor-pointer block ${widthClass} ${wrapperClass}`}>
         {children}
       </Link>
     );

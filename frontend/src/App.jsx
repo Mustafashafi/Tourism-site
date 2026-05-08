@@ -12,6 +12,7 @@ import AboutUs from "./pages/AboutUs";
 import Footer from "./components/Footer";
 import UserSidebar from "./components/UserSidebar";
 import ProductDetail from "./pages/ProductDetail";
+import CityDetail from "./pages/CityDetail";
 import Booking from "./pages/Booking";
 import { useState } from "react";
 import { LanguageCurrencyProvider } from "./context/LanguageCurrencyContext";
@@ -56,6 +57,7 @@ function App() {
         {/* ── Other pages ── */}
         <Route path="/cart" element={<Cart/>}/>
         <Route path="/checkout" element={<Checkout/>}/>
+        <Route path="/city/:citySlug" element={<CityDetail/>}/>
         <Route path="/about-us" element={<AboutUs/>}/>
         <Route path="/login" element={<Login />} />
         <Route path="/verify-login" element={<VerifyLogin />} />
