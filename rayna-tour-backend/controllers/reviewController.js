@@ -74,3 +74,55 @@ exports.getReviews = async (req, res) => {
     });
   }
 };
+
+exports.getReviewsByCity = async (req, res) => {
+  try {
+    const { cityId } = req.params;
+
+    // Find all product IDs belonging to this city
+    const productIds = await Product.find({ city: cityId }).distinct("_id");
+
+    if (productIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        data: [],
+        stats: { avgRating: 0, totalReviews: 0 },
+      });
+    }
+
+    const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 50);
+
+    const reviews = await Review.find({ product: { $in: productIds } })
+      .sort("-createdAt")
+      .limit(limit)
+      .populate({ path: "product", select: "name slug images" });
+
+    // Compute aggregate stats
+    const stats = await Review.aggregate([
+      { $match: { product: { $in: productIds } } },
+      {
+        $group: {
+          _id: null,
+          avgRating: { $avg: "$rating" },
+          totalReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const avgRating = stats.length > 0 ? parseFloat(stats[0].avgRating.toFixed(2)) : 0;
+    const totalReviews = stats.length > 0 ? stats[0].totalReviews : 0;
+
+    res.status(200).json({
+      success: true,
+      count: reviews.length,
+      data: reviews,
+      stats: { avgRating, totalReviews },
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

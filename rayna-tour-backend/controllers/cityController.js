@@ -96,12 +96,13 @@ exports.getCities = async (req, res) => {
         $or: [{ status: "active" }, { status: { $exists: false } }],
       })
         .sort({ name: 1 })
-        .select("city_name country_name image categories status name");
+        .select("city_name country_name image categories status name slug");
 
       const data = docs.map((doc) => ({
         city_name: doc.city_name || doc.name || "",
         country_name: doc.country_name || "",
         image: doc.image || "",
+        slug: doc.slug || "",
         categories: Array.isArray(doc.categories) ? doc.categories : [],
         // Back-compat for older frontend clients
         category: Array.isArray(doc.categories) && doc.categories.length > 0 ? doc.categories[0] : category,
@@ -165,6 +166,23 @@ exports.updateCity = async (req, res) => {
       return res.status(400).json({ message: firstError || "Validation failed." });
     }
     return res.status(500).json({ message: "Failed to update city." });
+  }
+};
+
+exports.getCityBySlug = async (req, res) => {
+  try {
+    const slug = String(req.params.slug || "").trim().toLowerCase();
+    if (!slug) {
+      return res.status(400).json({ message: "Slug is required." });
+    }
+
+    const data = await City.findOne({ slug });
+    if (!data) {
+      return res.status(404).json({ message: "City not found." });
+    }
+    return res.status(200).json({ data });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch city." });
   }
 };
 

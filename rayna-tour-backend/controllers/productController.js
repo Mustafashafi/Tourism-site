@@ -447,6 +447,73 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
+exports.getProductsByCity = async (req, res) => {
+  try {
+    const { cityId } = req.params;
+
+    if (!isValidObjectId(cityId)) {
+      return res.status(400).json({ message: "Invalid city id." });
+    }
+
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 200);
+    const skip = (page - 1) * limit;
+
+    const filter = { city: cityId };
+
+    // Optional category filter
+    if (req.query.category) {
+      if (!isValidObjectId(req.query.category)) {
+        return res.status(400).json({ message: "Invalid category id." });
+      }
+      filter.category = req.query.category;
+    }
+
+    // Optional search
+    if (req.query.search) {
+      filter.$or = [
+        { name: { $regex: req.query.search, $options: "i" } },
+        { location: { $regex: req.query.search, $options: "i" } },
+      ];
+    }
+
+    // Sorting
+    let sort = { createdAt: -1 };
+    if (req.query.sort === "rating") sort = { rating: -1 };
+    if (req.query.sort === "price_low") sort = { "pricing.discountPrice": 1, "pricing.actualPrice": 1 };
+    if (req.query.sort === "price_high") sort = { "pricing.discountPrice": -1, "pricing.actualPrice": -1 };
+    if (req.query.sort === "name") sort = { name: 1 };
+
+    const [data, totalItems] = await Promise.all([
+      Product.find(filter)
+        .populate(PRODUCT_POPULATE)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit),
+      Product.countDocuments(filter),
+    ]);
+
+    // Also get distinct categories for filter tabs
+    const categoryIds = await Product.distinct("category", { city: cityId });
+    const categories = await Category.find({ _id: { $in: categoryIds } }).select("name slug");
+
+    const totalPages = Math.ceil(totalItems / limit) || 1;
+
+    return res.status(200).json({
+      data,
+      categories,
+      meta: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch products for city." });
+  }
+};
+
 exports.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
