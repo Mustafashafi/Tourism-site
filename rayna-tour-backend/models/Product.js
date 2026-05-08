@@ -10,9 +10,9 @@ const textBlockSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
       trim: true,
       maxlength: 100000,
+      default: "",
     },
     icon: {
       type: String,
