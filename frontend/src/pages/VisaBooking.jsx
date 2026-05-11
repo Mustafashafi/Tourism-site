@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { 
-  ChevronRight, MapPin, Globe, Check, ChevronDown, Calendar, Search, X
+  ChevronRight, MapPin, Globe, Check, ChevronDown, Calendar, Search, X, Users
 } from "lucide-react";
 import { homeApi } from "../services/homeApi";
 import { useLanguageCurrency } from "../context/LanguageCurrencyContext";
