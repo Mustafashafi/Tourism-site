@@ -200,7 +200,8 @@ const LoginModal = ({ isOpen, onClose }) => {
                     >
                       {isSending ? 'Sending...' : 'Send Link'}
                     </button>
-                  </div>
+                )}
+
                 {/* Footer Text */}
                 <div className="mt-8 text-center px-4">
                   <p className="text-[11px] text-gray-500 leading-relaxed">
