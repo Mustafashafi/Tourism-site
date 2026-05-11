@@ -19,6 +19,7 @@ import ExploreMore from "../components/ExploreMore";
 import { homeTabs, holidayTabs, visaTabs, cruiseTabs } from "../data/exploreMoreData/exploreMoreData";
 import { useLanguageCurrency } from "../context/LanguageCurrencyContext";
 import { useCart } from "../context/CartContext";
+import ShareModal from "../components/ShareModal";
 
 const ICON_MAP = {
   Clock, Zap, Smartphone, Globe, History, Map, ShieldCheck, Languages, Check, Star, Info, Shield, Ship, Users, Heart, RotateCcw, MapPin
@@ -517,6 +518,7 @@ const ProductDetail = () => {
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);
   const [dynamicExploreTabs, setDynamicExploreTabs] = useState([]);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const sidebarRef = useRef(null);
 
@@ -760,7 +762,10 @@ const ProductDetail = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="flex items-center gap-2 cursor-pointer font-medium">
+            <button 
+              onClick={() => setIsShareOpen(true)}
+              className="flex items-center gap-2 cursor-pointer font-medium hover:text-orange-500 transition-colors"
+            >
               <Share size={16} />
               <span>Share</span>
             </button>
@@ -1313,6 +1318,12 @@ const ProductDetail = () => {
         </div>
       </div>
       <ExploreMore tabsData={finalExploreTabs} />
+      <ShareModal 
+        isOpen={isShareOpen} 
+        onClose={() => setIsShareOpen(false)} 
+        url={window.location.href}
+        productName={product.name}
+      />
     </div>
   );
 };
