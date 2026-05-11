@@ -682,7 +682,7 @@ const ProductDetail = () => {
 
   // ── Determine available tabs ───────────────────────────────────────────────
   const availableTabs = [TABS.OVERVIEW];
-  if ((isCruise || isHoliday) && product.itinerary?.length > 0) availableTabs.push(TABS.ITINERARY);
+  if (product.itinerary?.length > 0) availableTabs.push(TABS.ITINERARY);
   if (product.inclusions?.length > 0 || product.exclusions?.length > 0) availableTabs.push(TABS.INCLUSIONS);
   if (isVisa && (product.documentsRequired?.length > 0 || product.applicationSteps?.length > 0))
     availableTabs.push(TABS.VISA);
@@ -719,6 +719,24 @@ const ProductDetail = () => {
           border-radius: 12px;
           margin-top: 16px;
           margin-bottom: 16px;
+        }
+        .rich-text table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 16px 0;
+          font-size: 14px;
+        }
+        .rich-text th, .rich-text td {
+          border: 1px solid #e5e7eb;
+          padding: 12px;
+          text-align: left;
+        }
+        .rich-text th {
+          background-color: #f9fafb;
+          font-weight: 600;
+        }
+        .rich-text tr:nth-child(even) {
+          background-color: #fcfcfc;
         }
       `}} />
       <div className="bg-white">
@@ -851,7 +869,7 @@ const ProductDetail = () => {
 
 
             {/* ── Itinerary Timeline (Accordion) ────────────────────────────────────────── */}
-            {product.itinerary?.length > 0 && (
+            {product.itinerary && product.itinerary.length > 0 && product.itinerary.some(item => item.title || item.description) && (
               <div className="bg-gray-50/50 rounded-2xl overflow-hidden transition-all duration-300 mb-4">
                 <button
                   onClick={() => setIsItineraryOpen(!isItineraryOpen)}

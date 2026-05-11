@@ -43,11 +43,13 @@ const RichTextEditor = ({ value, onChange, placeholder = "Enter description..." 
   }, []);
 
   const modules = useMemo(() => ({
+    table: true,
     toolbar: {
       container: [
         ['bold', 'italic', 'underline', 'strike'],
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
         ['link', 'image'],
+        [{ 'table': 'insert' }, { 'table': 'append-row' }, { 'table': 'append-col' }],
         ['clean']
       ],
       handlers: {
