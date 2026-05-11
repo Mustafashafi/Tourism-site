@@ -4,7 +4,6 @@ const textBlockSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
       trim: true,
       maxlength: 200,
     },
@@ -24,7 +23,7 @@ const textBlockSchema = new mongoose.Schema(
 
 const itinerarySchema = new mongoose.Schema(
   {
-    day: { type: Number, required: true },
+    day: { type: Number },
     title: { type: String, trim: true },
     description: { type: String, trim: true },
   },
@@ -33,7 +32,7 @@ const itinerarySchema = new mongoose.Schema(
 
 const stepSchema = new mongoose.Schema(
   {
-    step: { type: Number, required: true },
+    step: { type: Number },
     title: { type: String, trim: true },
     description: { type: String, trim: true },
   },
@@ -42,17 +41,17 @@ const stepSchema = new mongoose.Schema(
 
 const faqSchema = new mongoose.Schema(
   {
-    question: { type: String, required: true, trim: true },
-    answer: { type: String, required: true, trim: true },
+    question: { type: String, trim: true },
+    answer: { type: String, trim: true },
   },
   { _id: false }
 );
 
 const transferOptionSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
+    name: { type: String, trim: true },
     type: { type: String, enum: ["without_transfer", "shared", "private"], default: "without_transfer" },
-    adultPrice: { type: Number, required: true, min: 0 },
+    adultPrice: { type: Number, min: 0 },
     childPrice: { type: Number, min: 0, default: 0 },
     infantPrice: { type: Number, min: 0, default: 0 },
     actualPrice: { type: Number, min: 0 }, // For showing discounts if needed
@@ -65,7 +64,6 @@ const pricingSchema = new mongoose.Schema(
   {
     actualPrice: {
       type: Number,
-      required: true,
       min: 0,
     },
     discountPrice: {
@@ -103,20 +101,17 @@ const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
       trim: true,
       maxlength: 160,
     },
     slug: {
       type: String,
-      required: true,
       trim: true,
       lowercase: true,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
-      required: true,
     },
     city: {
       type: mongoose.Schema.Types.ObjectId,
@@ -136,7 +131,6 @@ const productSchema = new mongoose.Schema(
     },
     location: {
       type: String,
-      required: true,
       trim: true,
       maxlength: 220,
     },
@@ -146,7 +140,6 @@ const productSchema = new mongoose.Schema(
     },
     pricing: {
       type: pricingSchema,
-      required: true,
     },
     transferOptions: {
       type: [transferOptionSchema],

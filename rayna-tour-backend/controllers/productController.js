@@ -175,19 +175,7 @@ exports.createProduct = async (req, res) => {
       mapAddress,
     } = req.body;
 
-    if (
-      !name ||
-      !slug ||
-      !category ||
-      (!city && !manualCity) ||
-      !location ||
-      !pricing
-    ) {
-      return res.status(400).json({
-        message:
-          "name, slug, category, location, and pricing are required. Also provide either a city or a manualCity.",
-      });
-    }
+    // All fields are optional — different categories need different fields
 
     const referenceCheck = await ensureReferencesExist({ category, city, manualCity });
     if (!referenceCheck.ok) {

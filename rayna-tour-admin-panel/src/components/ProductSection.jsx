@@ -79,11 +79,7 @@ const ProductSection = ({ categories, cities }) => {
     () =>
       Boolean(
         form.name &&
-        (form.slug || toSlug(form.name)) &&
-        form.category &&
-        (form.manualCity || form.city) &&
-        form.location &&
-        form.actualPrice !== ""
+        (form.slug || toSlug(form.name))
       ),
     [form]
   );
@@ -138,7 +134,7 @@ const ProductSection = ({ categories, cities }) => {
       .filter((c) => c.title)
       .map((c) => ({ title: c.title, description: c.description || "" })),
     pricing: {
-      actualPrice: Number(form.actualPrice),
+      actualPrice: form.actualPrice !== "" ? Number(form.actualPrice) : undefined,
       discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
       childPrice: form.childPrice !== "" ? Number(form.childPrice) : undefined,
       infantPrice: form.infantPrice !== "" ? Number(form.infantPrice) : undefined,
@@ -343,14 +339,14 @@ const ProductSection = ({ categories, cities }) => {
     <section className="card p-6">
       <h2 className="text-lg font-semibold text-surface-900">Products</h2>
       <form className="mt-4 grid gap-3 md:grid-cols-2" onSubmit={onSubmit}>
-        <input className="input" placeholder="Product name" value={form.name} onChange={(e) => onChange("name", e.target.value)} required />
+        <input className="input" placeholder="Product name" value={form.name} onChange={(e) => onChange("name", e.target.value)} />
         <input className="input" placeholder="Slug (optional)" value={form.slug} onChange={(e) => onChange("slug", e.target.value)} />
 
-        <select className="input" value={form.category} onChange={(e) => onChange("category", e.target.value)} required>
+        <select className="input" value={form.category} onChange={(e) => onChange("category", e.target.value)}>
           <option value="">Select category</option>
           {categories.map((item) => <option key={item._id} value={item._id}>{item.name}</option>)}
         </select>
-        <select className="input" value={form.city} onChange={(e) => onChange("city", e.target.value)} required={!form.manualCity} disabled={!!form.manualCity}>
+        <select className="input" value={form.city} onChange={(e) => onChange("city", e.target.value)} disabled={!!form.manualCity}>
           <option value="">Select city</option>
           {cities.map((item) => <option key={item._id} value={item._id}>{item.name}</option>)}
         </select>
@@ -377,11 +373,10 @@ const ProductSection = ({ categories, cities }) => {
               placeholder="Enter City Name Manually"
               value={form.manualCity}
               onChange={(e) => onChange("manualCity", e.target.value)}
-              required
             />
           )}
         </div>
-        <input className="input" type="number" placeholder="Actual price" value={form.actualPrice} onChange={(e) => onChange("actualPrice", e.target.value)} required />
+        <input className="input" type="number" placeholder="Actual price" value={form.actualPrice} onChange={(e) => onChange("actualPrice", e.target.value)} />
         <input className="input" type="number" placeholder="Discount price" value={form.discountPrice} onChange={(e) => onChange("discountPrice", e.target.value)} />
         <input className="input" type="number" placeholder="Child price" value={form.childPrice} onChange={(e) => onChange("childPrice", e.target.value)} />
         <input className="input" type="number" placeholder="Infant price" value={form.infantPrice} onChange={(e) => onChange("infantPrice", e.target.value)} />
@@ -651,7 +646,7 @@ const ProductSection = ({ categories, cities }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-bold text-surface-500 uppercase">1. Location Label (Shows on card)</label>
-              <input className="input bg-white" placeholder="e.g. Downtown, Dubai" value={form.location} onChange={(e) => onChange("location", e.target.value)} required />
+              <input className="input bg-white" placeholder="e.g. Downtown, Dubai" value={form.location} onChange={(e) => onChange("location", e.target.value)} />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-bold text-indigo-500 uppercase">2. Map Address (Points at Map)</label>
