@@ -201,7 +201,12 @@ const LoginModal = ({ isOpen, onClose }) => {
                       {isSending ? 'Sending...' : 'Send Link'}
                     </button>
                   </div>
-                )}
+                {/* Footer Text */}
+                <div className="mt-8 text-center px-4">
+                  <p className="text-[11px] text-gray-500 leading-relaxed">
+                    By Proceeding, you agree to Rayna Tours <a href="/privacy-policy" className="underline hover:text-gray-700 transition-colors">Privacy Policy</a> and <a href="/terms-and-conditions" className="underline hover:text-gray-700 transition-colors">T&Cs</a>
+                  </p>
+                </div>
               </>
             )}
           </motion.div>
