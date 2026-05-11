@@ -416,6 +416,7 @@ const VisaBooking = () => {
                     
                     {isBreakdownOpen && (
                       <div className="space-y-4 animate-in slide-in-from-top-2">
+                        <div className="flex justify-between items-center text-[13px] font-medium text-gray-600">
                           <span>{guests.adult} Adult x {currencySymbol} {Number(convertPrice(selectedVisaOption.adultPrice || 0)).toFixed(2)}</span>
                           <span className="font-bold text-gray-900">{currencySymbol} {Number(convertPrice(guests.adult * (selectedVisaOption.adultPrice || 0))).toFixed(2)}</span>
                         </div>
