@@ -46,6 +46,7 @@ const VisaBooking = () => {
   const [guests, setGuests] = useState({ adult: 1, child: 0 });
   const [processingType, setProcessingType] = useState("");
   const [selectedVisaOption, setSelectedVisaOption] = useState(null);
+  const [isBreakdownOpen, setIsBreakdownOpen] = useState(true);
   const { currencySymbol, convertPrice } = useLanguageCurrency();
 
   const updateGuests = (type, delta) => {
@@ -78,6 +79,13 @@ const VisaBooking = () => {
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  const calculateTotal = () => {
+    if (!selectedVisaOption) return 0;
+    const adultTotal = guests.adult * (selectedVisaOption.adultPrice || 0);
+    const childTotal = guests.child * (selectedVisaOption.childPrice || 0);
+    return adultTotal + childTotal;
+  };
 
   const filteredResidence = COUNTRIES.filter(c => c.name.toLowerCase().includes(searchResidence.toLowerCase()));
   const filteredNationality = COUNTRIES.filter(c => c.name.toLowerCase().includes(searchNationality.toLowerCase()));
@@ -321,7 +329,7 @@ const VisaBooking = () => {
                             </div>
                             <div className="text-right">
                               <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Price</span>
-                              <span className="text-lg font-black text-gray-900">{currencySymbol} {convertPrice(opt.price)}</span>
+                              <span className="text-lg font-black text-gray-900">{currencySymbol} {convertPrice(opt.adultPrice)}</span>
                             </div>
                           </button>
                         );
@@ -343,9 +351,9 @@ const VisaBooking = () => {
             </div>
 
             {/* Product Summary Card */}
-            <div className="bg-white border border-gray-100 rounded-[32px] p-6 shadow-xl space-y-6">
-              <div className="flex gap-4">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-50 shrink-0 shadow-sm border border-gray-50">
+            <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-2xl space-y-8 sticky top-6">
+              <div className="flex gap-5">
+                <div className="w-28 h-28 rounded-3xl overflow-hidden bg-gray-50 shrink-0 shadow-sm border border-gray-50">
                   <img 
                     src={product.images?.[0] || 'https://via.placeholder.com/150'} 
                     alt={product.name} 
@@ -353,41 +361,94 @@ const VisaBooking = () => {
                   />
                 </div>
                 <div className="flex-1 py-1">
-                  <h3 className="text-base font-bold text-gray-900 leading-tight line-clamp-2 mb-3">{product.name}</h3>
-                  <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-gray-900 leading-tight mb-4">
+                    {selectedVisaOption?.title || product.name}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                     {residenceOf && (
-                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
-                        <MapPin size={14} className="text-gray-300" />
-                        <span>{residenceOf}</span>
+                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold">
+                        <MapPin size={16} className="text-gray-300" />
+                        <span className="truncate">{residenceOf}</span>
                       </div>
                     )}
                     {nationality && (
-                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
-                        <Globe size={14} className="text-gray-300" />
-                        <span>{nationality}</span>
+                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold">
+                        <Globe size={16} className="text-gray-300" />
+                        <span className="truncate">{nationality}</span>
                       </div>
                     )}
                     {selectedDate && (
-                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
-                        <Calendar size={14} className="text-gray-300" />
+                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold col-span-2">
+                        <Calendar size={16} className="text-gray-300" />
                         <span>{selectedDate.dayNum} {selectedDate.monthName} {selectedDate.date.getFullYear()}</span>
                       </div>
                     )}
                     {showGuestSection && (
-                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
-                        <Users size={14} className="text-gray-300" />
+                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold col-span-2">
+                        <Users size={16} className="text-gray-300" />
                         <span>{guests.adult} Adult {guests.child > 0 ? `, ${guests.child} Child` : ''}</span>
                       </div>
                     )}
-                    {selectedVisaOption && (
-                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
-                        <Check size={14} className="text-gray-300" />
-                        <span>{selectedVisaOption.title}</span>
+                    {processingType && (
+                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold col-span-2">
+                        <Check size={16} className="text-gray-300" />
+                        <span>{processingType}</span>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
+
+              {/* Price Breakdown */}
+              {selectedVisaOption && (
+                <div className="space-y-6 animate-in fade-in duration-500">
+                  <div className="bg-gray-50/50 rounded-3xl p-6 border border-gray-50">
+                    <button 
+                      onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
+                      className="w-full flex items-center justify-between mb-4 group"
+                    >
+                      <span className="text-sm font-bold text-gray-700">Price Breakdown</span>
+                      <ChevronDown 
+                        size={18} 
+                        className={`text-gray-400 transition-transform duration-300 ${isBreakdownOpen ? 'rotate-180' : ''}`} 
+                      />
+                    </button>
+                    
+                    {isBreakdownOpen && (
+                      <div className="space-y-4 animate-in slide-in-from-top-2">
+                        <div className="flex justify-between items-center text-[13px] font-medium text-gray-600">
+                          <span>{guests.adult} Adult x {currencySymbol} {convertPrice(selectedVisaOption.adultPrice)}</span>
+                          <span className="font-bold text-gray-900">{currencySymbol} {convertPrice(guests.adult * selectedVisaOption.adultPrice)}</span>
+                        </div>
+                        {guests.child > 0 && (
+                          <div className="flex justify-between items-center text-[13px] font-medium text-gray-600">
+                            <span>{guests.child} Child x {currencySymbol} {convertPrice(selectedVisaOption.childPrice)}</span>
+                            <span className="font-bold text-gray-900">{currencySymbol} {convertPrice(guests.child * selectedVisaOption.childPrice)}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-base font-bold text-gray-400">Total Payable</span>
+                    <span className="text-2xl font-black text-gray-900">
+                      {currencySymbol} {convertPrice(calculateTotal()).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <button className="flex items-center justify-center gap-2 py-4 px-4 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-900 hover:border-gray-900 hover:shadow-lg transition-all active:scale-95 group">
+                      <Search size={20} className="text-gray-400 group-hover:text-gray-900" />
+                      Add to Cart
+                    </button>
+                    <button className="flex items-center justify-center gap-2 py-4 px-4 bg-gray-900 rounded-2xl font-bold text-white hover:bg-black hover:shadow-xl transition-all active:scale-95 shadow-lg shadow-gray-200">
+                      <Globe size={18} />
+                      Proceed to pay
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -161,7 +161,8 @@ const ProductSection = ({ categories, cities }) => {
     visaOptions: form.visaOptions.filter(v => v.title).map(v => ({
       title: v.title.trim(),
       description: v.description?.trim() || "",
-      price: v.price !== "" ? Number(v.price) : 0,
+      adultPrice: v.adultPrice !== "" ? Number(v.adultPrice) : 0,
+      childPrice: v.childPrice !== "" ? Number(v.childPrice) : 0,
       processingTime: v.processingTime?.trim() || ""
     })),
   });
@@ -272,7 +273,7 @@ const ProductSection = ({ categories, cities }) => {
       bookingType: product.bookingType || "check_availability",
       itinerary: product.itinerary?.length ? product.itinerary.map(i => ({ day: i.day, title: i.title, description: i.description })) : [{ day: 1, title: "", description: "" }],
       mapAddress: product.mapAddress || "",
-      visaOptions: product.visaOptions?.length ? product.visaOptions.map(v => ({ title: v.title, description: v.description, price: v.price ?? "", processingTime: v.processingTime || "" })) : [{ title: "", description: "", price: "", processingTime: "" }],
+      visaOptions: product.visaOptions?.length ? product.visaOptions.map(v => ({ title: v.title, description: v.description, adultPrice: v.adultPrice ?? "", childPrice: v.childPrice ?? "", processingTime: v.processingTime || "" })) : [{ title: "", description: "", adultPrice: "", childPrice: "", processingTime: "" }],
     });
   };
 
@@ -477,11 +478,19 @@ const ProductSection = ({ categories, cities }) => {
                       setForm(p => ({ ...p, visaOptions: next }));
                     }} />
                   </div>
-                  <div className="md:col-span-3 space-y-2">
-                    <label className="text-[10px] font-bold text-surface-400 uppercase">Price (AED)</label>
-                    <input type="number" className="input" placeholder="Price" value={opt.price} onChange={(e) => {
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[10px] font-bold text-surface-400 uppercase">Adult Price</label>
+                    <input type="number" className="input" placeholder="Adult Price" value={opt.adultPrice} onChange={(e) => {
                       const next = [...form.visaOptions];
-                      next[idx].price = e.target.value;
+                      next[idx].adultPrice = e.target.value;
+                      setForm(p => ({ ...p, visaOptions: next }));
+                    }} />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[10px] font-bold text-surface-400 uppercase">Child Price</label>
+                    <input type="number" className="input" placeholder="Child Price" value={opt.childPrice} onChange={(e) => {
+                      const next = [...form.visaOptions];
+                      next[idx].childPrice = e.target.value;
                       setForm(p => ({ ...p, visaOptions: next }));
                     }} />
                   </div>
@@ -509,7 +518,7 @@ const ProductSection = ({ categories, cities }) => {
                   </div>
                 </div>
               ))}
-              <button type="button" className="btn-secondary text-xs" onClick={() => setForm(p => ({ ...p, visaOptions: [...p.visaOptions, { title: "", description: "", price: "", processingTime: "" }] }))}>+ Add Visa Option</button>
+              <button type="button" className="btn-secondary text-xs" onClick={() => setForm(p => ({ ...p, visaOptions: [...p.visaOptions, { title: "", description: "", adultPrice: "", childPrice: "", processingTime: "" }] }))}>+ Add Visa Option</button>
             </div>
           </div>
         )}
