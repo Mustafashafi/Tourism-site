@@ -82,10 +82,14 @@ const VisaBooking = () => {
   const filteredResidence = COUNTRIES.filter(c => c.name.toLowerCase().includes(searchResidence.toLowerCase()));
   const filteredNationality = COUNTRIES.filter(c => c.name.toLowerCase().includes(searchNationality.toLowerCase()));
 
-  if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+
 
   const showDateSection = residenceOf && nationality;
   const showGuestSection = selectedDate;
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-gray-400">Loading Visa Details...</div>;
+  if (error) return <div className="min-h-screen flex items-center justify-center text-red-500 font-bold">{error}</div>;
+  if (!product) return null;
 
   return (
     <div className="min-h-screen bg-white">
