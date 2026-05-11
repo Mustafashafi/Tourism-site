@@ -44,6 +44,15 @@ const VisaBooking = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [dates, setDates] = useState([]);
   const { currencySymbol, convertPrice } = useLanguageCurrency();
+  const [guests, setGuests] = useState({ adult: 1, child: 0 });
+  const [processingType, setProcessingType] = useState("");
+
+  const updateGuests = (type, delta) => {
+    setGuests(prev => ({
+      ...prev,
+      [type]: Math.max(type === 'adult' ? 1 : 0, prev[type] + delta)
+    }));
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -73,8 +82,10 @@ const VisaBooking = () => {
   const filteredResidence = COUNTRIES.filter(c => c.name.toLowerCase().includes(searchResidence.toLowerCase()));
   const filteredNationality = COUNTRIES.filter(c => c.name.toLowerCase().includes(searchNationality.toLowerCase()));
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+
+  const showDateSection = residenceOf && nationality;
+  const showGuestSection = selectedDate;
 
   return (
     <div className="min-h-screen bg-white">
@@ -235,6 +246,63 @@ const VisaBooking = () => {
                 </div>
               </section>
             )}
+
+            {/* Guests and Processing Type Section */}
+            {showGuestSection && (
+              <div className="space-y-16 animate-in fade-in slide-in-from-top-4 duration-500">
+                {/* Select Number of Guests */}
+                <section>
+                  <h2 className="text-[28px] font-bold text-gray-900 mb-8">Select Number of Guests</h2>
+                  <div className="space-y-4">
+                    {[
+                      { id: 'adult', label: 'Adult' },
+                      { id: 'child', label: 'Child' }
+                    ].map((row) => (
+                      <div key={row.id} className="flex items-center justify-between p-6 bg-white border border-gray-100 rounded-3xl shadow-sm">
+                        <span className="text-lg font-bold text-gray-800">{row.label}</span>
+                        <div className="flex items-center gap-6">
+                          <button
+                            onClick={() => updateGuests(row.id, -1)}
+                            className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all active:scale-90"
+                          >
+                            <span className="text-2xl font-light">−</span>
+                          </button>
+                          <span className="w-8 text-center font-black text-gray-900 text-lg">{guests[row.id]}</span>
+                          <button
+                            onClick={() => updateGuests(row.id, 1)}
+                            className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all active:scale-90"
+                          >
+                            <span className="text-2xl font-light">+</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Select Processing Type */}
+                <section>
+                  <h2 className="text-[28px] font-bold text-gray-900 mb-8">Select Processing Type</h2>
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    {["Normal", "Express"].map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setProcessingType(type)}
+                        className={`p-6 rounded-3xl border-2 text-left transition-all ${
+                          processingType === type
+                            ? "border-gray-900 bg-white shadow-xl ring-1 ring-gray-900"
+                            : "border-gray-50 bg-white hover:border-gray-200"
+                        }`}
+                      >
+                        <span className={`text-lg font-bold ${processingType === type ? 'text-gray-900' : 'text-gray-600'}`}>
+                          {type}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -271,6 +339,18 @@ const VisaBooking = () => {
                       <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
                         <Globe size={14} className="text-gray-300" />
                         <span>{nationality}</span>
+                      </div>
+                    )}
+                    {selectedDate && (
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
+                        <Calendar size={14} className="text-gray-300" />
+                        <span>{selectedDate.dayNum} {selectedDate.monthName} {selectedDate.date.getFullYear()}</span>
+                      </div>
+                    )}
+                    {showGuestSection && (
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
+                        <Users size={14} className="text-gray-300" />
+                        <span>{guests.adult} Adult {guests.child > 0 ? `, ${guests.child} Child` : ''}</span>
                       </div>
                     )}
                   </div>
