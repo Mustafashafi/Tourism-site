@@ -41,11 +41,31 @@ const VisaBooking = () => {
   const [isNationalityOpen, setIsNationalityOpen] = useState(false);
   const [searchResidence, setSearchResidence] = useState("");
   const [searchNationality, setSearchNationality] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [dates, setDates] = useState([]);
+  const { currencySymbol, convertPrice } = useLanguageCurrency();
 
   useEffect(() => {
     window.scrollTo(0, 0);
     homeApi.getProductBySlug(slug)
-      .then(data => setProduct(data))
+      .then(data => {
+        setProduct(data);
+        // Generate next 7 days
+        const generatedDates = [];
+        const today = new Date();
+        for (let i = 0; i < 7; i++) {
+          const d = new Date();
+          d.setDate(today.getDate() + i);
+          generatedDates.push({
+            date: d,
+            dayName: d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
+            monthName: d.toLocaleDateString('en-US', { month: 'short' }),
+            dayNum: d.getDate(),
+            price: data.pricing?.discountPrice || data.pricing?.fromPrice || data.pricing?.actualPrice || 0
+          });
+        }
+        setDates(generatedDates);
+      })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [slug]);
@@ -181,6 +201,40 @@ const VisaBooking = () => {
                 )}
               </div>
             </div>
+
+            {/* Travel Date Section */}
+            {residenceOf && nationality && (
+              <section className="mt-16 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="flex justify-between items-baseline mb-8">
+                  <h2 className="text-[28px] font-bold text-gray-900">Select Expected Travel Date</h2>
+                  <span className="text-xs text-gray-400 font-medium tracking-wide">All prices are in ({currencySymbol})</span>
+                </div>
+
+                <div className="flex items-center gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                  {dates.map((d, i) => {
+                    const isSelected = selectedDate?.date.toDateString() === d.date.toDateString();
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedDate(d)}
+                        className={`flex flex-col items-center justify-center min-w-[100px] py-5 rounded-2xl border-2 transition-all ${
+                          isSelected
+                            ? "border-gray-900 bg-white shadow-xl scale-105 z-10"
+                            : "border-gray-50 bg-white hover:border-gray-200"
+                        }`}
+                      >
+                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">{d.dayName}</span>
+                        <span className="text-[15px] font-bold text-gray-800">{d.monthName} {d.dayNum}</span>
+                      </button>
+                    );
+                  })}
+                  <button className="flex flex-col items-center justify-center min-w-[100px] py-5 rounded-2xl border-2 border-gray-50 bg-white hover:border-gray-200 group">
+                    <Calendar size={20} className="text-gray-400 mb-2 group-hover:text-gray-600 transition-colors" />
+                    <span className="text-[12px] font-bold text-gray-600 underline">More dates</span>
+                  </button>
+                </div>
+              </section>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -205,7 +259,21 @@ const VisaBooking = () => {
                   />
                 </div>
                 <div className="flex-1 py-1">
-                  <h3 className="text-base font-bold text-gray-900 leading-tight line-clamp-2">{product.name}</h3>
+                  <h3 className="text-base font-bold text-gray-900 leading-tight line-clamp-2 mb-3">{product.name}</h3>
+                  <div className="space-y-2">
+                    {residenceOf && (
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
+                        <MapPin size={14} className="text-gray-300" />
+                        <span>{residenceOf}</span>
+                      </div>
+                    )}
+                    {nationality && (
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
+                        <Globe size={14} className="text-gray-300" />
+                        <span>{nationality}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
