@@ -682,7 +682,9 @@ const ProductDetail = () => {
 
   // ── Determine available tabs ───────────────────────────────────────────────
   const availableTabs = [TABS.OVERVIEW];
-  if (product.itinerary?.length > 0) availableTabs.push(TABS.ITINERARY);
+  if (product.itinerary && product.itinerary.length > 0 && product.itinerary.some(item => item.title?.trim() || item.description?.trim())) {
+    availableTabs.push(TABS.ITINERARY);
+  }
   if (product.inclusions?.length > 0 || product.exclusions?.length > 0) availableTabs.push(TABS.INCLUSIONS);
   if (isVisa && (product.documentsRequired?.length > 0 || product.applicationSteps?.length > 0))
     availableTabs.push(TABS.VISA);
@@ -869,7 +871,7 @@ const ProductDetail = () => {
 
 
             {/* ── Itinerary Timeline (Accordion) ────────────────────────────────────────── */}
-            {product.itinerary && product.itinerary.length > 0 && product.itinerary.some(item => item.title || item.description) && (
+            {product.itinerary && product.itinerary.length > 0 && product.itinerary.some(item => item.title?.trim() || item.description?.trim()) && (
               <div className="bg-gray-50/50 rounded-2xl overflow-hidden transition-all duration-300 mb-4">
                 <button
                   onClick={() => setIsItineraryOpen(!isItineraryOpen)}
