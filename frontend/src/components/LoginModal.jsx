@@ -200,6 +200,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                     >
                       {isSending ? 'Sending...' : 'Send Link'}
                     </button>
+                  </div>
                 )}
 
                 {/* Footer Text */}
