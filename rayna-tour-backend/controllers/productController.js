@@ -99,6 +99,18 @@ const normalizePayload = (payload) => {
     normalized.mapAddress = String(normalized.mapAddress).trim();
   }
 
+  if (Array.isArray(normalized.visaOptions)) {
+    normalized.visaOptions = normalized.visaOptions
+      .filter((v) => v && v.title)
+      .map((v) => ({
+        title: String(v.title || "").trim(),
+        description: String(v.description || "").trim(),
+        adultPrice: Number(v.adultPrice) || 0,
+        childPrice: Number(v.childPrice) || 0,
+        processingTime: String(v.processingTime || "").trim(),
+      }));
+  }
+
   return normalized;
 };
 

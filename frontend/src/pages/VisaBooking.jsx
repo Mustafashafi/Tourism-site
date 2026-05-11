@@ -329,7 +329,7 @@ const VisaBooking = () => {
                             </div>
                             <div className="text-right">
                               <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Price</span>
-                              <span className="text-lg font-black text-gray-900">{currencySymbol} {convertPrice(opt.adultPrice)}</span>
+                              <span className="text-lg font-black text-gray-900">{currencySymbol} {Number(convertPrice(opt.adultPrice || 0)).toFixed(2)}</span>
                             </div>
                           </button>
                         );
@@ -416,14 +416,13 @@ const VisaBooking = () => {
                     
                     {isBreakdownOpen && (
                       <div className="space-y-4 animate-in slide-in-from-top-2">
-                        <div className="flex justify-between items-center text-[13px] font-medium text-gray-600">
-                          <span>{guests.adult} Adult x {currencySymbol} {convertPrice(selectedVisaOption.adultPrice)}</span>
-                          <span className="font-bold text-gray-900">{currencySymbol} {convertPrice(guests.adult * selectedVisaOption.adultPrice)}</span>
+                          <span>{guests.adult} Adult x {currencySymbol} {Number(convertPrice(selectedVisaOption.adultPrice || 0)).toFixed(2)}</span>
+                          <span className="font-bold text-gray-900">{currencySymbol} {Number(convertPrice(guests.adult * (selectedVisaOption.adultPrice || 0))).toFixed(2)}</span>
                         </div>
                         {guests.child > 0 && (
                           <div className="flex justify-between items-center text-[13px] font-medium text-gray-600">
-                            <span>{guests.child} Child x {currencySymbol} {convertPrice(selectedVisaOption.childPrice)}</span>
-                            <span className="font-bold text-gray-900">{currencySymbol} {convertPrice(guests.child * selectedVisaOption.childPrice)}</span>
+                            <span>{guests.child} Child x {currencySymbol} {Number(convertPrice(selectedVisaOption.childPrice || 0)).toFixed(2)}</span>
+                            <span className="font-bold text-gray-900">{currencySymbol} {Number(convertPrice(guests.child * (selectedVisaOption.childPrice || 0))).toFixed(2)}</span>
                           </div>
                         )}
                       </div>
