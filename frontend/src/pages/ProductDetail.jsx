@@ -1227,7 +1227,11 @@ const ProductDetail = () => {
                     <button
                       onClick={() => {
                         if (isBookNow || isCheckAvailability) {
-                          navigate(`/booking/${product.slug}`);
+                          if (isVisa) {
+                            navigate(`/visa-booking/${product.slug}`);
+                          } else {
+                            navigate(`/booking/${product.slug}`);
+                          }
                         } else {
                           // Handle email inquiry (e.g. open whatsapp)
                           window.open(`https://wa.me/97142087444?text=I am interested in ${product.name}`, '_blank');
