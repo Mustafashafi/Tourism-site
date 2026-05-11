@@ -43,9 +43,10 @@ const VisaBooking = () => {
   const [searchNationality, setSearchNationality] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [dates, setDates] = useState([]);
-  const { currencySymbol, convertPrice } = useLanguageCurrency();
   const [guests, setGuests] = useState({ adult: 1, child: 0 });
   const [processingType, setProcessingType] = useState("");
+  const [selectedVisaOption, setSelectedVisaOption] = useState(null);
+  const { currencySymbol, convertPrice } = useLanguageCurrency();
 
   const updateGuests = (type, delta) => {
     setGuests(prev => ({
@@ -59,7 +60,6 @@ const VisaBooking = () => {
     homeApi.getProductBySlug(slug)
       .then(data => {
         setProduct(data);
-        // Generate next 7 days
         const generatedDates = [];
         const today = new Date();
         for (let i = 0; i < 7; i++) {
@@ -82,10 +82,9 @@ const VisaBooking = () => {
   const filteredResidence = COUNTRIES.filter(c => c.name.toLowerCase().includes(searchResidence.toLowerCase()));
   const filteredNationality = COUNTRIES.filter(c => c.name.toLowerCase().includes(searchNationality.toLowerCase()));
 
-
-
   const showDateSection = residenceOf && nationality;
   const showGuestSection = selectedDate;
+  const showVisaTypeSection = processingType;
 
   if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-gray-400">Loading Visa Details...</div>;
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-500 font-bold">{error}</div>;
@@ -93,7 +92,6 @@ const VisaBooking = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Breadcrumbs */}
       <div className="bg-white border-b border-gray-50">
         <div className="max-w-[1200px] mx-auto px-6 py-4">
           <div className="flex items-center gap-2 text-[13px] text-gray-400">
@@ -109,117 +107,115 @@ const VisaBooking = () => {
       <div className="max-w-[1200px] mx-auto px-6 py-12">
         <div className="grid lg:grid-cols-3 gap-12">
           
-          {/* Main Content */}
           <div className="lg:col-span-2">
-            <h1 className="text-[28px] font-bold text-gray-900 mb-10">Select Residence Of and Nationality</h1>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Residence Of Dropdown */}
-              <div className="space-y-2 relative">
-                <label className="text-sm font-bold text-gray-800">Residence Of</label>
-                <button 
-                  onClick={() => setIsResidenceOpen(!isResidenceOpen)}
-                  className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-400 transition-all text-left bg-gray-50/30"
-                >
-                  <div className="flex items-center gap-3">
-                    <MapPin size={20} className="text-gray-400" />
-                    <span className={`font-medium ${residenceOf ? 'text-gray-900' : 'text-gray-400'}`}>
-                      {residenceOf || "Select"}
-                    </span>
-                  </div>
-                  <ChevronDown size={18} className={`text-gray-400 transition-transform ${isResidenceOpen ? 'rotate-180' : ''}`} />
-                </button>
+            <section className="mb-16">
+              {!showDateSection && <h1 className="text-[28px] font-bold text-gray-900 mb-10">Select Residence Of and Nationality</h1>}
+              
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-2 relative">
+                  <label className="text-sm font-bold text-gray-800">Residence Of</label>
+                  <button 
+                    onClick={() => setIsResidenceOpen(!isResidenceOpen)}
+                    className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-400 transition-all text-left bg-gray-50/30"
+                  >
+                    <div className="flex items-center gap-3">
+                      <MapPin size={20} className="text-gray-400" />
+                      <span className={`font-medium ${residenceOf ? 'text-gray-900' : 'text-gray-400'}`}>
+                        {residenceOf || "Select"}
+                      </span>
+                    </div>
+                    <ChevronDown size={18} className={`text-gray-400 transition-transform ${isResidenceOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
-                {isResidenceOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                    <div className="p-3 border-b border-gray-50">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input 
-                          type="text" 
-                          placeholder="Search country..."
-                          value={searchResidence}
-                          onChange={(e) => setSearchResidence(e.target.value)}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-0"
-                          autoFocus
-                        />
+                  {isResidenceOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="p-3 border-b border-gray-50">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                          <input 
+                            type="text" 
+                            placeholder="Search country..."
+                            value={searchResidence}
+                            onChange={(e) => setSearchResidence(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-0"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-64 overflow-y-auto">
+                        {filteredResidence.map(c => (
+                          <button
+                            key={c.code}
+                            onClick={() => {
+                              setResidenceOf(c.name);
+                              setIsResidenceOpen(false);
+                              setSearchResidence("");
+                            }}
+                            className="w-full px-5 py-3 text-left text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-between group"
+                          >
+                            <span className="text-gray-700">{c.name}</span>
+                            {residenceOf === c.name && <Check size={16} className="text-green-500" />}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {filteredResidence.map(c => (
-                        <button
-                          key={c.code}
-                          onClick={() => {
-                            setResidenceOf(c.name);
-                            setIsResidenceOpen(false);
-                            setSearchResidence("");
-                          }}
-                          className="w-full px-5 py-3 text-left text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-between group"
-                        >
-                          <span className="text-gray-700">{c.name}</span>
-                          {residenceOf === c.name && <Check size={16} className="text-green-500" />}
-                        </button>
-                      ))}
+                  )}
+                </div>
+
+                <div className="space-y-2 relative">
+                  <label className="text-sm font-bold text-gray-800">Nationality</label>
+                  <button 
+                    onClick={() => setIsNationalityOpen(!isNationalityOpen)}
+                    className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-400 transition-all text-left bg-gray-50/30"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Globe size={20} className="text-gray-400" />
+                      <span className={`font-medium ${nationality ? 'text-gray-900' : 'text-gray-400'}`}>
+                        {nationality || "Select"}
+                      </span>
                     </div>
-                  </div>
-                )}
-              </div>
+                    <ChevronDown size={18} className={`text-gray-400 transition-transform ${isNationalityOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
-              {/* Nationality Dropdown */}
-              <div className="space-y-2 relative">
-                <label className="text-sm font-bold text-gray-800">Nationality</label>
-                <button 
-                  onClick={() => setIsNationalityOpen(!isNationalityOpen)}
-                  className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-400 transition-all text-left bg-gray-50/30"
-                >
-                  <div className="flex items-center gap-3">
-                    <Globe size={20} className="text-gray-400" />
-                    <span className={`font-medium ${nationality ? 'text-gray-900' : 'text-gray-400'}`}>
-                      {nationality || "Select"}
-                    </span>
-                  </div>
-                  <ChevronDown size={18} className={`text-gray-400 transition-transform ${isNationalityOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isNationalityOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                    <div className="p-3 border-b border-gray-50">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input 
-                          type="text" 
-                          placeholder="Search country..."
-                          value={searchNationality}
-                          onChange={(e) => setSearchNationality(e.target.value)}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-0"
-                          autoFocus
-                        />
+                  {isNationalityOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="p-3 border-b border-gray-50">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                          <input 
+                            type="text" 
+                            placeholder="Search country..."
+                            value={searchNationality}
+                            onChange={(e) => setSearchNationality(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-0"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-64 overflow-y-auto">
+                        {filteredNationality.map(c => (
+                          <button
+                            key={c.code}
+                            onClick={() => {
+                              setNationality(c.name);
+                              setIsNationalityOpen(false);
+                              setSearchNationality("");
+                            }}
+                            className="w-full px-5 py-3 text-left text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-between group"
+                          >
+                            <span className="text-gray-700">{c.name}</span>
+                            {nationality === c.name && <Check size={16} className="text-green-500" />}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {filteredNationality.map(c => (
-                        <button
-                          key={c.code}
-                          onClick={() => {
-                            setNationality(c.name);
-                            setIsNationalityOpen(false);
-                            setSearchNationality("");
-                          }}
-                          className="w-full px-5 py-3 text-left text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-between group"
-                        >
-                          <span className="text-gray-700">{c.name}</span>
-                          {nationality === c.name && <Check size={16} className="text-green-500" />}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            </section>
 
-            {/* Travel Date Section */}
-            {residenceOf && nationality && (
-              <section className="mt-16 animate-in fade-in slide-in-from-top-4 duration-500">
+            {showDateSection && (
+              <section className="mb-16 animate-in fade-in slide-in-from-top-4 duration-500">
                 <div className="flex justify-between items-baseline mb-8">
                   <h2 className="text-[28px] font-bold text-gray-900">Select Expected Travel Date</h2>
                   <span className="text-xs text-gray-400 font-medium tracking-wide">All prices are in ({currencySymbol})</span>
@@ -251,10 +247,8 @@ const VisaBooking = () => {
               </section>
             )}
 
-            {/* Guests and Processing Type Section */}
             {showGuestSection && (
               <div className="space-y-16 animate-in fade-in slide-in-from-top-4 duration-500">
-                {/* Select Number of Guests */}
                 <section>
                   <h2 className="text-[28px] font-bold text-gray-900 mb-8">Select Number of Guests</h2>
                   <div className="space-y-4">
@@ -284,7 +278,6 @@ const VisaBooking = () => {
                   </div>
                 </section>
 
-                {/* Select Processing Type */}
                 <section>
                   <h2 className="text-[28px] font-bold text-gray-900 mb-8">Select Processing Type</h2>
                   <div className="grid sm:grid-cols-2 gap-6">
@@ -305,13 +298,42 @@ const VisaBooking = () => {
                     ))}
                   </div>
                 </section>
+
+                {showVisaTypeSection && product.visaOptions?.length > 0 && (
+                  <section className="animate-in fade-in slide-in-from-top-4 duration-500">
+                    <h2 className="text-[28px] font-bold text-gray-900 mb-8">Select Visa Type</h2>
+                    <div className="space-y-4">
+                      {product.visaOptions.map((opt) => {
+                        const isSelected = selectedVisaOption?._id === opt._id;
+                        return (
+                          <button
+                            key={opt._id}
+                            onClick={() => setSelectedVisaOption(opt)}
+                            className={`w-full flex items-center justify-between p-6 bg-white border rounded-[32px] transition-all text-left ${
+                              isSelected
+                                ? "border-gray-900 shadow-xl ring-1 ring-gray-900"
+                                : "border-gray-100 hover:border-gray-300 shadow-sm"
+                            }`}
+                          >
+                            <div>
+                              <h4 className="text-lg font-bold text-gray-900 mb-1">{opt.title}</h4>
+                              <p className="text-sm text-gray-400 font-medium">{opt.description || `Get by in ${opt.processingTime || 'a few days'}`}</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Price</span>
+                              <span className="text-lg font-black text-gray-900">{currencySymbol} {convertPrice(opt.price)}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
               </div>
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Steps Indicator */}
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
               <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider">
                 <span className="text-gray-900">1. Check Availability</span>
@@ -355,6 +377,12 @@ const VisaBooking = () => {
                       <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
                         <Users size={14} className="text-gray-300" />
                         <span>{guests.adult} Adult {guests.child > 0 ? `, ${guests.child} Child` : ''}</span>
+                      </div>
+                    )}
+                    {selectedVisaOption && (
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-bold">
+                        <Check size={14} className="text-gray-300" />
+                        <span>{selectedVisaOption.title}</span>
                       </div>
                     )}
                   </div>

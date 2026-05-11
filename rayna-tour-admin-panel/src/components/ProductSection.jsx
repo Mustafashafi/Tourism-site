@@ -41,6 +41,7 @@ const initialProduct = {
   bookingType: "check_availability",
   itinerary: [{ day: 1, title: "", description: "" }],
   mapAddress: "",
+  visaOptions: [{ title: "", description: "", price: "", processingTime: "" }],
 };
 
 const toSlug = (value = "") =>
@@ -157,6 +158,12 @@ const ProductSection = ({ categories, cities }) => {
     bookingType: form.bookingType || "check_availability",
     itinerary: form.itinerary.filter(i => i.title || i.description),
     mapAddress: form.mapAddress?.trim() || undefined,
+    visaOptions: form.visaOptions.filter(v => v.title).map(v => ({
+      title: v.title.trim(),
+      description: v.description?.trim() || "",
+      price: v.price !== "" ? Number(v.price) : 0,
+      processingTime: v.processingTime?.trim() || ""
+    })),
   });
 
   const onSubmit = async (e) => {
@@ -265,6 +272,7 @@ const ProductSection = ({ categories, cities }) => {
       bookingType: product.bookingType || "check_availability",
       itinerary: product.itinerary?.length ? product.itinerary.map(i => ({ day: i.day, title: i.title, description: i.description })) : [{ day: 1, title: "", description: "" }],
       mapAddress: product.mapAddress || "",
+      visaOptions: product.visaOptions?.length ? product.visaOptions.map(v => ({ title: v.title, description: v.description, price: v.price ?? "", processingTime: v.processingTime || "" })) : [{ title: "", description: "", price: "", processingTime: "" }],
     });
   };
 
@@ -454,6 +462,54 @@ const ProductSection = ({ categories, cities }) => {
                 </div>
               ))}
               <button type="button" className="btn-secondary text-xs" onClick={() => setForm(p => ({ ...p, applicationSteps: [...p.applicationSteps, { step: p.applicationSteps.length + 1, title: "", description: "" }] }))}>+ Add Step</button>
+            </div>
+
+            {/* Visa Options Management */}
+            <div className="space-y-4 pt-4 border-t border-surface-100">
+              <h3 className="text-sm font-bold text-surface-700 uppercase tracking-wider">Visa Types / Options</h3>
+              {form.visaOptions.map((opt, idx) => (
+                <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-white rounded-xl border border-surface-200 shadow-sm relative group">
+                  <div className="md:col-span-4 space-y-2">
+                    <label className="text-[10px] font-bold text-surface-400 uppercase">Visa Title</label>
+                    <input className="input" placeholder="e.g. 30 Days Single Entry" value={opt.title} onChange={(e) => {
+                      const next = [...form.visaOptions];
+                      next[idx].title = e.target.value;
+                      setForm(p => ({ ...p, visaOptions: next }));
+                    }} />
+                  </div>
+                  <div className="md:col-span-3 space-y-2">
+                    <label className="text-[10px] font-bold text-surface-400 uppercase">Price (AED)</label>
+                    <input type="number" className="input" placeholder="Price" value={opt.price} onChange={(e) => {
+                      const next = [...form.visaOptions];
+                      next[idx].price = e.target.value;
+                      setForm(p => ({ ...p, visaOptions: next }));
+                    }} />
+                  </div>
+                  <div className="md:col-span-4 space-y-2">
+                    <label className="text-[10px] font-bold text-surface-400 uppercase">Processing Time</label>
+                    <input className="input" placeholder="e.g. 4-5 working days" value={opt.processingTime} onChange={(e) => {
+                      const next = [...form.visaOptions];
+                      next[idx].processingTime = e.target.value;
+                      setForm(p => ({ ...p, visaOptions: next }));
+                    }} />
+                  </div>
+                  <div className="md:col-span-1 flex items-center justify-center pt-6">
+                    <button type="button" className="text-red-500 hover:text-red-700 text-xl" onClick={() => {
+                      const next = form.visaOptions.filter((_, i) => i !== idx);
+                      setForm(p => ({ ...p, visaOptions: next }));
+                    }}>×</button>
+                  </div>
+                  <div className="md:col-span-11 space-y-2">
+                    <label className="text-[10px] font-bold text-surface-400 uppercase">Short Description (Optional)</label>
+                    <input className="input text-xs" placeholder="Get by in 4-5 working days" value={opt.description} onChange={(e) => {
+                      const next = [...form.visaOptions];
+                      next[idx].description = e.target.value;
+                      setForm(p => ({ ...p, visaOptions: next }));
+                    }} />
+                  </div>
+                </div>
+              ))}
+              <button type="button" className="btn-secondary text-xs" onClick={() => setForm(p => ({ ...p, visaOptions: [...p.visaOptions, { title: "", description: "", price: "", processingTime: "" }] }))}>+ Add Visa Option</button>
             </div>
           </div>
         )}

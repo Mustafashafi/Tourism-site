@@ -60,6 +60,16 @@ const transferOptionSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const visaOptionSchema = new mongoose.Schema(
+  {
+    title: { type: String, trim: true },
+    description: { type: String, trim: true },
+    price: { type: Number, min: 0 },
+    processingTime: { type: String, trim: true },
+  },
+  { _id: true }
+);
+
 const pricingSchema = new mongoose.Schema(
   {
     actualPrice: {
@@ -143,6 +153,10 @@ const productSchema = new mongoose.Schema(
     },
     transferOptions: {
       type: [transferOptionSchema],
+      default: [],
+    },
+    visaOptions: {
+      type: [visaOptionSchema],
       default: [],
     },
     rating: {
