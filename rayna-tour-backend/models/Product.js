@@ -64,8 +64,6 @@ const visaOptionSchema = new mongoose.Schema(
   {
     title: { type: String, trim: true },
     description: { type: String, trim: true },
-    adultPrice: { type: Number, min: 0 },
-    childPrice: { type: Number, min: 0, default: 0 },
     processingTime: { type: String, trim: true },
   },
   { _id: true }
@@ -159,6 +157,11 @@ const productSchema = new mongoose.Schema(
     visaOptions: {
       type: [visaOptionSchema],
       default: [],
+    },
+    processingTypes: {
+      type: [String],
+      enum: ["Normal", "Express"],
+      default: ["Normal", "Express"],
     },
     rating: {
       type: Number,

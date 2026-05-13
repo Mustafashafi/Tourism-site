@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { 
+import {
   ChevronRight, MapPin, Globe, Check, ChevronDown, Calendar, Search, X, Users
 } from "lucide-react";
 import { homeApi } from "../services/homeApi";
+import { useCart } from "../context/CartContext";
 import { useLanguageCurrency } from "../context/LanguageCurrencyContext";
+import { toast } from "react-hot-toast";
 
 const COUNTRIES = [
   { name: "Afghanistan", code: "AF" }, { name: "Albania", code: "AL" }, { name: "Algeria", code: "DZ" },
@@ -48,6 +50,9 @@ const VisaBooking = () => {
   const [selectedVisaOption, setSelectedVisaOption] = useState(null);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(true);
   const { currencySymbol, convertPrice } = useLanguageCurrency();
+  const { addToCart, cartItems } = useCart();
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
+  const isLoggedIn = !!localStorage.getItem("user");
 
   const updateGuests = (type, delta) => {
     setGuests(prev => ({
@@ -80,10 +85,22 @@ const VisaBooking = () => {
       .finally(() => setLoading(false));
   }, [slug]);
 
+  const getExpressMultiplier = () => processingType === "Express" ? (4 / 3) : 1;
+  
+  const getAdultPrice = () => {
+    const base = product?.pricing?.discountPrice || product?.pricing?.actualPrice || 0;
+    return base * getExpressMultiplier();
+  };
+  
+  const getChildPrice = () => {
+    const base = product?.pricing?.childPrice || 0;
+    return base * getExpressMultiplier();
+  };
+
   const calculateTotal = () => {
     if (!selectedVisaOption) return 0;
-    const adultTotal = guests.adult * (selectedVisaOption.adultPrice || 0);
-    const childTotal = guests.child * (selectedVisaOption.childPrice || 0);
+    const adultTotal = guests.adult * getAdultPrice();
+    const childTotal = guests.child * getChildPrice();
     return adultTotal + childTotal;
   };
 
@@ -100,31 +117,31 @@ const VisaBooking = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-white border-b border-gray-50">
-        <div className="max-w-[1200px] mx-auto px-6 py-4">
-          <div className="flex items-center gap-2 text-[13px] text-gray-400">
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-[97%] mx-auto px-4 py-3">
+          <div className="flex items-center gap-2 text-xs text-gray-500">
             <Link to="/" className="hover:text-gray-900 transition-colors">Home</Link>
-            <ChevronRight size={14} className="text-gray-300" />
+            <ChevronRight size={12} className="text-gray-300" />
             <Link to={`/visas/${product.slug}`} className="hover:text-gray-900 transition-colors">{product.name}</Link>
-            <ChevronRight size={14} className="text-gray-300" />
-            <span className="text-gray-600 font-medium">Visa Booking</span>
+            <ChevronRight size={12} className="text-gray-300" />
+            <span className="text-gray-800 font-medium">Visa Booking</span>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 py-12">
-        <div className="grid lg:grid-cols-3 gap-12">
-          
+      <div className="max-w-[97%] mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+
           <div className="lg:col-span-2">
-            <section className="mb-16">
-              {!showDateSection && <h1 className="text-[28px] font-bold text-gray-900 mb-10">Select Residence Of and Nationality</h1>}
-              
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-2 relative">
-                  <label className="text-sm font-bold text-gray-800">Residence Of</label>
-                  <button 
+            <section className="mb-12">
+              {!showDateSection && <h1 className="text-xl font-semibold text-gray-900 mb-6">Select Residence Of and Nationality</h1>}
+
+              <div className="grid md:grid-cols-2 gap-5">
+                <div className="space-y-1.5 relative">
+                  <label className="text-xs font-semibold text-gray-700">Residence Of</label>
+                  <button
                     onClick={() => setIsResidenceOpen(!isResidenceOpen)}
-                    className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-400 transition-all text-left bg-gray-50/30"
+                    className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-all text-left bg-white"
                   >
                     <div className="flex items-center gap-3">
                       <MapPin size={20} className="text-gray-400" />
@@ -140,8 +157,8 @@ const VisaBooking = () => {
                       <div className="p-3 border-b border-gray-50">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             placeholder="Search country..."
                             value={searchResidence}
                             onChange={(e) => setSearchResidence(e.target.value)}
@@ -170,11 +187,11 @@ const VisaBooking = () => {
                   )}
                 </div>
 
-                <div className="space-y-2 relative">
-                  <label className="text-sm font-bold text-gray-800">Nationality</label>
-                  <button 
+                <div className="space-y-1.5 relative">
+                  <label className="text-xs font-semibold text-gray-700">Nationality</label>
+                  <button
                     onClick={() => setIsNationalityOpen(!isNationalityOpen)}
-                    className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-400 transition-all text-left bg-gray-50/30"
+                    className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-gray-300 transition-all text-left bg-white"
                   >
                     <div className="flex items-center gap-3">
                       <Globe size={20} className="text-gray-400" />
@@ -190,8 +207,8 @@ const VisaBooking = () => {
                       <div className="p-3 border-b border-gray-50">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             placeholder="Search country..."
                             value={searchNationality}
                             onChange={(e) => setSearchNationality(e.target.value)}
@@ -223,62 +240,61 @@ const VisaBooking = () => {
             </section>
 
             {showDateSection && (
-              <section className="mb-16 animate-in fade-in slide-in-from-top-4 duration-500">
-                <div className="flex justify-between items-baseline mb-8">
-                  <h2 className="text-[28px] font-bold text-gray-900">Select Expected Travel Date</h2>
-                  <span className="text-xs text-gray-400 font-medium tracking-wide">All prices are in ({currencySymbol})</span>
+              <section className="mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="flex justify-between items-baseline mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Select Expected Travel Date</h2>
+                  <span className="text-[10px] text-gray-500 font-medium">All prices are in ({currencySymbol})</span>
                 </div>
 
-                <div className="flex items-center gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
                   {dates.map((d, i) => {
                     const isSelected = selectedDate?.date.toDateString() === d.date.toDateString();
                     return (
                       <button
                         key={i}
                         onClick={() => setSelectedDate(d)}
-                        className={`flex flex-col items-center justify-center min-w-[100px] py-5 rounded-2xl border-2 transition-all ${
-                          isSelected
-                            ? "border-gray-900 bg-white shadow-xl scale-105 z-10"
-                            : "border-gray-50 bg-white hover:border-gray-200"
-                        }`}
+                        className={`flex flex-col items-center justify-center min-w-[80px] py-3 rounded-xl border transition-all ${isSelected
+                          ? "border-gray-900 bg-gray-50 shadow-sm z-10"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                          }`}
                       >
-                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">{d.dayName}</span>
-                        <span className="text-[15px] font-bold text-gray-800">{d.monthName} {d.dayNum}</span>
+                        <span className="text-[10px] font-semibold text-gray-500 uppercase mb-1">{d.dayName}</span>
+                        <span className="text-sm font-semibold text-gray-900">{d.monthName} {d.dayNum}</span>
                       </button>
                     );
                   })}
-                  <button className="flex flex-col items-center justify-center min-w-[100px] py-5 rounded-2xl border-2 border-gray-50 bg-white hover:border-gray-200 group">
-                    <Calendar size={20} className="text-gray-400 mb-2 group-hover:text-gray-600 transition-colors" />
-                    <span className="text-[12px] font-bold text-gray-600 underline">More dates</span>
+                  <button className="flex flex-col items-center justify-center min-w-[80px] py-3 rounded-xl border border-gray-200 bg-white hover:border-gray-300 group">
+                    <Calendar size={16} className="text-gray-400 mb-1 group-hover:text-gray-600 transition-colors" />
+                    <span className="text-[10px] font-semibold text-gray-600">More dates</span>
                   </button>
                 </div>
               </section>
             )}
 
             {showGuestSection && (
-              <div className="space-y-16 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="space-y-12 animate-in fade-in slide-in-from-top-4 duration-500">
                 <section>
-                  <h2 className="text-[28px] font-bold text-gray-900 mb-8">Select Number of Guests</h2>
-                  <div className="space-y-4">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Select Number of Guests</h2>
+                  <div className="space-y-3">
                     {[
                       { id: 'adult', label: 'Adult' },
                       { id: 'child', label: 'Child' }
                     ].map((row) => (
-                      <div key={row.id} className="flex items-center justify-between p-6 bg-white border border-gray-100 rounded-3xl shadow-sm">
-                        <span className="text-lg font-bold text-gray-800">{row.label}</span>
-                        <div className="flex items-center gap-6">
+                      <div key={row.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl">
+                        <span className="text-sm font-semibold text-gray-800">{row.label}</span>
+                        <div className="flex items-center gap-4">
                           <button
                             onClick={() => updateGuests(row.id, -1)}
-                            className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all active:scale-90"
+                            className="w-8 h-8 rounded border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all"
                           >
-                            <span className="text-2xl font-light">−</span>
+                            <span className="text-lg font-medium">−</span>
                           </button>
-                          <span className="w-8 text-center font-black text-gray-900 text-lg">{guests[row.id]}</span>
+                          <span className="w-6 text-center font-semibold text-gray-900 text-sm">{guests[row.id]}</span>
                           <button
                             onClick={() => updateGuests(row.id, 1)}
-                            className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all active:scale-90"
+                            className="w-8 h-8 rounded border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all"
                           >
-                            <span className="text-2xl font-light">+</span>
+                            <span className="text-lg font-medium">+</span>
                           </button>
                         </div>
                       </div>
@@ -287,19 +303,18 @@ const VisaBooking = () => {
                 </section>
 
                 <section>
-                  <h2 className="text-[28px] font-bold text-gray-900 mb-8">Select Processing Type</h2>
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    {["Normal", "Express"].map((type) => (
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Select Processing Type</h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {(product?.processingTypes?.length ? product.processingTypes : ["Normal", "Express"]).map((type) => (
                       <button
                         key={type}
                         onClick={() => setProcessingType(type)}
-                        className={`p-6 rounded-3xl border-2 text-left transition-all ${
-                          processingType === type
-                            ? "border-gray-900 bg-white shadow-xl ring-1 ring-gray-900"
-                            : "border-gray-50 bg-white hover:border-gray-200"
-                        }`}
+                        className={`p-4 rounded-xl border text-left transition-all ${processingType === type
+                          ? "border-gray-900 bg-gray-50 ring-1 ring-gray-900"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                          }`}
                       >
-                        <span className={`text-lg font-bold ${processingType === type ? 'text-gray-900' : 'text-gray-600'}`}>
+                        <span className={`text-sm font-semibold ${processingType === type ? 'text-gray-900' : 'text-gray-600'}`}>
                           {type}
                         </span>
                       </button>
@@ -309,27 +324,27 @@ const VisaBooking = () => {
 
                 {showVisaTypeSection && product.visaOptions?.length > 0 && (
                   <section className="animate-in fade-in slide-in-from-top-4 duration-500">
-                    <h2 className="text-[28px] font-bold text-gray-900 mb-8">Select Visa Type</h2>
-                    <div className="space-y-4">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Select Visa Type</h2>
+                    <div className="space-y-3">
                       {product.visaOptions.map((opt) => {
                         const isSelected = selectedVisaOption?._id === opt._id;
+                        const potentialTotal = (guests.adult * getAdultPrice()) + (guests.child * getChildPrice());
                         return (
                           <button
                             key={opt._id}
                             onClick={() => setSelectedVisaOption(opt)}
-                            className={`w-full flex items-center justify-between p-6 bg-white border rounded-[32px] transition-all text-left ${
-                              isSelected
-                                ? "border-gray-900 shadow-xl ring-1 ring-gray-900"
-                                : "border-gray-100 hover:border-gray-300 shadow-sm"
-                            }`}
+                            className={`w-full flex items-center justify-between p-4 bg-white border rounded-xl transition-all text-left ${isSelected
+                              ? "border-gray-900 ring-1 ring-gray-900 bg-gray-50"
+                              : "border-gray-200 hover:border-gray-300"
+                              }`}
                           >
                             <div>
-                              <h4 className="text-lg font-bold text-gray-900 mb-1">{opt.title}</h4>
-                              <p className="text-sm text-gray-400 font-medium">{opt.description || `Get by in ${opt.processingTime || 'a few days'}`}</p>
+                              <h4 className="text-sm font-semibold text-gray-900 mb-0.5">{opt.title}</h4>
+                              <p className="text-xs text-gray-500">{opt.description || `Get by in ${opt.processingTime || 'a few days'}`}</p>
                             </div>
                             <div className="text-right">
-                              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Price</span>
-                              <span className="text-lg font-black text-gray-900">{currencySymbol} {Number(convertPrice(opt.adultPrice || 0)).toFixed(2)}</span>
+                              <span className="block text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-0.5">Total Price</span>
+                              <span className="text-sm font-bold text-gray-900">{currencySymbol} {Number(convertPrice(potentialTotal)).toFixed(2)}</span>
                             </div>
                           </button>
                         );
@@ -341,57 +356,57 @@ const VisaBooking = () => {
             )}
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider">
+          <div className="space-y-5">
+            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider">
                 <span className="text-gray-900">1. Check Availability</span>
-                <ChevronRight size={14} className="text-gray-300" />
-                <span className="text-gray-300">2. Confirm and Pay</span>
+                <ChevronRight size={12} className="text-gray-300" />
+                <span className="text-gray-400">2. Confirm and Pay</span>
               </div>
             </div>
 
             {/* Product Summary Card */}
-            <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-2xl space-y-8 sticky top-6">
-              <div className="flex gap-5">
-                <div className="w-28 h-28 rounded-3xl overflow-hidden bg-gray-50 shrink-0 shadow-sm border border-gray-50">
-                  <img 
-                    src={product.images?.[0] || 'https://via.placeholder.com/150'} 
-                    alt={product.name} 
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-6 sticky top-6">
+              <div className="flex gap-4">
+                <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-50 shrink-0 border border-gray-100">
+                  <img
+                    src={product.images?.[0] || 'https://via.placeholder.com/150'}
+                    alt={product.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="flex-1 py-1">
-                  <h3 className="text-lg font-bold text-gray-900 leading-tight mb-4">
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-gray-900 leading-tight mb-3">
                     {selectedVisaOption?.title || product.name}
                   </h3>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                     {residenceOf && (
-                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold">
-                        <MapPin size={16} className="text-gray-300" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium">
+                        <MapPin size={14} className="text-gray-400" />
                         <span className="truncate">{residenceOf}</span>
                       </div>
                     )}
                     {nationality && (
-                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold">
-                        <Globe size={16} className="text-gray-300" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium">
+                        <Globe size={14} className="text-gray-400" />
                         <span className="truncate">{nationality}</span>
                       </div>
                     )}
                     {selectedDate && (
-                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold col-span-2">
-                        <Calendar size={16} className="text-gray-300" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium col-span-2">
+                        <Calendar size={14} className="text-gray-400" />
                         <span>{selectedDate.dayNum} {selectedDate.monthName} {selectedDate.date.getFullYear()}</span>
                       </div>
                     )}
                     {showGuestSection && (
-                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold col-span-2">
-                        <Users size={16} className="text-gray-300" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium col-span-2">
+                        <Users size={14} className="text-gray-400" />
                         <span>{guests.adult} Adult {guests.child > 0 ? `, ${guests.child} Child` : ''}</span>
                       </div>
                     )}
                     {processingType && (
-                      <div className="flex items-center gap-2 text-[12px] text-gray-500 font-bold col-span-2">
-                        <Check size={16} className="text-gray-300" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium col-span-2">
+                        <Check size={14} className="text-gray-400" />
                         <span>{processingType}</span>
                       </div>
                     )}
@@ -401,51 +416,108 @@ const VisaBooking = () => {
 
               {/* Price Breakdown */}
               {selectedVisaOption && (
-                <div className="space-y-6 animate-in fade-in duration-500">
-                  <div className="bg-gray-50/50 rounded-3xl p-6 border border-gray-50">
-                    <button 
+                <div className="space-y-5 animate-in fade-in duration-500">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <button
                       onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
-                      className="w-full flex items-center justify-between mb-4 group"
+                      className="w-full flex items-center justify-between mb-3 group"
                     >
-                      <span className="text-sm font-bold text-gray-700">Price Breakdown</span>
-                      <ChevronDown 
-                        size={18} 
-                        className={`text-gray-400 transition-transform duration-300 ${isBreakdownOpen ? 'rotate-180' : ''}`} 
+                      <span className="text-xs font-semibold text-gray-700">Price Breakdown</span>
+                      <ChevronDown
+                        size={16}
+                        className={`text-gray-400 transition-transform duration-300 ${isBreakdownOpen ? 'rotate-180' : ''}`}
                       />
                     </button>
-                    
+
                     {isBreakdownOpen && (
-                      <div className="space-y-4 animate-in slide-in-from-top-2">
-                        <div className="flex justify-between items-center text-[13px] font-medium text-gray-600">
-                          <span>{guests.adult} Adult x {currencySymbol} {Number(convertPrice(selectedVisaOption.adultPrice || 0)).toFixed(2)}</span>
-                          <span className="font-bold text-gray-900">{currencySymbol} {Number(convertPrice(guests.adult * (selectedVisaOption.adultPrice || 0))).toFixed(2)}</span>
+                      <div className="space-y-2.5 animate-in slide-in-from-top-2">
+                        <div className="flex justify-between items-center text-xs font-medium text-gray-600">
+                          <span>{guests.adult} Adult x {currencySymbol} {Number(convertPrice(getAdultPrice())).toFixed(2)}</span>
+                          <span className="font-semibold text-gray-900">{currencySymbol} {Number(convertPrice(guests.adult * getAdultPrice())).toFixed(2)}</span>
                         </div>
                         {guests.child > 0 && (
-                          <div className="flex justify-between items-center text-[13px] font-medium text-gray-600">
-                            <span>{guests.child} Child x {currencySymbol} {Number(convertPrice(selectedVisaOption.childPrice || 0)).toFixed(2)}</span>
-                            <span className="font-bold text-gray-900">{currencySymbol} {Number(convertPrice(guests.child * (selectedVisaOption.childPrice || 0))).toFixed(2)}</span>
+                          <div className="flex justify-between items-center text-xs font-medium text-gray-600">
+                            <span>{guests.child} Child x {currencySymbol} {Number(convertPrice(getChildPrice())).toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900">{currencySymbol} {Number(convertPrice(guests.child * getChildPrice())).toFixed(2)}</span>
                           </div>
                         )}
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-base font-bold text-gray-400">Total Payable</span>
-                    <span className="text-2xl font-black text-gray-900">
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-sm font-semibold text-gray-500">Total Payable</span>
+                    <span className="text-lg font-bold text-gray-900">
                       {currencySymbol} {convertPrice(calculateTotal()).toFixed(2)}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <button className="flex items-center justify-center gap-2 py-4 px-4 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-900 hover:border-gray-900 hover:shadow-lg transition-all active:scale-95 group">
-                      <Search size={20} className="text-gray-400 group-hover:text-gray-900" />
-                      Add to Cart
-                    </button>
-                    <button className="flex items-center justify-center gap-2 py-4 px-4 bg-gray-900 rounded-2xl font-bold text-white hover:bg-black hover:shadow-xl transition-all active:scale-95 shadow-lg shadow-gray-200">
-                      <Globe size={18} />
-                      Proceed to pay
-                    </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    {!isAddedToCart ? (
+                      <>
+                        <button 
+                          onClick={() => {
+                            if (!isLoggedIn) {
+                              toast.error("Please login to add visas to your cart", { duration: 3000, style: { background: "#333", color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: "bold" } });
+                              return;
+                            }
+                            addToCart(product, {
+                              date: selectedDate?.date,
+                              guests,
+                              residence: residenceOf,
+                              nationality,
+                              processingType,
+                              visaOption: selectedVisaOption,
+                              totalPrice: calculateTotal()
+                            });
+                            setIsAddedToCart(true);
+                          }}
+                          className="flex items-center justify-center gap-1.5 py-3 px-3 bg-white border border-gray-200 rounded-lg font-semibold text-xs text-gray-800 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 group"
+                        >
+                          <Search size={16} className="text-gray-400 group-hover:text-gray-600" />
+                          Add to Cart
+                        </button>
+                        <button 
+                          onClick={() => {
+                            if (!isLoggedIn) {
+                              toast.error("Please login to proceed with booking", { duration: 3000, style: { background: "#333", color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: "bold" } });
+                              return;
+                            }
+                            addToCart(product, {
+                              date: selectedDate?.date,
+                              guests,
+                              residence: residenceOf,
+                              nationality,
+                              processingType,
+                              visaOption: selectedVisaOption,
+                              totalPrice: calculateTotal()
+                            });
+                            setTimeout(() => navigate('/checkout'), 0);
+                          }}
+                          className="flex items-center justify-center gap-1.5 py-3 px-3 bg-gray-900 rounded-lg font-semibold text-xs text-white hover:bg-gray-800 transition-all active:scale-95"
+                        >
+                          <Globe size={16} />
+                          Proceed to pay
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/"
+                          className="flex items-center justify-center gap-1.5 py-3 px-3 bg-white border border-gray-200 rounded-lg font-semibold text-xs text-gray-800 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 group"
+                        >
+                          Continue Shopping
+                        </Link>
+                        <Link
+                          to="/cart"
+                          className="flex items-center justify-center gap-1.5 py-3 px-3 bg-gray-900 rounded-lg font-semibold text-xs text-white hover:bg-gray-800 transition-all active:scale-95 relative"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                          View Cart
+                          <span className="absolute -top-2 -right-2 w-5 h-5 bg-orange-500 text-white rounded-full flex items-center justify-center text-[10px] font-black">{cartItems?.length || 1}</span>
+                        </Link>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

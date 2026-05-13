@@ -41,7 +41,8 @@ const initialProduct = {
   bookingType: "check_availability",
   itinerary: [{ day: 1, title: "", description: "" }],
   mapAddress: "",
-  visaOptions: [{ title: "", description: "", price: "", processingTime: "" }],
+  visaOptions: [{ title: "", description: "", processingTime: "" }],
+  processingTypes: ["Normal", "Express"],
 };
 
 const toSlug = (value = "") =>
@@ -161,10 +162,9 @@ const ProductSection = ({ categories, cities }) => {
     visaOptions: form.visaOptions.filter(v => v.title).map(v => ({
       title: v.title.trim(),
       description: v.description?.trim() || "",
-      adultPrice: v.adultPrice !== "" ? Number(v.adultPrice) : 0,
-      childPrice: v.childPrice !== "" ? Number(v.childPrice) : 0,
       processingTime: v.processingTime?.trim() || ""
     })),
+    processingTypes: form.processingTypes?.length ? form.processingTypes : ["Normal"],
   });
 
   const onSubmit = async (e) => {
@@ -273,7 +273,8 @@ const ProductSection = ({ categories, cities }) => {
       bookingType: product.bookingType || "check_availability",
       itinerary: product.itinerary?.length ? product.itinerary.map(i => ({ day: i.day, title: i.title, description: i.description })) : [{ day: 1, title: "", description: "" }],
       mapAddress: product.mapAddress || "",
-      visaOptions: product.visaOptions?.length ? product.visaOptions.map(v => ({ title: v.title, description: v.description, adultPrice: v.adultPrice ?? "", childPrice: v.childPrice ?? "", processingTime: v.processingTime || "" })) : [{ title: "", description: "", adultPrice: "", childPrice: "", processingTime: "" }],
+      visaOptions: product.visaOptions?.length ? product.visaOptions.map(v => ({ title: v.title, description: v.description, processingTime: v.processingTime || "" })) : [{ title: "", description: "", processingTime: "" }],
+      processingTypes: product.processingTypes?.length ? product.processingTypes : ["Normal", "Express"],
     });
   };
 
@@ -467,10 +468,44 @@ const ProductSection = ({ categories, cities }) => {
 
             {/* Visa Options Management */}
             <div className="space-y-4 pt-4 border-t border-surface-100">
-              <h3 className="text-sm font-bold text-surface-700 uppercase tracking-wider">Visa Types / Options</h3>
+              <h3 className="text-sm font-bold text-surface-700 uppercase tracking-wider">Processing Types</h3>
+              <div className="flex gap-4 mb-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={form.processingTypes?.includes("Normal")} 
+                    onChange={(e) => {
+                      const types = form.processingTypes || [];
+                      setForm(p => ({
+                        ...p, 
+                        processingTypes: e.target.checked ? [...types, "Normal"] : types.filter(t => t !== "Normal")
+                      }));
+                    }}
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-surface-700">Normal</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={form.processingTypes?.includes("Express")} 
+                    onChange={(e) => {
+                      const types = form.processingTypes || [];
+                      setForm(p => ({
+                        ...p, 
+                        processingTypes: e.target.checked ? [...types, "Express"] : types.filter(t => t !== "Express")
+                      }));
+                    }}
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-surface-700">Express</span>
+                </label>
+              </div>
+              
+              <h3 className="text-sm font-bold text-surface-700 uppercase tracking-wider pt-2 border-t border-surface-100">Visa Types / Options</h3>
               {form.visaOptions.map((opt, idx) => (
                 <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-white rounded-xl border border-surface-200 shadow-sm relative group">
-                  <div className="md:col-span-4 space-y-2">
+                  <div className="md:col-span-6 space-y-2">
                     <label className="text-[10px] font-bold text-surface-400 uppercase">Visa Title</label>
                     <input className="input" placeholder="e.g. 30 Days Single Entry" value={opt.title} onChange={(e) => {
                       const next = [...form.visaOptions];
@@ -478,23 +513,7 @@ const ProductSection = ({ categories, cities }) => {
                       setForm(p => ({ ...p, visaOptions: next }));
                     }} />
                   </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-bold text-surface-400 uppercase">Adult Price</label>
-                    <input type="number" className="input" placeholder="Adult Price" value={opt.adultPrice} onChange={(e) => {
-                      const next = [...form.visaOptions];
-                      next[idx].adultPrice = e.target.value;
-                      setForm(p => ({ ...p, visaOptions: next }));
-                    }} />
-                  </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-bold text-surface-400 uppercase">Child Price</label>
-                    <input type="number" className="input" placeholder="Child Price" value={opt.childPrice} onChange={(e) => {
-                      const next = [...form.visaOptions];
-                      next[idx].childPrice = e.target.value;
-                      setForm(p => ({ ...p, visaOptions: next }));
-                    }} />
-                  </div>
-                  <div className="md:col-span-4 space-y-2">
+                  <div className="md:col-span-5 space-y-2">
                     <label className="text-[10px] font-bold text-surface-400 uppercase">Processing Time</label>
                     <input className="input" placeholder="e.g. 4-5 working days" value={opt.processingTime} onChange={(e) => {
                       const next = [...form.visaOptions];
@@ -508,7 +527,7 @@ const ProductSection = ({ categories, cities }) => {
                       setForm(p => ({ ...p, visaOptions: next }));
                     }}>×</button>
                   </div>
-                  <div className="md:col-span-11 space-y-2">
+                  <div className="md:col-span-12 space-y-2 mt-2">
                     <label className="text-[10px] font-bold text-surface-400 uppercase">Short Description (Optional)</label>
                     <input className="input text-xs" placeholder="Get by in 4-5 working days" value={opt.description} onChange={(e) => {
                       const next = [...form.visaOptions];
@@ -518,7 +537,7 @@ const ProductSection = ({ categories, cities }) => {
                   </div>
                 </div>
               ))}
-              <button type="button" className="btn-secondary text-xs" onClick={() => setForm(p => ({ ...p, visaOptions: [...p.visaOptions, { title: "", description: "", adultPrice: "", childPrice: "", processingTime: "" }] }))}>+ Add Visa Option</button>
+              <button type="button" className="btn-secondary text-xs" onClick={() => setForm(p => ({ ...p, visaOptions: [...p.visaOptions, { title: "", description: "", processingTime: "" }] }))}>+ Add Visa Option</button>
             </div>
           </div>
         )}
