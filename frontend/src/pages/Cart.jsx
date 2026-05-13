@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
-import { 
-  ArrowRight, ShoppingBag, 
-  Calendar, MapPin, Clock, Users, MoreHorizontal, 
+import {
+  ArrowRight, ShoppingBag,
+  Calendar, MapPin, Clock, Users, MoreHorizontal,
   ChevronRight, Car, AlertCircle, Edit, Trash2, X
 } from 'lucide-react';
 import { useLanguageCurrency } from '../context/LanguageCurrencyContext';
@@ -29,7 +29,7 @@ const Cart = () => {
   }, 0);
 
   // Taxes calculation informational
-  const taxesAndFees = subtotal * 0.0476; 
+  const taxesAndFees = subtotal * 0.0476;
   const total = subtotal;
 
   if (cartItems.length === 0) {
@@ -56,7 +56,7 @@ const Cart = () => {
     <>
       <div className="min-h-screen bg-[#f8f9fb] pb-20 pt-6">
         <div className="max-w-[97%] mx-auto px-6">
-          
+
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 text-[11px] text-gray-400 mb-6 font-medium">
             <Link to="/" className="hover:text-gray-900 transition-colors">Home</Link>
@@ -69,10 +69,10 @@ const Cart = () => {
             <div className="flex-1 space-y-4 w-full">
               {cartItems.map((item) => (
                 <div key={item.id || item._id} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4 relative">
-                  
+
                   {/* 3 Dots Menu */}
                   <div className="absolute top-4 right-4 z-10">
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         const id = item.id || item._id;
@@ -85,12 +85,12 @@ const Cart = () => {
 
                     {/* Dropdown Menu */}
                     {activeMenu === (item.id || item._id) && (
-                      <div 
+                      <div
                         className="absolute right-0 top-6 w-48 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden py-1 animate-in fade-in zoom-in-95"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Link 
-                          to={`/booking/${item.product?.slug}?edit=${item.id || item._id}`}
+                        <Link
+                          to={`/${(item.product?.category?.name?.toUpperCase()?.includes('VISA') || !!item.options?.visaOption || !!item.options?.processingType) ? 'visa-booking' : 'booking'}/${item.product?.slug}?edit=${item.id || item._id}`}
                           className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 transition-colors text-left group"
                         >
                           <div className="flex items-center gap-2.5 text-gray-700">
@@ -98,10 +98,10 @@ const Cart = () => {
                             <span className="text-[12px] font-medium">Update Details</span>
                           </div>
                         </Link>
-                        
+
                         <div className="h-px bg-gray-50 mx-4 my-1"></div>
-                        
-                        <button 
+
+                        <button
                           onClick={() => {
                             setItemToDelete(item.id || item._id);
                             setActiveMenu(null);
@@ -120,9 +120,9 @@ const Cart = () => {
                   {/* Top Section */}
                   <div className="flex gap-4">
                     <div className="w-[88px] h-[88px] rounded-lg overflow-hidden bg-gray-50 shrink-0 border border-gray-100">
-                      <img 
-                        src={item.product?.images?.[0] || item.product?.image || 'https://images.unsplash.com/photo-1512453979436-5a50ce8c6d18?w=800&q=80'} 
-                        alt={item.product?.name || 'Experience'} 
+                      <img
+                        src={item.product?.images?.[0] || item.product?.image || 'https://images.unsplash.com/photo-1512453979436-5a50ce8c6d18?w=800&q=80'}
+                        alt={item.product?.name || 'Experience'}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -134,12 +134,12 @@ const Cart = () => {
                       <h3 className="text-[14px] font-semibold text-gray-900 leading-snug mb-2 line-clamp-2">
                         {item.product?.name || 'Experience Title'}
                       </h3>
-                      
+
                       <div className="space-y-1">
                         <div className="flex items-center text-[11px] text-gray-500 gap-1.5">
                           <Calendar size={12} className="text-gray-400" />
                           <span>
-                            {item.options?.date 
+                            {item.options?.date
                               ? new Date(item.options.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
                               : '30 Apr 2026'
                             }
@@ -181,7 +181,7 @@ const Cart = () => {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="pb-1">
                       <button className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-[10px] font-medium text-gray-600 hover:bg-gray-100 transition-colors">
                         Apply Cashback
@@ -205,7 +205,7 @@ const Cart = () => {
 
             {/* Right Column: Order Summary */}
             <div className="w-full lg:w-[320px] shrink-0 space-y-4">
-              
+
               {/* Steps Tracker */}
               <div className="bg-white rounded-xl px-4 py-3 border border-gray-100 shadow-sm flex items-center text-[11px] font-medium text-gray-400">
                 <span className="text-gray-800 font-semibold">1. Cart</span>
@@ -223,7 +223,7 @@ const Cart = () => {
                     <span className="text-gray-500">Activities × {cartCount}</span>
                     <span className="font-medium text-gray-900">{currency} {subtotal.toFixed(2)}</span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center text-[12px]">
                     <span className="text-gray-500">Taxes & Fees</span>
                     <span className="font-medium text-gray-900">{currency} {taxesAndFees.toFixed(2)}</span>
@@ -254,7 +254,7 @@ const Cart = () => {
                     Continue Shopping
                   </Link>
                 </div>
-                
+
               </div>
             </div>
           </div>
@@ -265,13 +265,13 @@ const Cart = () => {
       {/* Delete Confirmation Modal */}
       {itemToDelete && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div 
+          <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setItemToDelete(null)}
           ></div>
-          
+
           <div className="bg-white rounded-xl w-full max-w-[360px] relative z-10 p-6 shadow-xl animate-in zoom-in-95 duration-200 text-center">
-            <button 
+            <button
               onClick={() => setItemToDelete(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 transition-colors"
             >
@@ -288,13 +288,13 @@ const Cart = () => {
             </p>
 
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setItemToDelete(null)}
                 className="flex-1 py-2.5 border border-gray-200 text-gray-700 text-[13px] font-medium rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={() => {
                   removeFromCart(itemToDelete);
                   setItemToDelete(null);

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ChevronLeft, ChevronRight, Users, Calendar, 
+import {
+  ChevronLeft, ChevronRight, Users, Calendar,
   Check, Info, ChevronDown, ChevronUp, Clock,
   MapPin, Star, AlertCircle, X
 } from "lucide-react";
@@ -12,30 +12,30 @@ import { useLanguageCurrency } from "../context/LanguageCurrencyContext";
 import { toast } from "react-hot-toast";
 
 const Booking = () => {
-   const { slug } = useParams();
-   const navigate = useNavigate();
-   const { currencySymbol, convertPrice } = useLanguageCurrency();
-   const [searchParams] = useSearchParams();
-   const editItemId = searchParams.get('edit');
-   const { addToCart, cartItems, updateCartItem } = useCart();
- 
-   const [product, setProduct] = useState(null);
-   const [loading, setLoading] = useState(true);
-   const [error, setError] = useState("");
- 
-   // State for selections
-   const [selectedDate, setSelectedDate] = useState(null);
-   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-   const [guests, setGuests] = useState({
-     adult: 1,
-     child: 0,
-     infant: 0
-   });
-   const [selectedOption, setSelectedOption] = useState(null);
-   const [isExpanded, setIsExpanded] = useState(false);
-   const [selectedTransfer, setSelectedTransfer] = useState(null);
-   const [isAddedToCart, setIsAddedToCart] = useState(false);
-   const isLoggedIn = !!localStorage.getItem("user");
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const { currencySymbol, convertPrice } = useLanguageCurrency();
+  const [searchParams] = useSearchParams();
+  const editItemId = searchParams.get('edit');
+  const { addToCart, cartItems, updateCartItem } = useCart();
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // State for selections
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [guests, setGuests] = useState({
+    adult: 1,
+    child: 0,
+    infant: 0
+  });
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedTransfer, setSelectedTransfer] = useState(null);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
+  const isLoggedIn = !!localStorage.getItem("user");
 
   // Dates generation
   const [dates, setDates] = useState([]);
@@ -45,7 +45,7 @@ const Booking = () => {
     homeApi.getProductBySlug(slug)
       .then(data => {
         setProduct(data);
-        
+
         // If in edit mode, populate state from cart item
         if (editItemId) {
           const itemToEdit = cartItems.find(item => (item.id || item._id) === editItemId);
@@ -188,7 +188,7 @@ const Booking = () => {
                     </button>
                   );
                 })}
-                <button 
+                <button
                   onClick={() => setIsCalendarOpen(true)}
                   className="flex flex-col items-center justify-center min-w-[85px] py-4 rounded-xl border-2 border-gray-100 bg-white hover:border-gray-300"
                 >
@@ -202,14 +202,14 @@ const Booking = () => {
             <AnimatePresence>
               {isCalendarOpen && (
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setIsCalendarOpen(false)}
                     className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                   />
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -230,7 +230,7 @@ const Booking = () => {
                         baseDate.setMonth(baseDate.getMonth() + monthOffset);
                         const monthName = baseDate.toLocaleString('en-US', { month: 'long' });
                         const year = baseDate.getFullYear();
-                        
+
                         const firstDay = new Date(year, baseDate.getMonth(), 1).getDay();
                         const daysInMonth = new Date(year, baseDate.getMonth() + 1, 0).getDate();
                         const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -254,8 +254,8 @@ const Booking = () => {
                               {days.map(d => {
                                 const dateObj = new Date(year, baseDate.getMonth(), d);
                                 const isSelected = selectedDate?.date.toDateString() === dateObj.toDateString();
-                                const isPast = dateObj < new Date(new Date().setHours(0,0,0,0));
-                                
+                                const isPast = dateObj < new Date(new Date().setHours(0, 0, 0, 0));
+
                                 return (
                                   <button
                                     key={d}
@@ -270,9 +270,8 @@ const Booking = () => {
                                       });
                                       setIsCalendarOpen(false);
                                     }}
-                                    className={`group flex flex-col items-center justify-center p-1.5 rounded-xl transition-all relative ${
-                                      isSelected ? "border-2 border-gray-900 bg-white shadow-md z-10" : ""
-                                    } ${isPast ? "opacity-20 cursor-not-allowed" : "hover:bg-gray-50"}`}
+                                    className={`group flex flex-col items-center justify-center p-1.5 rounded-xl transition-all relative ${isSelected ? "border-2 border-gray-900 bg-white shadow-md z-10" : ""
+                                      } ${isPast ? "opacity-20 cursor-not-allowed" : "hover:bg-gray-50"}`}
                                   >
                                     <span className={`text-[14px] font-bold ${isSelected ? "text-gray-900" : "text-gray-600"}`}>{d}</span>
                                     {!isPast && (
@@ -394,11 +393,10 @@ const Booking = () => {
                             <button
                               key={idx}
                               onClick={() => setSelectedTransfer(opt)}
-                              className={`px-6 py-2.5 rounded-xl font-bold text-[13px] transition-all border-2 ${
-                                selectedTransfer?.name === opt.name
+                              className={`px-6 py-2.5 rounded-xl font-bold text-[13px] transition-all border-2 ${selectedTransfer?.name === opt.name
                                   ? "bg-gray-900 border-gray-900 text-white shadow-lg"
                                   : "bg-white border-gray-100 text-gray-600 hover:border-gray-300"
-                              }`}
+                                }`}
                             >
                               {opt.name}
                             </button>
@@ -423,7 +421,7 @@ const Booking = () => {
                           <div className="flex items-center gap-3 w-full md:w-auto">
                             {!isAddedToCart ? (
                               <>
-                                <button 
+                                <button
                                   onClick={() => {
                                     if (!isLoggedIn) {
                                       toast.error("Please login to add tours to your cart", {
@@ -463,7 +461,7 @@ const Booking = () => {
                                 >
                                   <div className="flex items-center gap-2">
                                     <span className="md:hidden font-bold">{editItemId ? "Update Cart" : "Add to Cart"}</span>
-                                    {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>}
+                                    {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>}
                                   </div>
                                 </button>
                                 <button
@@ -503,7 +501,7 @@ const Booking = () => {
                                   }}
                                   className="flex-1 md:flex-none px-10 py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200"
                                 >
-                                  {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>}
+                                  {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><path d="M9 14l2 2 4-4" /></svg>}
                                   {editItemId ? "Update Details" : "Proceed to pay"}
                                 </button>
                               </>
@@ -519,7 +517,7 @@ const Booking = () => {
                                   to="/cart"
                                   className="flex-1 md:flex-none px-10 py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-3 hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200"
                                 >
-                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
                                   View Cart
                                   <span className="w-5 h-5 bg-white text-gray-900 rounded-full flex items-center justify-center text-[11px] font-black">{cartItems.length}</span>
                                 </Link>
@@ -585,7 +583,7 @@ const Booking = () => {
                     </div>
                     {selectedTransfer && (
                       <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h10" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /></svg>
                         {selectedTransfer.name}
                       </div>
                     )}
@@ -599,7 +597,7 @@ const Booking = () => {
                   <span className="text-[13px] font-bold text-gray-800">Price Breakdown</span>
                   <ChevronDown size={18} className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="flex justify-between text-[12px] font-medium text-gray-500">
                     <span>{guests.adult} Adult x {currencySymbol} {convertPrice(selectedTransfer?.adultPrice || basePrice).toFixed(0)}</span>
@@ -630,7 +628,7 @@ const Booking = () => {
               <div className="pt-2 space-y-3">
                 {!isAddedToCart ? (
                   <>
-                    <button 
+                    <button
                       onClick={() => {
                         if (!isLoggedIn) {
                           toast.error("Please login to add tours to your cart", {
@@ -668,7 +666,7 @@ const Booking = () => {
                       }}
                       className="w-full py-3.5 border-2 border-gray-100 rounded-xl font-bold text-[13px] text-gray-700 flex items-center justify-center gap-2 hover:border-gray-900 hover:text-gray-900 transition-all"
                     >
-                      {editItemId ? <Check size={18} /> : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>}
+                      {editItemId ? <Check size={18} /> : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>}
                       {editItemId ? "Update Cart" : "Add to Cart"}
                     </button>
                     <button
@@ -708,7 +706,7 @@ const Booking = () => {
                       }}
                       className="w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg shadow-gray-100"
                     >
-                      {editItemId ? <Check size={18} /> : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>}
+                      {editItemId ? <Check size={18} /> : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><path d="M9 14l2 2 4-4" /></svg>}
                       {editItemId ? "Update Details" : "Proceed To Book"}
                     </button>
                   </>
@@ -724,7 +722,7 @@ const Booking = () => {
                       to="/cart"
                       className="w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-3 hover:bg-black transition-all shadow-lg shadow-gray-100"
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
                       View Cart
                       <span className="w-5 h-5 bg-white text-gray-900 rounded-full flex items-center justify-center text-[11px] font-black">{cartItems.length}</span>
                     </Link>

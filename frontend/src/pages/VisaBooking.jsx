@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import {
   ChevronRight, MapPin, Globe, Check, ChevronDown, Calendar, Search, X, Users
 } from "lucide-react";
@@ -33,6 +33,8 @@ const COUNTRIES = [
 const VisaBooking = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editItemId = searchParams.get('edit');
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -50,7 +52,7 @@ const VisaBooking = () => {
   const [selectedVisaOption, setSelectedVisaOption] = useState(null);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(true);
   const { currencySymbol, convertPrice } = useLanguageCurrency();
-  const { addToCart, cartItems } = useCart();
+  const { addToCart, updateCartItem, cartItems } = useCart();
   const [isAddedToCart, setIsAddedToCart] = useState(false);
   const isLoggedIn = !!localStorage.getItem("user");
 
@@ -86,12 +88,12 @@ const VisaBooking = () => {
   }, [slug]);
 
   const getExpressMultiplier = () => processingType === "Express" ? (4 / 3) : 1;
-  
+
   const getAdultPrice = () => {
     const base = product?.pricing?.discountPrice || product?.pricing?.actualPrice || 0;
     return base * getExpressMultiplier();
   };
-  
+
   const getChildPrice = () => {
     const base = product?.pricing?.childPrice || 0;
     return base * getExpressMultiplier();
@@ -455,50 +457,79 @@ const VisaBooking = () => {
                   <div className="grid grid-cols-2 gap-3">
                     {!isAddedToCart ? (
                       <>
-                        <button 
-                          onClick={() => {
-                            if (!isLoggedIn) {
-                              toast.error("Please login to add visas to your cart", { duration: 3000, style: { background: "#333", color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: "bold" } });
-                              return;
-                            }
-                            addToCart(product, {
-                              date: selectedDate?.date,
-                              guests,
-                              residence: residenceOf,
-                              nationality,
-                              processingType,
-                              visaOption: selectedVisaOption,
-                              totalPrice: calculateTotal()
-                            });
-                            setIsAddedToCart(true);
-                          }}
-                          className="flex items-center justify-center gap-1.5 py-3 px-3 bg-white border border-gray-200 rounded-lg font-semibold text-xs text-gray-800 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 group"
-                        >
-                          <Search size={16} className="text-gray-400 group-hover:text-gray-600" />
-                          Add to Cart
-                        </button>
-                        <button 
-                          onClick={() => {
-                            if (!isLoggedIn) {
-                              toast.error("Please login to proceed with booking", { duration: 3000, style: { background: "#333", color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: "bold" } });
-                              return;
-                            }
-                            addToCart(product, {
-                              date: selectedDate?.date,
-                              guests,
-                              residence: residenceOf,
-                              nationality,
-                              processingType,
-                              visaOption: selectedVisaOption,
-                              totalPrice: calculateTotal()
-                            });
-                            setTimeout(() => navigate('/checkout'), 0);
-                          }}
-                          className="flex items-center justify-center gap-1.5 py-3 px-3 bg-gray-900 rounded-lg font-semibold text-xs text-white hover:bg-gray-800 transition-all active:scale-95"
-                        >
-                          <Globe size={16} />
-                          Proceed to pay
-                        </button>
+                        {editItemId ? (
+                          <button
+                            onClick={() => {
+                              if (!isLoggedIn) {
+                                toast.error("Please login to update visas in your cart", { duration: 3000, style: { background: "#333", color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: "bold" } });
+                                return;
+                              }
+                              updateCartItem(editItemId, {
+                                options: {
+                                  date: selectedDate?.date,
+                                  guests,
+                                  residence: residenceOf,
+                                  nationality,
+                                  processingType,
+                                  visaOption: selectedVisaOption,
+                                  totalPrice: calculateTotal()
+                                }
+                              });
+                              navigate('/cart');
+                            }}
+                            className="col-span-2 flex items-center justify-center gap-1.5 py-3 px-3 bg-gray-900 rounded-lg font-semibold text-xs text-white hover:bg-gray-800 transition-all active:scale-95"
+                          >
+                            <Check size={16} />
+                            Update Details
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => {
+                                if (!isLoggedIn) {
+                                  toast.error("Please login to add visas to your cart", { duration: 3000, style: { background: "#333", color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: "bold" } });
+                                  return;
+                                }
+                                addToCart(product, {
+                                  date: selectedDate?.date,
+                                  guests,
+                                  residence: residenceOf,
+                                  nationality,
+                                  processingType,
+                                  visaOption: selectedVisaOption,
+                                  totalPrice: calculateTotal()
+                                });
+                                setIsAddedToCart(true);
+                              }}
+                              className="flex items-center justify-center gap-1.5 py-3 px-3 bg-white border border-gray-200 rounded-lg font-semibold text-xs text-gray-800 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-95 group"
+                            >
+                              <Search size={16} className="text-gray-400 group-hover:text-gray-600" />
+                              Add to Cart
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!isLoggedIn) {
+                                  toast.error("Please login to proceed with booking", { duration: 3000, style: { background: "#333", color: "#fff", borderRadius: "10px", fontSize: "14px", fontWeight: "bold" } });
+                                  return;
+                                }
+                                addToCart(product, {
+                                  date: selectedDate?.date,
+                                  guests,
+                                  residence: residenceOf,
+                                  nationality,
+                                  processingType,
+                                  visaOption: selectedVisaOption,
+                                  totalPrice: calculateTotal()
+                                });
+                                setTimeout(() => navigate('/checkout'), 0);
+                              }}
+                              className="flex items-center justify-center gap-1.5 py-3 px-3 bg-gray-900 rounded-lg font-semibold text-xs text-white hover:bg-gray-800 transition-all active:scale-95"
+                            >
+                              <Globe size={16} />
+                              Proceed to pay
+                            </button>
+                          </>
+                        )}
                       </>
                     ) : (
                       <>
@@ -512,7 +543,7 @@ const VisaBooking = () => {
                           to="/cart"
                           className="flex items-center justify-center gap-1.5 py-3 px-3 bg-gray-900 rounded-lg font-semibold text-xs text-white hover:bg-gray-800 transition-all active:scale-95 relative"
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
                           View Cart
                           <span className="absolute -top-2 -right-2 w-5 h-5 bg-orange-500 text-white rounded-full flex items-center justify-center text-[10px] font-black">{cartItems?.length || 1}</span>
                         </Link>
