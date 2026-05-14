@@ -22,6 +22,8 @@ const initialProduct = {
   actualPrice: "",
   discountPrice: "",
   childPrice: "",
+  teenPrice: "",
+  kidPrice: "",
   infantPrice: "",
   currency: "AED",
   rating: '',
@@ -42,6 +44,7 @@ const initialProduct = {
   itinerary: [{ day: 1, title: "", description: "" }],
   mapAddress: "",
   visaOptions: [{ title: "", description: "", processingTime: "" }],
+  cabinOptions: [{ name: "", price: "" }],
   processingTypes: ["Normal", "Express"],
 };
 
@@ -139,9 +142,15 @@ const ProductSection = ({ categories, cities }) => {
       actualPrice: form.actualPrice !== "" ? Number(form.actualPrice) : undefined,
       discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
       childPrice: form.childPrice !== "" ? Number(form.childPrice) : undefined,
+      teenPrice: form.teenPrice !== "" ? Number(form.teenPrice) : undefined,
+      kidPrice: form.kidPrice !== "" ? Number(form.kidPrice) : undefined,
       infantPrice: form.infantPrice !== "" ? Number(form.infantPrice) : undefined,
       currency: form.currency || "AED",
     },
+    cabinOptions: form.cabinOptions.filter(c => c.name).map(c => ({
+      name: c.name.trim(),
+      price: Number(c.price) || 0
+    })),
     rating: Number(form.rating),
     reviews: Number(form.reviews),
     isProductNew: !!form.isProductNew,
@@ -253,6 +262,8 @@ const ProductSection = ({ categories, cities }) => {
       actualPrice: product.pricing?.actualPrice ?? "",
       discountPrice: product.pricing?.discountPrice ?? "",
       childPrice: product.pricing?.childPrice ?? "",
+      teenPrice: product.pricing?.teenPrice ?? "",
+      kidPrice: product.pricing?.kidPrice ?? "",
       infantPrice: product.pricing?.infantPrice ?? "",
       currency: product.pricing?.currency || "AED",
       rating: product.rating || 0,
@@ -274,6 +285,7 @@ const ProductSection = ({ categories, cities }) => {
       itinerary: product.itinerary?.length ? product.itinerary.map(i => ({ day: i.day, title: i.title, description: i.description })) : [{ day: 1, title: "", description: "" }],
       mapAddress: product.mapAddress || "",
       visaOptions: product.visaOptions?.length ? product.visaOptions.map(v => ({ title: v.title, description: v.description, processingTime: v.processingTime || "" })) : [{ title: "", description: "", processingTime: "" }],
+      cabinOptions: product.cabinOptions?.length ? product.cabinOptions.map(c => ({ name: c.name, price: c.price })) : [{ name: "", price: "" }],
       processingTypes: product.processingTypes?.length ? product.processingTypes : ["Normal", "Express"],
     });
   };
@@ -414,11 +426,41 @@ const ProductSection = ({ categories, cities }) => {
 
         {/* Cruise Specific Fields */}
         {categories.find(c => c._id === form.category)?.name?.toLowerCase() === "cruises" && (
-          <div className="md:col-span-2 grid gap-3 md:grid-cols-2 border-l-4 border-blue-500 pl-4 py-2 bg-blue-50/20">
-            <h3 className="md:col-span-2 text-sm font-bold text-blue-700 uppercase tracking-wider">Cruise Details</h3>
-            <input className="input border-blue-200 focus:border-blue-500" placeholder="Cruise Line (e.g. MSC, Costa)" value={form.cruiseLine} onChange={(e) => onChange("cruiseLine", e.target.value)} />
-            <input className="input border-blue-200 focus:border-blue-500" placeholder="Departure City" value={form.departureCity} onChange={(e) => onChange("departureCity", e.target.value)} />
-            <input className="input border-blue-200 focus:border-blue-500" placeholder="Duration (e.g. 7 Nights)" value={form.duration} onChange={(e) => onChange("duration", e.target.value)} />
+          <div className="md:col-span-2 space-y-6 border-l-4 border-blue-500 pl-4 py-2 bg-blue-50/20">
+            <div className="grid gap-3 md:grid-cols-2">
+              <h3 className="md:col-span-2 text-sm font-bold text-blue-700 uppercase tracking-wider">Cruise Details</h3>
+              <input className="input border-blue-200 focus:border-blue-500" placeholder="Cruise Line (e.g. MSC, Costa)" value={form.cruiseLine} onChange={(e) => onChange("cruiseLine", e.target.value)} />
+              <input className="input border-blue-200 focus:border-blue-500" placeholder="Departure City" value={form.departureCity} onChange={(e) => onChange("departureCity", e.target.value)} />
+              <input className="input border-blue-200 focus:border-blue-500" placeholder="Duration (e.g. 7 Nights)" value={form.duration} onChange={(e) => onChange("duration", e.target.value)} />
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <h3 className="md:col-span-2 text-sm font-bold text-blue-700 uppercase tracking-wider">Additional Pricing (Cruise)</h3>
+              <input className="input border-blue-200 focus:border-blue-500" type="number" placeholder="Teen price" value={form.teenPrice} onChange={(e) => onChange("teenPrice", e.target.value)} />
+              <input className="input border-blue-200 focus:border-blue-500" type="number" placeholder="Kid price" value={form.kidPrice} onChange={(e) => onChange("kidPrice", e.target.value)} />
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-blue-700 uppercase tracking-wider">Cabin Options</h3>
+              {form.cabinOptions.map((cabin, idx) => (
+                <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-3 bg-white rounded-xl border border-blue-100 shadow-sm">
+                  <div className="md:col-span-11">
+                    <input className="input border-blue-100" placeholder="Cabin Name (e.g. Balcony Stateroom)" value={cabin.name} onChange={(e) => {
+                      const next = [...form.cabinOptions];
+                      next[idx].name = e.target.value;
+                      setForm(p => ({ ...p, cabinOptions: next }));
+                    }} />
+                  </div>
+                  <div className="md:col-span-1 flex items-center justify-center">
+                    <button type="button" className="text-red-500 hover:text-red-700" onClick={() => {
+                      const next = form.cabinOptions.filter((_, i) => i !== idx);
+                      setForm(p => ({ ...p, cabinOptions: next }));
+                    }}>×</button>
+                  </div>
+                </div>
+              ))}
+              <button type="button" className="btn-secondary text-xs border-blue-300 text-blue-600 hover:bg-blue-50" onClick={() => setForm(p => ({ ...p, cabinOptions: [...p.cabinOptions, { name: "" }] }))}>+ Add Cabin Option</button>
+            </div>
           </div>
         )}
 

@@ -84,7 +84,14 @@ const sendInquiryEmail = async (inquiryData) => {
         <h3 style="color: #444; margin-top: 20px;">Product & Booking Details</h3>
         <p><strong>Product Name:</strong> ${inquiryData.productName}</p>
         <p><strong>Date:</strong> ${inquiryData.bookingDetails.date || 'Not specified'}</p>
-        <p><strong>Guests:</strong> ${inquiryData.bookingDetails.guests.adult} Adult(s), ${inquiryData.bookingDetails.guests.child} Child(ren), ${inquiryData.bookingDetails.guests.infant} Infant(s)</p>
+        <p><strong>Guests:</strong> 
+          ${inquiryData.bookingDetails.guests.adult} Adult(s)
+          ${inquiryData.bookingDetails.guests.teen > 0 ? `, ${inquiryData.bookingDetails.guests.teen} Teen(s)` : ''}
+          ${inquiryData.bookingDetails.guests.kid > 0 ? `, ${inquiryData.bookingDetails.guests.kid} Kid(s)` : ''}
+          ${inquiryData.bookingDetails.guests.child > 0 ? `, ${inquiryData.bookingDetails.guests.child} Child(ren)` : ''}
+          ${inquiryData.bookingDetails.guests.infant > 0 ? `, ${inquiryData.bookingDetails.guests.infant} Infant(s)` : ''}
+        </p>
+        ${inquiryData.bookingDetails.cabin ? `<p><strong>Cabin:</strong> ${inquiryData.bookingDetails.cabin}</p>` : ''}
         <p><strong>Flight Status:</strong> ${inquiryData.bookingDetails.flightStatus || 'Not specified'}</p>
         
         <h3 style="color: #444; margin-top: 20px;">Remarks</h3>

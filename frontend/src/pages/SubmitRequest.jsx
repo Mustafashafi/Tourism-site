@@ -10,7 +10,7 @@ const SubmitRequest = () => {
 
   // Get passed state from booking page or default to null
   const bookingState = location.state || {};
-  const { guests, selectedDate, flightStatus, totalPrice, product } = bookingState;
+  const { guests, selectedDate, flightStatus, selectedCabin, totalPrice, product } = bookingState;
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -60,7 +60,8 @@ const SubmitRequest = () => {
           productName: product.name,
           bookingDetails: {
             date: selectedDate?.date?.toISOString() || null,
-            guests: guests || { adult: 1, child: 0, infant: 0 },
+            guests: guests || { adult: 1, teen: 0, kid: 0, child: 0, infant: 0 },
+            cabin: selectedCabin?.name || null,
             flightStatus: flightStatus || "Not specified",
             totalPrice: totalPrice || 0,
           },
@@ -87,8 +88,8 @@ const SubmitRequest = () => {
       }
     } catch (error) {
       console.error("Submit error:", error);
-      toast.error(error.message.includes("Server returned") 
-        ? error.message 
+      toast.error(error.message.includes("Server returned")
+        ? error.message
         : "Network error. Please make sure the backend server is running and try again.");
     } finally {
       setIsSubmitting(false);
@@ -99,16 +100,17 @@ const SubmitRequest = () => {
     return <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">Loading...</div>;
   }
 
-  const totalGuests = (guests?.adult || 0) + (guests?.child || 0) + (guests?.infant || 0);
+  const totalGuests = (guests?.adult || 0) + (guests?.teen || 0) + (guests?.kid || 0) + (guests?.child || 0) + (guests?.infant || 0);
+  const isCruise = product?.category?.slug?.toLowerCase()?.includes('cruise') || product?.category?.name?.toLowerCase()?.includes('cruise');
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-inter pb-20">
       <div className="max-w-[1200px] mx-auto px-6 py-10">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Main Content (Left Side) */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Enter Your Details */}
             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
               <h2 className="text-xl font-bold text-gray-900 tracking-tight">Enter Your Details</h2>
@@ -177,7 +179,7 @@ const SubmitRequest = () => {
             {/* Update Additional Details */}
             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
               <h2 className="text-xl font-bold text-gray-900 tracking-tight">Update Additional Details</h2>
-              
+
               <div>
                 <p className="text-sm font-semibold text-gray-800 mb-4">{product.name}</p>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
@@ -206,7 +208,7 @@ const SubmitRequest = () => {
 
           {/* Sidebar (Right Side) */}
           <div className="lg:col-span-1 space-y-4">
-            
+
             {/* Steps Indicator */}
             <div className="bg-white px-6 py-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-center text-sm font-medium">
               <div className="flex items-center text-green-500 gap-1.5">
@@ -219,7 +221,7 @@ const SubmitRequest = () => {
             </div>
 
             {/* Edit Preferences */}
-            <button 
+            <button
               type="button"
               onClick={() => navigate(-1)}
               className="w-full py-3.5 bg-white border border-gray-200 text-gray-800 rounded-xl font-semibold text-[14px] hover:bg-gray-50 transition-all shadow-sm"
@@ -229,7 +231,7 @@ const SubmitRequest = () => {
 
             {/* Summary Card */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xl space-y-6">
-              
+
               <div className="flex gap-4">
                 <div className="w-[85px] h-[85px] rounded-2xl overflow-hidden bg-gray-50 shrink-0 shadow-sm">
                   <img
@@ -243,8 +245,18 @@ const SubmitRequest = () => {
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
                       <Users size={14} className="text-gray-400" />
-                      {guests?.adult || 1} Adult {guests?.child > 0 ? `, ${guests.child} Child` : ''}
+                      {guests?.adult || 1} Adult
+                      {guests?.teen > 0 ? `, ${guests.teen} Teen` : ''}
+                      {guests?.kid > 0 ? `, ${guests.kid} Kid` : ''}
+                      {guests?.child > 0 ? `, ${guests.child} Child` : ''}
+                      {guests?.infant > 0 ? `, ${guests.infant} Infant` : ''}
                     </div>
+                    {isCruise && selectedCabin && (
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4.5C2 12 3 13 4 13h16c1 0 2-1 2-2.5zM2 14.5V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4.5c0-1.5-1-2.5-2-2.5H4c-1 0-2 1-2 2.5z" /></svg>
+                        {selectedCabin.name}
+                      </div>
+                    )}
                     {flightStatus && (
                       <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
                         <Plane size={14} className="text-gray-400" />

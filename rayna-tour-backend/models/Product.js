@@ -69,6 +69,13 @@ const visaOptionSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const cabinOptionSchema = new mongoose.Schema(
+  {
+    name: { type: String, trim: true },
+  },
+  { _id: true }
+);
+
 const pricingSchema = new mongoose.Schema(
   {
     actualPrice: {
@@ -87,6 +94,14 @@ const pricingSchema = new mongoose.Schema(
       },
     },
     childPrice: {
+      type: Number,
+      min: 0,
+    },
+    teenPrice: {
+      type: Number,
+      min: 0,
+    },
+    kidPrice: {
       type: Number,
       min: 0,
     },
@@ -156,6 +171,10 @@ const productSchema = new mongoose.Schema(
     },
     visaOptions: {
       type: [visaOptionSchema],
+      default: [],
+    },
+    cabinOptions: {
+      type: [cabinOptionSchema],
       default: [],
     },
     processingTypes: {

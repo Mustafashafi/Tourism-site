@@ -40,9 +40,12 @@ const inquirySchema = new mongoose.Schema(
       date: { type: String },
       guests: {
         adult: { type: Number, default: 1 },
+        teen: { type: Number, default: 0 },
+        kid: { type: Number, default: 0 },
         child: { type: Number, default: 0 },
         infant: { type: Number, default: 0 },
       },
+      cabin: { type: String },
       flightStatus: { type: String },
       totalPrice: { type: Number },
     },

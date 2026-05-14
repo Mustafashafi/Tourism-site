@@ -29,9 +29,12 @@ const Booking = () => {
   const [flightStatus, setFlightStatus] = useState("No, I haven't");
   const [guests, setGuests] = useState({
     adult: 1,
+    teen: 0,
+    kid: 0,
     child: 0,
     infant: 0
   });
+  const [selectedCabin, setSelectedCabin] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState(null);
@@ -105,6 +108,12 @@ const Booking = () => {
           }
           setDates(generatedDates);
           setSelectedDate(generatedDates[1]); // Default to tomorrow
+
+          // Default select first cabin if cruise
+          const cruiseDetection = data.category?.slug?.toLowerCase()?.includes('cruise') || data.category?.name?.toLowerCase()?.includes('cruise');
+          if (cruiseDetection && data.cabinOptions?.length > 0) {
+            setSelectedCabin(data.cabinOptions[0]);
+          }
         }
       })
       .catch(err => setError(err.message))
@@ -130,18 +139,23 @@ const Booking = () => {
     }));
   };
 
-  const basePrice = selectedTransfer?.adultPrice || selectedDate?.price || product?.pricing?.discountPrice || product?.pricing?.actualPrice || 0;
+  const isEmailOnly = product?.bookingType === "email";
+  const isHoliday = product?.category?.slug?.toLowerCase() === 'holidays' || product?.category?.name?.toLowerCase().includes('holiday');
+  const isCruise = product?.category?.slug?.toLowerCase()?.includes('cruise') || product?.category?.name?.toLowerCase()?.includes('cruise');
+
+  const basePrice = (selectedTransfer?.adultPrice || selectedDate?.price || product?.pricing?.discountPrice || product?.pricing?.actualPrice || 0);
   const childPrice = selectedTransfer?.childPrice != null ? selectedTransfer.childPrice : (product?.pricing?.childPrice != null ? product.pricing.childPrice : basePrice);
+  const teenPrice = product?.pricing?.teenPrice || basePrice;
+  const kidPrice = product?.pricing?.kidPrice || basePrice;
   const infantPrice = selectedTransfer?.infantPrice != null ? selectedTransfer.infantPrice : (product?.pricing?.infantPrice != null ? product.pricing.infantPrice : 0);
 
   const totalPrice = product ? (
     (guests.adult * basePrice) +
+    (guests.teen * teenPrice) +
+    (guests.kid * kidPrice) +
     (guests.child * childPrice) +
     (guests.infant * infantPrice)
   ) : 0;
-
-  const isEmailOnly = product?.bookingType === "email";
-  const isHoliday = product?.category?.slug?.toLowerCase() === 'holidays' || product?.category?.name?.toLowerCase().includes('holiday');
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading booking...</div>;
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
@@ -320,11 +334,16 @@ const Booking = () => {
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Select Number of Guests</h2>
               <div className="space-y-3">
-                {[
+                {(isCruise ? [
+                  { id: 'adult', label: 'Adult', sub: '' },
+                  { id: 'teen', label: 'Teen', sub: '' },
+                  { id: 'kid', label: 'Kid', sub: '' },
+                  { id: 'infant', label: 'Infant', sub: '' },
+                ] : [
                   { id: 'adult', label: 'Adult', sub: '' },
                   { id: 'child', label: 'Child', sub: '' },
                   ...(!isHoliday ? [{ id: 'infant', label: 'Infant', sub: '' }] : [])
-                ].map((row) => (
+                ]).map((row) => (
                   <div key={row.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl">
                     <span className="text-sm font-semibold text-gray-800">{row.label}</span>
                     <div className="flex items-center gap-4">
@@ -347,6 +366,36 @@ const Booking = () => {
               </div>
             </section>
 
+            {isCruise && product?.cabinOptions?.length > 0 && (
+              <section className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h2 className="text-xl font-bold text-gray-900 mb-6 tracking-tight">Select Cabin Option</h2>
+                <div className="space-y-4">
+                  {product.cabinOptions.map((cabin, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedCabin(cabin)}
+                      className={`w-full flex items-center justify-between p-6 bg-white rounded-2xl border transition-all text-left group ${selectedCabin?.name === cabin.name
+                        ? "border-gray-500 hover:border-gray-500 shadow-md"
+                        : "border-gray-300 hover:border-gray-300"
+                        }`}
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span className={`text-[15px] font-bold transition-colors ${selectedCabin?.name === cabin.name ? "text-gray-900" : "text-gray-800 group-hover:text-gray-900"}`}>
+                          {cabin.name}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Total Price</span>
+                        <span className="text-[16px] font-black text-gray-900">
+                          {currencySymbol} {convertPrice(totalPrice).toFixed(0)}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {isHoliday ? (
               <section>
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Select Flight Status</h2>
@@ -358,11 +407,10 @@ const Booking = () => {
                     <button
                       key={option.id}
                       onClick={() => setFlightStatus(option.id)}
-                      className={`flex flex-col items-start p-5 rounded-xl border transition-all text-left ${
-                        flightStatus === option.id 
-                          ? "border-gray-900 ring-1 ring-gray-900 bg-gray-50 shadow-sm" 
-                          : "border-gray-100 bg-white hover:border-gray-300"
-                      }`}
+                      className={`flex flex-col items-start p-5 rounded-xl border transition-all text-left ${flightStatus === option.id
+                        ? "border-gray-900 ring-1 ring-gray-900 bg-gray-50 shadow-sm"
+                        : "border-gray-100 bg-white hover:border-gray-300"
+                        }`}
                     >
                       <span className="text-[14px] font-bold text-gray-900 mb-1">{option.id}</span>
                       <span className="text-[11px] font-medium text-gray-500">{option.sub}</span>
@@ -370,209 +418,211 @@ const Booking = () => {
                   ))}
                 </div>
               </section>
-            ) : (
+            ) : !isCruise ? (
               <section>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4" >Choose from 1 available</h2>
-              <div className="space-y-4">
-                <div className={`bg-white rounded-[24px] overflow-hidden border transition-all duration-300 ${isExpanded ? 'border-gray-400 ring-1 ring-gray-400' : 'border-gray-100 shadow-sm'}`}>
-                  {/* Header */}
-                  <div className="bg-gray-50/80 p-6 flex justify-between items-start">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
-                      <p className="text-[11px] text-gray-400 font-medium mt-1">Non Refundable</p>
-                    </div>
-                    <button className="text-[11px] font-bold text-gray-500 flex items-center gap-1 hover:text-gray-900 transition-colors">
-                      More Details <ChevronRight size={14} />
-                    </button>
-                  </div>
-
-                  {!isExpanded ? (
-                    <div className="p-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                      <div className="space-y-3">
-                        <div className="space-y-1">
-                          <span className="text-[11px] text-gray-400 font-medium">from</span>
-                          <div className="flex items-center gap-2">
-                            <div className="text-xl font-black text-gray-900">{currencySymbol} {convertPrice(basePrice).toFixed(2)}</div>
-                            {product?.pricing?.discountPrice && (
-                              <div className="text-[13px] text-gray-400 line-through">{currencySymbol} {convertPrice(product.pricing.actualPrice).toFixed(2)}</div>
-                            )}
-                          </div>
-                        </div>
+                <div className="space-y-4">
+                  <div className={`bg-white rounded-[24px] overflow-hidden border transition-all duration-300 ${isExpanded ? 'border-gray-400 ring-1 ring-gray-400' : 'border-gray-100 shadow-sm'}`}>
+                    {/* Header */}
+                    <div className="bg-gray-50/80 p-6 flex justify-between items-start">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
+                        <p className="text-[11px] text-gray-400 font-medium mt-1">Non Refundable</p>
                       </div>
-                      <button
-                        onClick={() => setIsExpanded(true)}
-                        className="px-10 py-3 bg-gray-100 border border-gray-200 rounded-xl font-semibold text-[13px] hover:bg-gray-500 cursor-pointer hover:text-white transition-all active:scale-95"
-                      >
-                        Select
+                      <button className="text-[11px] font-bold text-gray-500 flex items-center gap-1 hover:text-gray-900 transition-colors">
+                        More Details <ChevronRight size={14} />
                       </button>
                     </div>
-                  ) : (
-                    <div className="p-6 space-y-8">
-                      {/* Transfer Selection */}
-                      <div className="space-y-4">
-                        <h4 className="text-sm font-semibold text-gray-900">Select Transfer</h4>
-                        <div className="flex flex-wrap gap-3">
-                          {(product.transferOptions?.length > 0 ? product.transferOptions : [
-                            { name: "Without Transfer", type: "without_transfer", adultPrice: product.pricing?.discountPrice || product.pricing?.actualPrice },
-                            { name: "Shared Transfer", type: "shared", adultPrice: (product.pricing?.discountPrice || product.pricing?.actualPrice) + 50 },
-                            { name: "Private Transfer", type: "private", adultPrice: (product.pricing?.discountPrice || product.pricing?.actualPrice) + 100 }
-                          ]).map((opt, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setSelectedTransfer(opt)}
-                              className={`px-6 py-2.5 rounded-xl font-semibold text-[13px] transition-all border-2 hover:cursor-pointer ${selectedTransfer?.name === opt.name
-                                ? "bg-gray-600 border-gray-500 text-white shadow-sm"
-                                : "bg-white border-gray-100 text-gray-600 hover:border-gray-300 "
-                                }`}
-                            >
-                              {opt.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
 
-                      {/* Pricing Details */}
-                      <div className="space-y-4 pt-4 border-t border-gray-50">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-[13px] font-bold text-gray-700">
-                          <div>{guests.adult} Adult × {currencySymbol} {convertPrice(selectedTransfer?.adultPrice || basePrice).toFixed(0)}</div>
-                          {guests.child > 0 && <div>{guests.child} Child × {currencySymbol} {convertPrice(selectedTransfer?.childPrice || childPrice).toFixed(0)}</div>}
-                          {guests.infant > 0 && <div>{guests.infant} Infant × {currencySymbol} {convertPrice(selectedTransfer?.infantPrice || infantPrice).toFixed(0)}</div>}
-                        </div>
-                        <p className="text-[11px] text-gray-400 font-medium italic">All taxes and fees included</p>
-
-                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between pt-4 gap-6">
+                    {!isExpanded ? (
+                      <div className="p-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div className="space-y-3">
                           <div className="space-y-1">
-                            <span className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Total Amount</span>
-                            <div className="text-[24px] font-bold text-gray-800 leading-none">{currencySymbol} {convertPrice(totalPrice).toFixed(0)}</div>
-                          </div>
-                          <div className="flex items-center gap-3 w-full md:w-auto">
-                            {!isAddedToCart ? (
-                              <>
-                                <button
-                                  onClick={() => {
-                                    if (!isLoggedIn) {
-                                      toast.error("Please login to add tours to your cart", {
-                                        duration: 3000,
-                                        position: "top-center",
-                                        style: {
-                                          background: "#333",
-                                          color: "#fff",
-                                          borderRadius: "10px",
-                                          fontSize: "14px",
-                                          fontWeight: "bold"
-                                        }
-                                      });
-                                      return;
-                                    }
-                                    if (editItemId) {
-                                      updateCartItem(editItemId, {
-                                        options: {
-                                          date: selectedDate?.date,
-                                          guests,
-                                          transfer: selectedTransfer,
-                                          totalPrice
-                                        }
-                                      });
-                                      navigate('/cart');
-                                    } else {
-                                      addToCart(product, {
-                                        date: selectedDate?.date,
-                                        guests,
-                                        transfer: selectedTransfer,
-                                        totalPrice
-                                      });
-                                      setIsAddedToCart(true);
-                                    }
-                                  }}
-                                  className="p-3.5 border-2 border-gray-100 rounded-xl text-gray-400 hover:border-gray-900 hover:text-gray-900 transition-all"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="md:hidden font-bold">{editItemId ? "Update Cart" : "Add to Cart"}</span>
-                                    {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>}
-                                  </div>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    if (!isLoggedIn) {
-                                      toast.error("Please login to proceed with booking", {
-                                        duration: 3000,
-                                        position: "top-center",
-                                        style: {
-                                          background: "#333",
-                                          color: "#fff",
-                                          borderRadius: "10px",
-                                          fontSize: "px",
-                                          fontWeight: "bold"
-                                        }
-                                      });
-                                      return;
-                                    }
-                                    if (editItemId) {
-                                      updateCartItem(editItemId, {
-                                        options: {
-                                          date: selectedDate?.date,
-                                          guests,
-                                          transfer: selectedTransfer,
-                                          totalPrice
-                                        }
-                                      });
-                                    } else {
-                                      addToCart(product, {
-                                        date: selectedDate?.date,
-                                        guests,
-                                        transfer: selectedTransfer,
-                                        totalPrice
-                                      });
-                                    }
-                                    setTimeout(() => navigate('/checkout'), 0);
-                                  }}
-                                  className="flex-1 md:flex-none px-10 py-3.5 bg-gray-600 cursor-pointer text-white rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 hover:bg-gray-700 transition-all active:scale-95 shadow-lg shadow-gray-200"
-                                >
-                                  {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><path d="M9 14l2 2 4-4" /></svg>}
-                                  {editItemId ? "Update Details" : "Proceed to pay"}
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <Link
-                                  to="/"
-                                  className="flex-1 md:flex-none px-10 py-3.5 bg-white border border-gray-200 text-gray-900 rounded-xl font-semibold text-[14px] flex items-center justify-center hover:border-gray-400 cursor-pointer transition-all active:scale-95"
-                                >
-                                  Continue Shopping
-                                </Link>
-                                <Link
-                                  to="/cart"
-                                  className="flex-1 md:flex-none px-10 py-3.5 bg-gray-500 text-white rounded-xl font-semibold text-[14px] flex items-center justify-center gap-3 hover:bg-gray-600 transition-all active:scale-95 shadow-lg shadow-gray-200"
-                                >
-                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
-                                  View Cart
-                                  <span className="w-5 h-5 bg-white text-gray-600 rounded-full flex items-center justify-center text-[11px]">{cartItems.length}</span>
-                                </Link>
-                              </>
-                            )}
+                            <span className="text-[11px] text-gray-400 font-medium">from</span>
+                            <div className="flex items-center gap-2">
+                              <div className="text-xl font-black text-gray-900">{currencySymbol} {convertPrice(basePrice).toFixed(2)}</div>
+                              {product?.pricing?.discountPrice && (
+                                <div className="text-[13px] text-gray-400 line-through">{currencySymbol} {convertPrice(product.pricing.actualPrice).toFixed(2)}</div>
+                              )}
+                            </div>
                           </div>
                         </div>
+                        <button
+                          onClick={() => setIsExpanded(true)}
+                          className="px-10 py-3 bg-gray-100 border border-gray-200 rounded-xl font-semibold text-[13px] hover:bg-gray-500 cursor-pointer hover:text-white transition-all active:scale-95"
+                        >
+                          Select
+                        </button>
                       </div>
+                    ) : (
+                      <div className="p-6 space-y-8">
+                        {/* Transfer Selection */}
+                        <div className="space-y-4">
+                          <h4 className="text-sm font-semibold text-gray-900">Select Transfer</h4>
+                          <div className="flex flex-wrap gap-3">
+                            {(product.transferOptions?.length > 0 ? product.transferOptions : [
+                              { name: "Without Transfer", type: "without_transfer", adultPrice: product.pricing?.discountPrice || product.pricing?.actualPrice },
+                              { name: "Shared Transfer", type: "shared", adultPrice: (product.pricing?.discountPrice || product.pricing?.actualPrice) + 50 },
+                              { name: "Private Transfer", type: "private", adultPrice: (product.pricing?.discountPrice || product.pricing?.actualPrice) + 100 }
+                            ]).map((opt, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => setSelectedTransfer(opt)}
+                                className={`px-6 py-2.5 rounded-xl font-semibold text-[13px] transition-all border-2 hover:cursor-pointer ${selectedTransfer?.name === opt.name
+                                  ? "bg-gray-600 border-gray-500 text-white shadow-sm"
+                                  : "bg-white border-gray-100 text-gray-600 hover:border-gray-300 "
+                                  }`}
+                              >
+                                {opt.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
 
-                      {/* Footer Info */}
-                      <div className="pt-6 border-t border-gray-50 flex flex-wrap gap-x-8 gap-y-3">
-                        <div className="px-4 py-2 bg-gray-50 rounded-lg">
-                          <p className="text-[11px] text-gray-500 font-medium">
-                            <span className="font-bold text-gray-700">Activity Start Time:</span> Pick up will be done between 08:30 am to 09:00 am
-                          </p>
+                        {/* Pricing Details */}
+                        <div className="space-y-4 pt-4 border-t border-gray-50">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-[13px] font-bold text-gray-700">
+                            <div>{guests.adult} Adult × {currencySymbol} {convertPrice(selectedTransfer?.adultPrice || basePrice).toFixed(0)}</div>
+                            {guests.teen > 0 && <div>{guests.teen} Teen × {currencySymbol} {convertPrice(teenPrice).toFixed(0)}</div>}
+                            {guests.kid > 0 && <div>{guests.kid} Kid × {currencySymbol} {convertPrice(kidPrice).toFixed(0)}</div>}
+                            {guests.child > 0 && <div>{guests.child} Child × {currencySymbol} {convertPrice(selectedTransfer?.childPrice || childPrice).toFixed(0)}</div>}
+                            {guests.infant > 0 && <div>{guests.infant} Infant × {currencySymbol} {convertPrice(selectedTransfer?.infantPrice || infantPrice).toFixed(0)}</div>}
+                          </div>
+                          <p className="text-[11px] text-gray-400 font-medium italic">All taxes and fees included</p>
+
+                          <div className="flex flex-col md:flex-row items-start md:items-center justify-between pt-4 gap-6">
+                            <div className="space-y-1">
+                              <span className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Total Amount</span>
+                              <div className="text-[24px] font-bold text-gray-800 leading-none">{currencySymbol} {convertPrice(totalPrice).toFixed(0)}</div>
+                            </div>
+                            <div className="flex items-center gap-3 w-full md:w-auto">
+                              {!isAddedToCart ? (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      if (!isLoggedIn) {
+                                        toast.error("Please login to add tours to your cart", {
+                                          duration: 3000,
+                                          position: "top-center",
+                                          style: {
+                                            background: "#333",
+                                            color: "#fff",
+                                            borderRadius: "10px",
+                                            fontSize: "14px",
+                                            fontWeight: "bold"
+                                          }
+                                        });
+                                        return;
+                                      }
+                                      if (editItemId) {
+                                        updateCartItem(editItemId, {
+                                          options: {
+                                            date: selectedDate?.date,
+                                            guests,
+                                            transfer: selectedTransfer,
+                                            totalPrice
+                                          }
+                                        });
+                                        navigate('/cart');
+                                      } else {
+                                        addToCart(product, {
+                                          date: selectedDate?.date,
+                                          guests,
+                                          transfer: selectedTransfer,
+                                          totalPrice
+                                        });
+                                        setIsAddedToCart(true);
+                                      }
+                                    }}
+                                    className="p-3.5 border-2 border-gray-100 rounded-xl text-gray-400 hover:border-gray-900 hover:text-gray-900 transition-all"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="md:hidden font-bold">{editItemId ? "Update Cart" : "Add to Cart"}</span>
+                                      {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>}
+                                    </div>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      if (!isLoggedIn) {
+                                        toast.error("Please login to proceed with booking", {
+                                          duration: 3000,
+                                          position: "top-center",
+                                          style: {
+                                            background: "#333",
+                                            color: "#fff",
+                                            borderRadius: "10px",
+                                            fontSize: "px",
+                                            fontWeight: "bold"
+                                          }
+                                        });
+                                        return;
+                                      }
+                                      if (editItemId) {
+                                        updateCartItem(editItemId, {
+                                          options: {
+                                            date: selectedDate?.date,
+                                            guests,
+                                            transfer: selectedTransfer,
+                                            totalPrice
+                                          }
+                                        });
+                                      } else {
+                                        addToCart(product, {
+                                          date: selectedDate?.date,
+                                          guests,
+                                          transfer: selectedTransfer,
+                                          totalPrice
+                                        });
+                                      }
+                                      setTimeout(() => navigate('/checkout'), 0);
+                                    }}
+                                    className="flex-1 md:flex-none px-10 py-3.5 bg-gray-600 cursor-pointer text-white rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 hover:bg-gray-700 transition-all active:scale-95 shadow-lg shadow-gray-200"
+                                  >
+                                    {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><path d="M9 14l2 2 4-4" /></svg>}
+                                    {editItemId ? "Update Details" : "Proceed to pay"}
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <Link
+                                    to="/"
+                                    className="flex-1 md:flex-none px-10 py-3.5 bg-white border border-gray-200 text-gray-900 rounded-xl font-semibold text-[14px] flex items-center justify-center hover:border-gray-400 cursor-pointer transition-all active:scale-95"
+                                  >
+                                    Continue Shopping
+                                  </Link>
+                                  <Link
+                                    to="/cart"
+                                    className="flex-1 md:flex-none px-10 py-3.5 bg-gray-500 text-white rounded-xl font-semibold text-[14px] flex items-center justify-center gap-3 hover:bg-gray-600 transition-all active:scale-95 shadow-lg shadow-gray-200"
+                                  >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
+                                    View Cart
+                                    <span className="w-5 h-5 bg-white text-gray-600 rounded-full flex items-center justify-center text-[11px]">{cartItems.length}</span>
+                                  </Link>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className="px-4 py-2 bg-gray-50 rounded-lg">
-                          <p className="text-[11px] text-gray-500 font-medium">
-                            <span className="font-bold text-gray-700">Duration:</span> {product.duration || "09:00 hours"}
-                          </p>
+
+                        {/* Footer Info */}
+                        <div className="pt-6 border-t border-gray-50 flex flex-wrap gap-x-8 gap-y-3">
+                          <div className="px-4 py-2 bg-gray-50 rounded-lg">
+                            <p className="text-[11px] text-gray-500 font-medium">
+                              <span className="font-bold text-gray-700">Activity Start Time:</span> Pick up will be done between 08:30 am to 09:00 am
+                            </p>
+                          </div>
+                          <div className="px-4 py-2 bg-gray-50 rounded-lg">
+                            <p className="text-[11px] text-gray-500 font-medium">
+                              <span className="font-bold text-gray-700">Duration:</span> {product.duration || "09:00 hours"}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            </section>
-            )}
+              </section>
+            ) : null}
 
           </div>
 
@@ -607,11 +657,21 @@ const Booking = () => {
                     </div>
                     <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
                       <Users size={14} className="text-gray-400" />
-                      {guests.adult} Adult {guests.child > 0 ? `, ${guests.child} Child` : ''} {guests.infant > 0 ? `, ${guests.infant} Infant` : ''}
+                      {guests.adult} Adult
+                      {guests.teen > 0 ? `, ${guests.teen} Teen` : ''}
+                      {guests.kid > 0 ? `, ${guests.kid} Kid` : ''}
+                      {guests.child > 0 ? `, ${guests.child} Child` : ''}
+                      {guests.infant > 0 ? `, ${guests.infant} Infant` : ''}
                     </div>
+                    {isCruise && selectedCabin && (
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4.5C2 12 3 13 4 13h16c1 0 2-1 2-2.5zM2 14.5V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4.5c0-1.5-1-2.5-2-2.5H4c-1 0-2 1-2 2.5z" /></svg>
+                        {selectedCabin.name}
+                      </div>
+                    )}
                     {isHoliday ? (
                       <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6 3L5 15l-3-1-1 1 3 3 3 3 1-1-1-3 4-4 3 6l1.2-.7c.4-.2.7-.6.6-1.1z"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6 3L5 15l-3-1-1 1 3 3 3 3 1-1-1-3 4-4 3 6l1.2-.7c.4-.2.7-.6.6-1.1z" /></svg>
                         {flightStatus === "No, I haven't" ? "Flight not booked" : "Flight booked"}
                       </div>
                     ) : selectedTransfer && (
@@ -636,6 +696,18 @@ const Booking = () => {
                     <span>{guests.adult} Adult x {currencySymbol} {convertPrice(selectedTransfer?.adultPrice || basePrice).toFixed(0)}</span>
                     <span className="text-gray-900 font-bold">{currencySymbol} {convertPrice(guests.adult * (selectedTransfer?.adultPrice || basePrice)).toFixed(0)}</span>
                   </div>
+                  {guests.teen > 0 && (
+                    <div className="flex justify-between text-[12px] font-medium text-gray-500">
+                      <span>{guests.teen} Teen x {currencySymbol} {convertPrice(teenPrice).toFixed(0)}</span>
+                      <span className="text-gray-900 font-bold">{currencySymbol} {convertPrice(guests.teen * teenPrice).toFixed(0)}</span>
+                    </div>
+                  )}
+                  {guests.kid > 0 && (
+                    <div className="flex justify-between text-[12px] font-medium text-gray-500">
+                      <span>{guests.kid} Kid x {currencySymbol} {convertPrice(kidPrice).toFixed(0)}</span>
+                      <span className="text-gray-900 font-bold">{currencySymbol} {convertPrice(guests.kid * kidPrice).toFixed(0)}</span>
+                    </div>
+                  )}
                   {guests.child > 0 && (
                     <div className="flex justify-between text-[12px] font-medium text-gray-500">
                       <span>{guests.child} Child x {currencySymbol} {convertPrice(selectedTransfer?.childPrice || childPrice).toFixed(0)}</span>
@@ -668,6 +740,7 @@ const Booking = () => {
                           guests,
                           selectedDate,
                           flightStatus,
+                          selectedCabin,
                           totalPrice
                         }
                       });
