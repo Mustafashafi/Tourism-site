@@ -1,6 +1,6 @@
-# Rayna Tours - Tour Booking Platform
+# Tour Booking Platform
 
-Welcome to the **Rayna Tours** project! This is a modern web application designed to help users browse, select, and book various tours and activities with ease.
+Welcome to the **Tours Booking Platform** project! This is a modern web application designed to help users browse, select, and book various tours and activities with ease.
 
 ## Project Structure
 
