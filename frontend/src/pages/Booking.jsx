@@ -166,8 +166,8 @@ const Booking = () => {
             {/* Select Date Section */}
             <section>
               <div className="flex justify-between items-baseline mb-6">
-                <h2 className="text-[22px] font-bold text-gray-900">Select Date</h2>
-                <span className="text-xs text-gray-400">All prices are in ( {currencySymbol} )</span>
+                <h2 className="text-xl font-semibold text-gray-900">Select Date</h2>
+                <span className="text-[10px] text-gray-500 font-medium">All prices are in ( {currencySymbol} )</span>
               </div>
 
               <div className="flex items-center gap-3 overflow-x-auto pb-6 pt-2 px-2 scrollbar-hide">
@@ -177,14 +177,13 @@ const Booking = () => {
                     <button
                       key={i}
                       onClick={() => setSelectedDate(d)}
-                      className={`flex flex-col items-center justify-center min-w-[85px] py-4 rounded-xl border-2 transition-all ${isSelected
-                        ? "border-[#374151] border-[3px] bg-white shadow-xl scale-105 z-10"
-                        : "border-gray-100 bg-white hover:border-gray-300"
+                      className={`flex flex-col items-center justify-center min-w-[80px] py-3 rounded-xl border transition-all ${isSelected
+                        ? "border-gray-900 bg-gray-50 shadow-sm z-10"
+                        : "border-gray-200 bg-white hover:border-gray-300"
                         }`}
                     >
-                      <span className="text-[10px] font-semibold text-gray-400 mb-1">{d.dayName}</span>
-                      <span className="text-[13px] font-semibold text-gray-700">{d.monthName} {d.dayNum}</span>
-                      <span className="text-[11px] font-semibold text-gray-400 mt-1">{convertPrice(d.price).toFixed(2)}</span>
+                      <span className="text-[10px] font-semibold text-gray-500 uppercase mb-1">{d.dayName}</span>
+                      <span className="text-sm font-semibold text-gray-900">{d.monthName} {d.dayNum}</span>
                     </button>
                   );
                 })}
@@ -193,7 +192,7 @@ const Booking = () => {
                   className="flex flex-col items-center justify-center min-w-[85px] py-4 rounded-xl border-2 border-gray-100 bg-white hover:border-gray-300"
                 >
                   <Calendar size={18} className="text-gray-400 mb-1" />
-                  <span className="text-[11px] font-bold text-gray-600 underline">More<br />dates</span>
+                  <span className="text-[10px] font-semibold text-gray-600">More dates</span>
                 </button>
               </div>
             </section>
@@ -315,26 +314,26 @@ const Booking = () => {
 
             {/* Select Number of Guests */}
             <section>
-              <h2 className="text-[22px] font-bold text-gray-900 mb-6">Select Number of Guests</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Select Number of Guests</h2>
               <div className="space-y-3">
                 {[
                   { id: 'adult', label: 'Adult', sub: '' },
                   { id: 'child', label: 'Child', sub: '' },
                   { id: 'infant', label: 'Infant', sub: '' }
                 ].map((row) => (
-                  <div key={row.id} className="flex items-center justify-between p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                    <span className="text-base font-bold text-gray-800">{row.label}</span>
+                  <div key={row.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl">
+                    <span className="text-sm font-semibold text-gray-800">{row.label}</span>
                     <div className="flex items-center gap-4">
                       <button
                         onClick={() => updateGuests(row.id, -1)}
-                        className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-900 transition-all active:scale-95"
+                        className="w-8 h-8 rounded border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all"
                       >
                         −
                       </button>
                       <span className="w-10 text-center font-bold text-gray-900">{guests[row.id]}</span>
                       <button
                         onClick={() => updateGuests(row.id, 1)}
-                        className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-900 transition-all active:scale-95"
+                        className="w-8 h-8 rounded border border-gray-200 flex items-center justify-center text-gray-500 hover:border-gray-900 hover:text-gray-900 transition-all"
                       >
                         +
                       </button>
@@ -345,13 +344,13 @@ const Booking = () => {
             </section>
 
             <section>
-              <h2 className="text-[22px] font-bold text-gray-900 mb-6">Choose from 1 available</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4" >Choose from 1 available</h2>
               <div className="space-y-4">
-                <div className={`bg-white rounded-[24px] overflow-hidden border transition-all duration-300 ${isExpanded ? 'border-gray-900 ring-1 ring-gray-900' : 'border-gray-100 shadow-sm'}`}>
+                <div className={`bg-white rounded-[24px] overflow-hidden border transition-all duration-300 ${isExpanded ? 'border-gray-400 ring-1 ring-gray-400' : 'border-gray-100 shadow-sm'}`}>
                   {/* Header */}
                   <div className="bg-gray-50/80 p-6 flex justify-between items-start">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">{product.name}</h3>
+                      <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
                       <p className="text-[11px] text-gray-400 font-medium mt-1">Non Refundable</p>
                     </div>
                     <button className="text-[11px] font-bold text-gray-500 flex items-center gap-1 hover:text-gray-900 transition-colors">
@@ -374,7 +373,7 @@ const Booking = () => {
                       </div>
                       <button
                         onClick={() => setIsExpanded(true)}
-                        className="px-10 py-3 bg-white border-2 border-gray-900 rounded-xl font-bold text-[13px] hover:bg-gray-900 hover:text-white transition-all active:scale-95"
+                        className="px-10 py-3 bg-gray-100 border border-gray-200 rounded-xl font-semibold text-[13px] hover:bg-gray-500 cursor-pointer hover:text-white transition-all active:scale-95"
                       >
                         Select
                       </button>
@@ -383,7 +382,7 @@ const Booking = () => {
                     <div className="p-6 space-y-8">
                       {/* Transfer Selection */}
                       <div className="space-y-4">
-                        <h4 className="text-sm font-bold text-gray-900">Select Transfer</h4>
+                        <h4 className="text-sm font-semibold text-gray-900">Select Transfer</h4>
                         <div className="flex flex-wrap gap-3">
                           {(product.transferOptions?.length > 0 ? product.transferOptions : [
                             { name: "Without Transfer", type: "without_transfer", adultPrice: product.pricing?.discountPrice || product.pricing?.actualPrice },
@@ -393,9 +392,9 @@ const Booking = () => {
                             <button
                               key={idx}
                               onClick={() => setSelectedTransfer(opt)}
-                              className={`px-6 py-2.5 rounded-xl font-bold text-[13px] transition-all border-2 ${selectedTransfer?.name === opt.name
-                                  ? "bg-gray-900 border-gray-900 text-white shadow-lg"
-                                  : "bg-white border-gray-100 text-gray-600 hover:border-gray-300"
+                              className={`px-6 py-2.5 rounded-xl font-semibold text-[13px] transition-all border-2 hover:cursor-pointer ${selectedTransfer?.name === opt.name
+                                ? "bg-gray-600 border-gray-500 text-white shadow-sm"
+                                : "bg-white border-gray-100 text-gray-600 hover:border-gray-300 "
                                 }`}
                             >
                               {opt.name}
@@ -415,8 +414,8 @@ const Booking = () => {
 
                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between pt-4 gap-6">
                           <div className="space-y-1">
-                            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Total Amount</span>
-                            <div className="text-[28px] font-black text-gray-900 leading-none">{currencySymbol} {convertPrice(totalPrice).toFixed(0)}</div>
+                            <span className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">Total Amount</span>
+                            <div className="text-[24px] font-bold text-gray-800 leading-none">{currencySymbol} {convertPrice(totalPrice).toFixed(0)}</div>
                           </div>
                           <div className="flex items-center gap-3 w-full md:w-auto">
                             {!isAddedToCart ? (
@@ -474,7 +473,7 @@ const Booking = () => {
                                           background: "#333",
                                           color: "#fff",
                                           borderRadius: "10px",
-                                          fontSize: "14px",
+                                          fontSize: "px",
                                           fontWeight: "bold"
                                         }
                                       });
@@ -499,7 +498,7 @@ const Booking = () => {
                                     }
                                     setTimeout(() => navigate('/checkout'), 0);
                                   }}
-                                  className="flex-1 md:flex-none px-10 py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200"
+                                  className="flex-1 md:flex-none px-10 py-3.5 bg-gray-600 cursor-pointer text-white rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 hover:bg-gray-700 transition-all active:scale-95 shadow-lg shadow-gray-200"
                                 >
                                   {editItemId ? <Check width="20" height="20" /> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><path d="M9 14l2 2 4-4" /></svg>}
                                   {editItemId ? "Update Details" : "Proceed to pay"}
@@ -509,17 +508,17 @@ const Booking = () => {
                               <>
                                 <Link
                                   to="/"
-                                  className="flex-1 md:flex-none px-10 py-3.5 bg-white border-2 border-gray-100 text-gray-900 rounded-xl font-bold text-[14px] flex items-center justify-center hover:border-gray-900 transition-all active:scale-95"
+                                  className="flex-1 md:flex-none px-10 py-3.5 bg-white border border-gray-200 text-gray-900 rounded-xl font-semibold text-[14px] flex items-center justify-center hover:border-gray-400 cursor-pointer transition-all active:scale-95"
                                 >
                                   Continue Shopping
                                 </Link>
                                 <Link
                                   to="/cart"
-                                  className="flex-1 md:flex-none px-10 py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-3 hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200"
+                                  className="flex-1 md:flex-none px-10 py-3.5 bg-gray-500 text-white rounded-xl font-semibold text-[14px] flex items-center justify-center gap-3 hover:bg-gray-600 transition-all active:scale-95 shadow-lg shadow-gray-200"
                                 >
                                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
                                   View Cart
-                                  <span className="w-5 h-5 bg-white text-gray-900 rounded-full flex items-center justify-center text-[11px] font-black">{cartItems.length}</span>
+                                  <span className="w-5 h-5 bg-white text-gray-600 rounded-full flex items-center justify-center text-[11px]">{cartItems.length}</span>
                                 </Link>
                               </>
                             )}
@@ -714,17 +713,17 @@ const Booking = () => {
                   <>
                     <Link
                       to="/"
-                      className="w-full py-3.5 bg-white border-2 border-gray-100 text-gray-900 rounded-xl font-bold text-[13px] flex items-center justify-center hover:border-gray-900 transition-all active:scale-95"
+                      className="w-full py-3.5 bg-white border-2 border-gray-100 text-gray-700 rounded-xl font-semibold text-[13px] flex items-center justify-center hover:border-gray-200 transition-all active:scale-95"
                     >
                       Continue Shopping
                     </Link>
                     <Link
                       to="/cart"
-                      className="w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-3 hover:bg-black transition-all shadow-lg shadow-gray-100"
+                      className="w-full py-3.5 bg-gray-500 text-white rounded-xl font-semibold text-[14px] flex items-center justify-center gap-3 hover:bg-gray-600 cursor-pointer transition-all shadow-lg shadow-gray-100"
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg>
                       View Cart
-                      <span className="w-5 h-5 bg-white text-gray-900 rounded-full flex items-center justify-center text-[11px] font-black">{cartItems.length}</span>
+                      <span className="w-5 h-5 bg-white text-gray-500 rounded-full flex items-center justify-center text-[11px]">{cartItems.length}</span>
                     </Link>
                   </>
                 )}
