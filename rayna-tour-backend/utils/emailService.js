@@ -62,7 +62,50 @@ const sendMagicLinkEmail = async (email, token) => {
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   }
 };
+const sendInquiryEmail = async (inquiryData) => {
+  if (!transporter) {
+    await initializeTransporter();
+  }
+
+  const mailOptions = {
+    from: '"Rayna Tours" <noreply@raynatours.com>',
+    to: "contact@skyrasoft.com",
+    subject: `New Inquiry Received: ${inquiryData.productName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px;">New Holiday Inquiry</h2>
+        
+        <h3 style="color: #444; margin-top: 20px;">Customer Details</h3>
+        <p><strong>Name:</strong> ${inquiryData.fullName}</p>
+        <p><strong>Phone:</strong> ${inquiryData.phoneNumber}</p>
+        <p><strong>Email:</strong> ${inquiryData.email}</p>
+        <p><strong>Accepts Offers:</strong> ${inquiryData.doNotSendOffers ? "No" : "Yes"}</p>
+
+        <h3 style="color: #444; margin-top: 20px;">Product & Booking Details</h3>
+        <p><strong>Product Name:</strong> ${inquiryData.productName}</p>
+        <p><strong>Date:</strong> ${inquiryData.bookingDetails.date || 'Not specified'}</p>
+        <p><strong>Guests:</strong> ${inquiryData.bookingDetails.guests.adult} Adult(s), ${inquiryData.bookingDetails.guests.child} Child(ren), ${inquiryData.bookingDetails.guests.infant} Infant(s)</p>
+        <p><strong>Flight Status:</strong> ${inquiryData.bookingDetails.flightStatus || 'Not specified'}</p>
+        
+        <h3 style="color: #444; margin-top: 20px;">Remarks</h3>
+        <p style="background: #f9f9f9; padding: 15px; border-radius: 5px;">${inquiryData.remarks || "No remarks provided."}</p>
+      </div>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Inquiry email successfully sent to: %s", info.accepted);
+    if (info.messageId.includes("ethereal")) {
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    }
+  } catch (error) {
+    console.error("Error sending inquiry email:", error);
+    throw error;
+  }
+};
 
 module.exports = {
   sendMagicLinkEmail,
+  sendInquiryEmail,
 };

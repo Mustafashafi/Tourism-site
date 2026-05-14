@@ -15,6 +15,7 @@ import ProductDetail from "./pages/ProductDetail";
 import CityDetail from "./pages/CityDetail";
 import Booking from "./pages/Booking";
 import VisaBooking from "./pages/VisaBooking";
+import SubmitRequest from "./pages/SubmitRequest";
 import { useState } from "react";
 import { LanguageCurrencyProvider } from "./context/LanguageCurrencyContext";
 import { CartProvider } from "./context/CartContext";
@@ -55,6 +56,7 @@ function App() {
         <Route path="/cruises/:slug" element={<ProductDetail/>}/>
         <Route path="/booking/:slug" element={<Booking/>}/>
         <Route path="/visa-booking/:slug" element={<VisaBooking/>}/>
+        <Route path="/submit-request/:slug" element={<SubmitRequest/>}/>
 
         {/* ── Other pages ── */}
         <Route path="/cart" element={<Cart/>}/>

@@ -87,7 +87,7 @@ function BookingCalendar({ product, price, currency = "AED" }) {
     (guests.child * childPrice) +
     (guests.infant * infantPrice)
   ) : 0;
-  
+
   const total = totalRaw.toLocaleString();
   const totalGuests = guests.adult + guests.child + guests.infant;
 
@@ -766,7 +766,7 @@ const ProductDetail = () => {
               <Share size={16} />
               <span>Share</span>
             </button>
-            <button 
+            <button
               onClick={() => {
                 const token = localStorage.getItem("token");
                 if (!token) {
@@ -1226,20 +1226,15 @@ const ProductDetail = () => {
                     {/* Primary Action Button */}
                     <button
                       onClick={() => {
-                        if (isBookNow || isCheckAvailability) {
-                          if (isVisa) {
-                            navigate(`/visa-booking/${product.slug}`);
-                          } else {
-                            navigate(`/booking/${product.slug}`);
-                          }
+                        if (isVisa) {
+                          navigate(`/visa-booking/${product.slug}`);
                         } else {
-                          // Handle email inquiry (e.g. open whatsapp)
-                          window.open(`https://wa.me/97142087444?text=I am interested in ${product.name}`, '_blank');
+                          navigate(`/booking/${product.slug}`);
                         }
                       }}
-                      className="flex-1 py-3.5 rounded-xl font-bold text-[15px] tracking-wide bg-[#2D2D2D] hover:bg-black text-white active:scale-[.98] transition-all shadow-sm"
+                      className="flex-1 py-3.5 rounded-xl font-semibold text-[15px] tracking-wide border border-gray-500 cursor-pointer transition-all shadow-sm"
                     >
-                      {isBookNow ? "Book Now" : isCheckAvailability ? "Check Availability" : "Book Now"}
+                      {isBookNow ? "Book Now" : isCheckAvailability ? "Check Availability" : "Email"}
                     </button>
 
                     {/* Secondary Action Icons */}
@@ -1329,9 +1324,9 @@ const ProductDetail = () => {
         </div>
       </div>
       <ExploreMore tabsData={finalExploreTabs} />
-      <LoginModal 
-        isOpen={isLoginOpen} 
-        onClose={() => setIsLoginOpen(false)} 
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
       />
     </div>
   );

@@ -320,7 +320,7 @@ const TourCard = ({
                   key={idx}
                   className="px-2.5 py-1 bg-gray-100 text-gray-600 text-[10px] font-medium rounded-full"
                 >
-                  {stop}
+                  {stop.title || stop}
                 </span>
               ))}
             </div>

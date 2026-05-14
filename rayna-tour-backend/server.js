@@ -9,6 +9,7 @@ const cityRoutes = require("./routes/cityRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const inquiryRoutes = require("./routes/inquiryRoutes");
 
 dotenv.config();
 
@@ -26,7 +27,8 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
@@ -35,6 +37,7 @@ app.use("/api/cities", cityRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/inquiries", inquiryRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Rayna Tours API is running" });

@@ -26,6 +26,7 @@ const Booking = () => {
   // State for selections
   const [selectedDate, setSelectedDate] = useState(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [flightStatus, setFlightStatus] = useState("No, I haven't");
   const [guests, setGuests] = useState({
     adult: 1,
     child: 0,
@@ -138,6 +139,9 @@ const Booking = () => {
     (guests.child * childPrice) +
     (guests.infant * infantPrice)
   ) : 0;
+
+  const isEmailOnly = product?.bookingType === "email";
+  const isHoliday = product?.category?.slug?.toLowerCase() === 'holidays' || product?.category?.name?.toLowerCase().includes('holiday');
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading booking...</div>;
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
@@ -319,7 +323,7 @@ const Booking = () => {
                 {[
                   { id: 'adult', label: 'Adult', sub: '' },
                   { id: 'child', label: 'Child', sub: '' },
-                  { id: 'infant', label: 'Infant', sub: '' }
+                  ...(!isHoliday ? [{ id: 'infant', label: 'Infant', sub: '' }] : [])
                 ].map((row) => (
                   <div key={row.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl">
                     <span className="text-sm font-semibold text-gray-800">{row.label}</span>
@@ -343,8 +347,32 @@ const Booking = () => {
               </div>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4" >Choose from 1 available</h2>
+            {isHoliday ? (
+              <section>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Select Flight Status</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { id: "No, I haven't", sub: "Need also a flight booking" },
+                    { id: "Yes, I have", sub: "No need of flight booking" }
+                  ].map(option => (
+                    <button
+                      key={option.id}
+                      onClick={() => setFlightStatus(option.id)}
+                      className={`flex flex-col items-start p-5 rounded-xl border transition-all text-left ${
+                        flightStatus === option.id 
+                          ? "border-gray-900 ring-1 ring-gray-900 bg-gray-50 shadow-sm" 
+                          : "border-gray-100 bg-white hover:border-gray-300"
+                      }`}
+                    >
+                      <span className="text-[14px] font-bold text-gray-900 mb-1">{option.id}</span>
+                      <span className="text-[11px] font-medium text-gray-500">{option.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ) : (
+              <section>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4" >Choose from 1 available</h2>
               <div className="space-y-4">
                 <div className={`bg-white rounded-[24px] overflow-hidden border transition-all duration-300 ${isExpanded ? 'border-gray-400 ring-1 ring-gray-400' : 'border-gray-100 shadow-sm'}`}>
                   {/* Header */}
@@ -544,6 +572,7 @@ const Booking = () => {
                 </div>
               </div>
             </section>
+            )}
 
           </div>
 
@@ -555,7 +584,7 @@ const Booking = () => {
               <div className="flex items-center gap-2 text-[11px] font-bold tracking-tight">
                 <span className="text-gray-900">1. Check Availability</span>
                 <ChevronRight size={12} className="text-gray-300" />
-                <span className="text-gray-400">2. Confirm and Pay</span>
+                <span className="text-gray-400">{isEmailOnly ? "2. Submit Request" : "2. Confirm and Pay"}</span>
               </div>
             </div>
 
@@ -580,7 +609,12 @@ const Booking = () => {
                       <Users size={14} className="text-gray-400" />
                       {guests.adult} Adult {guests.child > 0 ? `, ${guests.child} Child` : ''} {guests.infant > 0 ? `, ${guests.infant} Infant` : ''}
                     </div>
-                    {selectedTransfer && (
+                    {isHoliday ? (
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6 3L5 15l-3-1-1 1 3 3 3 3 1-1-1-3 4-4 3 6l1.2-.7c.4-.2.7-.6.6-1.1z"/></svg>
+                        {flightStatus === "No, I haven't" ? "Flight not booked" : "Flight booked"}
+                      </div>
+                    ) : selectedTransfer && (
                       <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h10" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /></svg>
                         {selectedTransfer.name}
@@ -625,7 +659,25 @@ const Booking = () => {
 
               {/* Action Buttons */}
               <div className="pt-2 space-y-3">
-                {!isAddedToCart ? (
+                {isEmailOnly ? (
+                  <button
+                    onClick={() => {
+                      navigate(`/submit-request/${product.slug}`, {
+                        state: {
+                          product,
+                          guests,
+                          selectedDate,
+                          flightStatus,
+                          totalPrice
+                        }
+                      });
+                    }}
+                    className="w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg shadow-gray-100"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    Submit Request
+                  </button>
+                ) : !isAddedToCart ? (
                   <>
                     <button
                       onClick={() => {
