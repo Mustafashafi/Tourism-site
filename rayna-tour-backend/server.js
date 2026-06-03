@@ -19,6 +19,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
+  "https://rayna-tourss.vercel.app",
+  "https://rayna-tourss-low3.vercel.app"
 ];
 
 app.use(
