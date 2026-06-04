@@ -19,13 +19,17 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = [
+const defaultAllowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
-  "https://carthage-travel-tourism.vercel.app",
-  "https://carthage-travel-tourism-low3.vercel.app"
+  "https://rayna-tourss.vercel.app",
+  "https://rayna-tourss-low3.vercel.app"
 ];
+
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map(origin => origin.trim())
+  : defaultAllowedOrigins;
 
 app.use(
   cors({

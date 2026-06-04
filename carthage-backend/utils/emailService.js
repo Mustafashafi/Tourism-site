@@ -35,7 +35,8 @@ const sendMagicLinkEmail = async (email, token) => {
   }
 
   // The URL the user will click in the email
-  const magicLink = `http://localhost:5173/verify-login?token=${token}`;
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const magicLink = `${frontendUrl}/verify-login?token=${token}`;
 
   const mailOptions = {
     from: '"Carthage Travel & Tourism" <noreply@carthagetravel.com>',
