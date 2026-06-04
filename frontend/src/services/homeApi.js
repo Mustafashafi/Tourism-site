@@ -95,5 +95,50 @@ export const homeApi = {
       throw new Error(getErrorMessage(error));
     }
   },
+
+  async getSubCategories(params = {}) {
+    try {
+      const { data } = await api.get("/sub-categories", { params });
+      return data?.data || [];
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  async getTourTypes() {
+    try {
+      const { data } = await api.get("/tour-types");
+      return data?.data || [];
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  async getNavigationHierarchy() {
+    try {
+      const { data } = await api.get("/products/navigation-hierarchy");
+      return data?.data || [];
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  async getTestimonials() {
+    try {
+      const { data } = await api.get("/testimonials");
+      return data?.data || [];
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
+
+  async getSettings() {
+    try {
+      const { data } = await api.get("/settings");
+      return data?.data || null;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  },
 };
 

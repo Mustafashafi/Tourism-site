@@ -1251,7 +1251,7 @@ const ProductDetail = () => {
 
                           {isBookNow && (
                             <a
-                              href="mailto:info@raynatours.com"
+                              href="mailto:info@carthagetravel.com"
                               className="w-[48px] h-[48px] rounded-full bg-[#F0F9FF] hover:bg-sky-100 flex items-center justify-center transition-colors"
                               title="Email Us"
                             >
@@ -1280,10 +1280,10 @@ const ProductDetail = () => {
               {/* Divider */}
               <div className="h-px bg-gray-100 mx-0" />
 
-              {/* ── Why choose Rayna Tours? ───────────────────────────────── */}
+              {/* ── Why choose Carthage Travel & Tourism? ───────────────────────────────── */}
               <div className="p-5">
                 <h3 className="text-base font-bold text-gray-900 mb-5">
-                  Why choose Rayna Tours?
+                  Why choose Carthage Travel & Tourism?
                 </h3>
                 <ul className="space-y-4">
                   {[

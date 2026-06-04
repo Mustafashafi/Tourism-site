@@ -17,7 +17,7 @@ export default function BestCities({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fallbackImage = "https://via.placeholder.com/600x400?text=Rayna+Tours";
+  const fallbackImage = "https://via.placeholder.com/600x400?text=Carthage+Tours";
 
   const currentCategory = useMemo(() => {
     if (typeof category === "string" && category.trim()) return category.trim().toLowerCase();
@@ -65,7 +65,16 @@ export default function BestCities({
           (Array.isArray(result) ? result : []).filter((c) => {
             const catsRaw = c?.categories ?? c?.category ?? [];
             const cats = Array.isArray(catsRaw) ? catsRaw : catsRaw ? [catsRaw] : [];
-            const isInCategory = cats.map((x) => String(x || "").toLowerCase()).includes(currentCategory);
+            const isInCategory = cats.map((x) => String(x || "").toLowerCase()).some(cat => {
+              const cleanCat = cat.trim();
+              return cleanCat === currentCategory ||
+                     (currentCategory === "activity" && cleanCat === "activities") ||
+                     (currentCategory === "holiday" && cleanCat === "holidays") ||
+                     (currentCategory === "cruise" && cleanCat === "cruises") ||
+                     (currentCategory === "activities" && cleanCat === "activity") ||
+                     (currentCategory === "holidays" && cleanCat === "holiday") ||
+                     (currentCategory === "cruises" && cleanCat === "cruise");
+            });
             const isActive = String(c?.status || "").toLowerCase() === "active";
             return isInCategory && isActive;
           })

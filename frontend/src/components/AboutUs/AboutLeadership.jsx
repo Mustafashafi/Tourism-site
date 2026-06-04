@@ -1,10 +1,10 @@
 import React from "react";
 import { FaLinkedinIn } from "react-icons/fa";
 
-// You can replace these placeholder images with the actual Rayna Tours executive images later
+// You can replace these placeholder images with the actual Carthage Travel & Tourism executive images later
 // The organic clip-path mask will look great when you drop in transparent cutout images!
 const leaders = [
-  { name: "Manoj Tulsani", role: "Founder · Rayna Tours", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop" },
+  { name: "Manoj Tulsani", role: "Founder · Carthage Travel & Tourism", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop" },
   { name: "Senthil Velan", role: "CEO", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop" },
   { name: "Prateek Tulsani", role: "CFO", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop" },
   { name: "Rinki Tulsani", role: "Head of Contracting · Travel Desks", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop" },

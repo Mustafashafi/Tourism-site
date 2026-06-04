@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const affiliationCards = [
   {
     title: "Boost Your Income as an...",
-    desc: "Earn commissions from day one with access to all Rayna's brands and powerful, easy-to-use tools...",
+    desc: "Earn commissions from day one with access to all Carthage's brands and powerful, easy-to-use tools...",
     bgImage: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800&auto=format&fit=crop",
     btnText: "Start earning with us"
   },
@@ -16,7 +16,7 @@ const affiliationCards = [
   },
   {
     title: "Scale Your Business, Maximiz...",
-    desc: "Access Rayna's exclusive global inventory, broad portfolio, and instant availability to drive strong...",
+    desc: "Access Carthage's exclusive global inventory, broad portfolio, and instant availability to drive strong...",
     bgImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop",
     btnText: "Start earning with us"
   }

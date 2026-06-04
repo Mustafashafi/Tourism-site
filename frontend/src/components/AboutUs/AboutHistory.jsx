@@ -5,7 +5,7 @@ const historyData = [
   {
     year: "2006",
     title: "Creating Memories Since 2006",
-    desc: "Rayna Tours started with a single travel desk at Flora Grand Hotel in Dubai, marking the company's first step into the travel industry.",
+    desc: "Carthage Travel & Tourism started with a single travel desk at Flora Grand Hotel in Dubai, marking the company's first step into the travel industry.",
     image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1200&auto=format&fit=crop" // Dubai Skyline
   },
   {
@@ -17,7 +17,7 @@ const historyData = [
   {
     year: "2009",
     title: "Incorporated as DMC",
-    desc: "Rayna Tours was incorporated as a Destination Management Company and established its formal headquarters in the Abu Hail area of Dubai.",
+    desc: "Carthage Travel & Tourism was incorporated as a Destination Management Company and established its formal headquarters in the Abu Hail area of Dubai.",
     image: "https://images.unsplash.com/photo-1582672093235-94943f5cf219?q=80&w=1200&auto=format&fit=crop"
   },
   {
@@ -56,8 +56,8 @@ const AboutHistory = () => {
     <section id="history" className="py-10 bg-white shrink-0 scroll-mt-20 w-full overflow-hidden">
       {/* Section Header - Still padded to match site alignment */}
       <div className="px-6 md:px-16 mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Rayna Tours History - Creating Memories Since 2006</h2>
-        <p className="text-gray-500 text-sm">History of Rayna Group of companies</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">Carthage Travel & Tourism History - Creating Memories Since 2006</h2>
+        <p className="text-gray-500 text-sm">History of Carthage Group of companies</p>
       </div>
 
       {/* Content Container - Edge to Edge */}

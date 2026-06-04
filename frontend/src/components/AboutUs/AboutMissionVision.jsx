@@ -10,7 +10,7 @@ const AboutMissionVision = () => {
     mission: {
       title: "Our Mission",
       image: missionImg,
-      content: "At Rayna Group, our mission is to redefine the travel experience by offering seamless, innovative, and fully customizable solutions for both industry partners and individual travelers. We strive to empower travel agencies, corporate clients, and leisure explorers with advanced tools, real-time access, and comprehensive support that simplifies travel planning from start to finish.\n\nThrough unwavering commitment to service excellence, transparent operations, and cutting-edge technology, we aim to create long-term value for our clients. Every interaction reflects our dedication to quality, trust, and meaningful customer relationships, ensuring that every journey—no matter the destination—is smooth, enriching, and memorable."
+      content: "At Carthage Group, our mission is to redefine the travel experience by offering seamless, innovative, and fully customizable solutions for both industry partners and individual travelers. We strive to empower travel agencies, corporate clients, and leisure explorers with advanced tools, real-time access, and comprehensive support that simplifies travel planning from start to finish.\n\nThrough unwavering commitment to service excellence, transparent operations, and cutting-edge technology, we aim to create long-term value for our clients. Every interaction reflects our dedication to quality, trust, and meaningful customer relationships, ensuring that every journey—no matter the destination—is smooth, enriching, and memorable."
     },
     vision: {
       title: "Our Vision",
@@ -30,11 +30,11 @@ const AboutMissionVision = () => {
         
         {/* Company Overview */}
         <div className="mb-10">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">About Rayna Tours</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">About Carthage Travel & Tourism</h2>
           <p className="text-sm text-gray-600 leading-relaxed max-w-4xl">
-            Rayna Group, a pioneer in the global travel and tourism industry since 2006, proudly presents its two flagship platforms: Rayna B2B and Rayna B2C. Headquartered in Dubai with a growing global footprint, we deliver world-class travel experiences to both end-users and travel professionals through cutting-edge technology, vast service offerings, and a relentless commitment to excellence. 
+            Carthage Group, a pioneer in the global travel and tourism industry since 2006, proudly presents its two flagship platforms: Carthage B2B and Carthage B2C. Headquartered in Dubai with a growing global footprint, we deliver world-class travel experiences to both end-users and travel professionals through cutting-edge technology, vast service offerings, and a relentless commitment to excellence. 
             <br className="hidden md:block" /><br className="hidden md:block" />
-            Our platforms are the culmination of years of industry expertise, driven by innovation, professionalism, and a passion for travel. Whether you’re a travel agency, a corporate client, or an individual explorer, Rayna is your trusted partner in seamless, enriching travel.
+            Our platforms are the culmination of years of industry expertise, driven by innovation, professionalism, and a passion for travel. Whether you’re a travel agency, a corporate client, or an individual explorer, Carthage is your trusted partner in seamless, enriching travel.
           </p>
         </div>
 

@@ -62,12 +62,26 @@ const TourCard = ({
   categorySlug,
   citySlug,
 }) => {
+  // ── Helper to format image paths ────────────────────────────────────────────
+  const formatImagePath = (imgSrc) => {
+    if (!imgSrc) return "";
+    if (imgSrc.startsWith("http://") || imgSrc.startsWith("https://")) {
+      return imgSrc;
+    }
+    // Clean any leading slash and prepend base URL (excluding trailing /api if it exists)
+    const base = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, "") : "";
+    const cleanSrc = imgSrc.startsWith("/") ? imgSrc : `/${imgSrc}`;
+    return `${base}${cleanSrc}`;
+  };
+
   // ── Normalise images into an array ──────────────────────────────────────────
-  const imageArray = Array.isArray(image)
+  const rawImages = Array.isArray(image)
     ? image
     : image
       ? [image]
-      : [fallbackImage || "https://via.placeholder.com/600x400?text=Rayna+Tours"];
+      : [fallbackImage || "https://via.placeholder.com/600x400?text=Carthage+Tours"];
+
+  const imageArray = rawImages.map(formatImagePath);
 
   const [currentImg, setCurrentImg] = useState(0);
   const { convertPrice, currencySymbol } = useLanguageCurrency();
@@ -96,10 +110,10 @@ const TourCard = ({
   const widthClass = isGrid
     ? "w-full"
     : isCruise
-      ? "shrink-0 w-80 md:w-96"
+      ? "shrink-0 w-[280px] sm:w-[320px] md:w-[360px]"
       : isCity
-        ? "shrink-0 w-52"
-        : "shrink-0 w-72";
+        ? "shrink-0 w-44 sm:w-52"
+        : "shrink-0 w-[240px] sm:w-[280px] md:w-[300px]";
 
   // ── Image height ─────────────────────────────────────────────────────────────
   const imgHeight = isCruise ? "h-56" : isCity ? "h-48" : "h-48";
@@ -109,11 +123,11 @@ const TourCard = ({
     ? "bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all"
     : isCruise
       ? "bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden flex flex-col"
-      : "bg-white rounded-2xl";
+      : "bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col";
 
   // ── Navigation Logic ────────────────────────────────────────────────────────
   const detailPath = slug && categorySlug ? `/${categorySlug}/${slug}` : null;
-  const cityPath = isCity && citySlug ? `/city/${citySlug}` : null;
+  const cityPath = isCity && citySlug ? `/tours?city=${citySlug}` : null;
 
   const CardWrapper = ({ children }) => {
     const linkTo = cityPath || detailPath;
@@ -144,7 +158,7 @@ const TourCard = ({
           alt={title || subtext || "Tour"}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
-            const next = fallbackImage || "https://via.placeholder.com/600x400?text=Rayna+Tours";
+            const next = fallbackImage || "https://via.placeholder.com/600x400?text=Carthage+Tours";
             if (e.currentTarget.src !== next) e.currentTarget.src = next;
           }}
         />
@@ -202,7 +216,7 @@ const TourCard = ({
           ? "p-4 pt-1 relative overflow-hidden"
           : isCruise
             ? "p-4 md:p-5 flex flex-col flex-grow"
-            : "mt-3 space-y-1"
+            : "p-4 space-y-2.5 flex flex-col flex-grow"
           }`}
       >
         {/* Title */}

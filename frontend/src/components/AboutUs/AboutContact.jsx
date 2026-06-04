@@ -4,8 +4,8 @@ import { Maximize2, MapPin } from "lucide-react";
 const contactData = {
   India: {
     title: "India",
-    address: "Rayna Tours and Travels, Ashtavinayak Rd, MITCON Lane, Balewadi, Pune, Maharashtra, India",
-    query: "Rayna Tours and Travels, Ashtavinayak Rd, MITCON Lane, Balewadi, Pune, Maharashtra, India"
+    address: "Carthage Travel & Tourism and Travels, Ashtavinayak Rd, MITCON Lane, Balewadi, Pune, Maharashtra, India",
+    query: "Carthage Travel & Tourism and Travels, Ashtavinayak Rd, MITCON Lane, Balewadi, Pune, Maharashtra, India"
   },
   "South Africa": {
     title: "South Africa",

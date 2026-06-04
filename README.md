@@ -7,8 +7,8 @@ Welcome to the **Tours Booking Platform** project! This is a modern web applicat
 The project is divided into three main parts:
 
 1.  **Frontend (`/frontend`)**: The main website where users can explore tours, view details, and manage their shopping cart. Built with React and Vite for a fast, responsive experience.
-2.  **Backend (`/rayna-tour-backend`)**: The engine that powers the application. It handles user authentication, product management, and cart synchronization using Node.js, Express, and MongoDB.
-3.  **Admin Panel (`/rayna-tour-admin-panel`)**: A dedicated dashboard for administrators to manage products, categories, and bookings.
+2.  **Backend (`/carthage-tour-backend`)**: The engine that powers the application. It handles user authentication, product management, and cart synchronization using Node.js, Express, and MongoDB.
+3.  **Admin Panel (`/carthage-tour-admin-panel`)**: A dedicated dashboard for administrators to manage products, categories, and bookings.
 
 ## Key Features
 
@@ -23,7 +23,7 @@ The project is divided into three main parts:
 Make sure you have **Node.js** and **MongoDB** installed on your system.
 
 ### 2. Setup the Backend
-- Go to the `rayna-tour-backend` folder.
+- Go to the `carthage-tour-backend` folder.
 - Run `npm install` to install dependencies.
 - Create a `.env` file and add your MongoDB connection string and Port.
 - Run `npm start` to launch the server.
@@ -34,7 +34,7 @@ Make sure you have **Node.js** and **MongoDB** installed on your system.
 - Run `npm run dev` to start the website locally.
 
 ### 4. Setup the Admin Panel
-- Go to the `rayna-tour-admin-panel` folder.
+- Go to the `carthage-tour-admin-panel` folder.
 - Run `npm install`.
 - Run `npm run dev` to access the administration dashboard.
 

@@ -1,131 +1,191 @@
-import React from 'react';
-import { Mail, Phone, MessageCircle} from 'lucide-react';
-import { FaFacebookF, FaLinkedinIn, FaTwitter, FaInstagram, FaYoutube   } from "react-icons/fa";
-import logo from '../assets/raynatourslogo.webp'
+import React, { useEffect, useState } from 'react';
+import { Mail, Phone, MapPin } from 'lucide-react';
+import { FaFacebookF, FaLinkedinIn, FaTwitter, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
+import logo from '../assets/Horizontal Full Logo.webp'
 import { Link } from 'react-router-dom';
+import { homeApi } from '../services/homeApi';
 
 const Footer = () => {
-  return (
-    <footer className="bg-white border-t border-gray-200 pt-8 pb-4 px-4">
-      <div className="max-w-[97%] mx-auto">
-        <div className=" flex justify-between flex-wrap flex-col md:flex-row  gap-12 mb-8">
-          
-          {/* Column 1: Brand & App Download */}
-          <div className="space-y-8">
-            <img 
-              src={logo} 
-              alt="Rayna Tours" 
-              className="h-12 w-auto"
-            />
-            <div className="space-y-2">
-              <h4 className="font-semibold text-gray-800">Download App</h4>
-              <div className="flex gap-3">
-                <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-10" /></a>
-                <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" className="h-10" /></a>
-              </div>
-            </div>
-          </div>
+  const [settings, setSettings] = useState(null);
+  const [subCategories, setSubCategories] = useState([]);
+  const [tourTypes, setTourTypes] = useState([]);
 
-          {/* Column 2: Company Links */}
+  useEffect(() => {
+    homeApi.getSettings()
+      .then(data => setSettings(data))
+      .catch(err => console.error("Failed to load footer settings:", err));
+
+    homeApi.getSubCategories()
+      .then(data => setSubCategories(Array.isArray(data) ? data.slice(0, 5) : []))
+      .catch(err => console.error("Failed to load subcategories for footer:", err));
+
+    homeApi.getTourTypes()
+      .then(data => setTourTypes(Array.isArray(data) ? data.slice(0, 5) : []))
+      .catch(err => console.error("Failed to load tour types for footer:", err));
+  }, []);
+
+  const socialLinks = settings?.socialLinks || {};
+  const contactDetails = settings?.contactDetails || {};
+
+  const phoneVal = contactDetails.phone || "+971 4 208 7444";
+  const emailVal = contactDetails.email || "info@carthagetravel.com";
+  const addressVal = contactDetails.address || "Dubai, UAE";
+  const descVal = contactDetails.description || "Your premier travel partner in the UAE, offering curated day tours, luxury cruises, and holiday packages.";
+
+  return (
+    <footer className="bg-[#111118] text-gray-300 border-t border-gray-800 pt-16 pb-8 px-6 font-sans">
+      <div className="max-w-[95%] lg:max-w-[80%] max-w-[1400px] mx-auto">
+        
+        {/* Top Tier: 5 Columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 mb-12">
+          
+          {/* Column 1: Destinations */}
           <div className="space-y-4">
-            <h4 className="font-bold text-gray-800 text-lg">Rayna Tours</h4>
-            <ul className="space-y-3 text-gray-500 text-sm">
-              <li><Link to={'/about-us'} className="hover:underline transition-colors">About us</Link></li>
-              <li><a href="#" className="hover:underline transition-colors">Partner with us</a></li>
-              <li><a href="#" className="hover:underline transition-colors">Become an affiliate</a></li>
+            <h4 className="font-bold text-white text-base tracking-wider uppercase">Destinations</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/tours?city=dubai" className="hover:text-white transition-colors">Dubai</Link></li>
+              <li><Link to="/tours?city=abu-dhabi" className="hover:text-white transition-colors">Abu Dhabi</Link></li>
+              <li><Link to="/tours?city=sharjah" className="hover:text-white transition-colors">Sharjah</Link></li>
+              <li><Link to="/tours?city=ras-al-khaimah" className="hover:text-white transition-colors">Ras Al Khaimah</Link></li>
             </ul>
           </div>
 
-          {/* Column 3: Contact & Help */}
+          {/* Column 2: Subcategories */}
           <div className="space-y-4">
-            <h4 className="font-bold text-gray-800 text-lg">Get Help 24/7</h4>
-            <div className="space-y-4 text-gray-500 text-sm">
-              <div className="flex items-center gap-3">
-                <Mail size={18} className="text-gray-400" />
-                <a href="mailto:help@raynatours.com" className='hover:underline'>help@raynatours.com</a>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone size={18} className="text-gray-400" />
-                <span className='hover:underline'>+971 42087112</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MessageCircle size={18} className="text-gray-400" />
-                <span className='hover:underline'>+971 42087112</span>
-              </div>
-            </div>
-
-            {/* Social Icons */}
-            <div className="flex gap-4 pt-4">
-              {[FaFacebookF , FaLinkedinIn , FaTwitter , FaInstagram, FaYoutube].map((Icon, idx) => (
-                <a key={idx} href="#" className="p-2 rounded-xl border border-gray-200  hover:bg-gray-50 text-gray-900 transition-all">
-                  <Icon size={15} />
-                </a>
+            <h4 className="font-bold text-white text-base tracking-wider uppercase">Subcategories</h4>
+            <ul className="space-y-2 text-sm">
+              {subCategories.map(sub => (
+                <li key={sub._id}>
+                  <Link to={`/tours?subCategory=${sub.slug}`} className="hover:text-white transition-colors">
+                    {sub.name}
+                  </Link>
+                </li>
               ))}
+            </ul>
+          </div>
+
+          {/* Column 3: Tour Types */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-white text-base tracking-wider uppercase">Tour Types</h4>
+            <ul className="space-y-2 text-sm">
+              {tourTypes.map(t => (
+                <li key={t._id}>
+                  <Link to={`/tours?tourType=${t.slug}`} className="hover:text-white transition-colors">
+                    {t.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: Legal & Policies */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-white text-base tracking-wider uppercase">Legal & Policies</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/about-us" className="hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms-conditions" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/refund-policy" className="hover:text-white transition-colors">Refund & Return Policy</Link></li>
+              <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+
+          {/* Column 5: Contact Details */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-white text-base tracking-wider uppercase">Contact Details</h4>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start gap-3">
+                <Phone size={16} className="text-[#CC1422] mt-0.5 shrink-0" />
+                <a href={`tel:${phoneVal.replace(/\s+/g, '')}`} className="hover:text-white transition-colors">
+                  {phoneVal}
+                </a>
+              </div>
+              <div className="flex items-start gap-3">
+                <Mail size={16} className="text-[#CC1422] mt-0.5 shrink-0" />
+                <a href={`mailto:${emailVal}`} className="hover:text-white transition-colors">
+                  {emailVal}
+                </a>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPin size={16} className="text-[#CC1422] mt-0.5 shrink-0" />
+                <span className="leading-snug">{addressVal}</span>
+              </div>
             </div>
           </div>
+
         </div>
 
-        {/* Bottom Bar: Copyright & Payments */}
-        <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-            <span>© 2026 Rayna Tours. Built by SkyraSoft</span>
-            <span className="hidden md:inline text-gray-200">|</span>
-            <a href="#" className="hover:underline">Privacy Policy</a>
-            <span className="hidden md:inline text-gray-200">|</span>
-            <a href="#" className="hover:underline">Terms & conditions</a>
+        {/* Second Tier: Copyright, Socials, Payments */}
+        <div className="border-t border-gray-800 pt-8 flex flex-col lg:flex-row justify-between items-center gap-6">
+          
+          {/* Left: Copyright */}
+          <div className="text-sm text-gray-500 text-center lg:text-left">
+            <span>© {new Date().getFullYear()} Carthage Travel & Tourism. All rights reserved.</span>
           </div>
 
-          {/* Payment Icons Placeholder */}
-<div className="flex flex-wrap items-center gap-4">
-  {/* Visa */}
-  {/* <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" 
-    alt="Visa" 
-    className="h-3 md:h-4 object-contain" 
-  /> */}
-  
-  {/* Mastercard */}
-  <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
-    alt="Mastercard" 
-    className="h-6 w-8 shadow border-gray-400 border rounded p-1 object-contain" 
-  />
-  
-  {/* American Express */}
-  <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg" 
-    alt="Amex" 
-    className="h-6 w-8 shadow border-gray-400 border rounded p-1 object-contain" 
-  />
+          {/* Center: Payment Icons */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
+              alt="Mastercard" 
+              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
+            />
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg" 
+              alt="Amex" 
+              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
+            />
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" 
+              alt="PayPal" 
+              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
+            />
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" 
+              alt="Apple Pay" 
+              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
+            />
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" 
+              alt="Google Pay" 
+              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
+            />
+          </div>
 
-  {/* PayPal */}
-  <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" 
-    alt="PayPal" 
-    className="h-6 w-8 shadow border-gray-400  border rounded p-1 object-contain" 
-  />
+          {/* Right: Dynamic Social Icons */}
+          <div className="flex gap-3">
+            {socialLinks.facebook && (
+              <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-[#CC1422] hover:text-white transition-all text-gray-400">
+                <FaFacebookF size={14} />
+              </a>
+            )}
+            {socialLinks.instagram && (
+              <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-[#CC1422] hover:text-white transition-all text-gray-400">
+                <FaInstagram size={14} />
+              </a>
+            )}
+            {socialLinks.twitter && (
+              <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-[#CC1422] hover:text-white transition-all text-gray-400">
+                <FaTwitter size={14} />
+              </a>
+            )}
+            {socialLinks.youtube && (
+              <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-[#CC1422] hover:text-white transition-all text-gray-400">
+                <FaYoutube size={14} />
+              </a>
+            )}
+            {socialLinks.linkedin && (
+              <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-[#CC1422] hover:text-white transition-all text-gray-400">
+                <FaLinkedinIn size={14} />
+              </a>
+            )}
+            {socialLinks.whatsapp && (
+              <a href={socialLinks.whatsapp} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-[#CC1422] hover:text-white transition-all text-gray-400">
+                <FaWhatsapp size={14} />
+              </a>
+            )}
+          </div>
 
-  {/* Maestro / Mada Style */}
-  {/* <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.svg" 
-    alt="Mada" 
-    className="h-5  border rounded p-1 object-contain" 
-  /> */}
-
-  {/* Apple Pay */}
-  <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" 
-    alt="Apple Pay" 
-    className="h-6 w-8 shadow border-gray-400   border rounded p-1 object-contain" 
-  />
-
-  {/* Google Pay */}
-  <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" 
-    alt="Google Pay" 
-    className="h-6 w-8 shadow border-gray-400   border rounded p-1 object-contain" 
-  />
-</div>
         </div>
       </div>
     </footer>

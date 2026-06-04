@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary:            #CC1422;
+  --primary-hover:      #A80F1A;
+  --primary-soft:       #FDEAEB;
+  --secondary:          #111118;
+  --secondary-hover:    #08080D;
+  --secondary-soft:     #F2F2F5;
+  --accent:             #C8912A;
+  --accent-hover:       #A87620;
+  --accent-soft:        #FEF3E0;
+  --success:            #15803D;
+  --success-hover:      #166534;
+  --success-soft:       #DCFCE7;
+  --warning:            #D97706;
+  --warning-hover:      #B45309;
+  --warning-soft:       #FEF3C7;
+  --danger:             #DC2626;
+  --danger-hover:       #B91C1C;
+  --danger-soft:        #FEE2E2;
+  --info:               #0284C7;
+  --info-hover:         #0369A1;
+  --info-soft:          #E0F2FE;
+  --white:              #FFFFFF;
+  --white-hover:        #F8F8F8;
+  --black:              #0A0A0A;
+  --black-hover:        #141414;
+  --gray-light:         #F5F5F5;
+  --gray:               #737373;
+  --gray-dark:          #1A1A1A;
+  --text-primary:       var(--primary);
+  --text-secondary:     var(--secondary);
+  --text-default:       var(--gray-dark);
+  --text-muted:         var(--gray);
+  --text-white:         var(--white);
+  --text-black:         var(--black);
+  --bg-page:            #FFFFFF;
+  --bg-surface:         #F9F9FA;
+  --bg-card:            #FFFFFF;
+  --bg-input:           #FFFFFF;
+  --bg-header:          var(--secondary);
+  --bg-footer:          var(--secondary);
+  --bg-footer-deep:     var(--secondary-hover);
+  --bg-primary:         var(--primary);
+  --bg-primary-hover:   var(--primary-hover);
+  --bg-primary-soft:    #FFF0F1;
+  --bg-secondary:       var(--secondary);
+  --bg-secondary-hover: var(--secondary-hover);
+  --bg-secondary-soft:  #F4F4F6;
+  --bg-accent:          var(--accent);
+  --bg-accent-hover:    var(--accent-hover);
+  --bg-accent-soft:     #FEF6E8;
+  --bg-success:         var(--success-soft);
+  --bg-warning:         var(--warning-soft);
+  --bg-danger:          var(--danger-soft);
+  --bg-info:            var(--info-soft);
+  --bg-light:           #F7F7F8;
+  --bg-muted:           #EFEFEF;
+  --border-primary:     var(--primary);
+  --border-secondary:   var(--secondary);
+  --border-accent:      var(--accent);
+  --border-success:     var(--success);
+  --border-warning:     var(--warning);
+  --border-danger:      var(--danger);
+  --border-info:        var(--info);
+  --border-default:     #E5E5E5;
+  --shadow-sm:          0 4px 20px rgba(0, 0, 0, .06);
+  --shadow-md:          0 8px 30px rgba(0, 0, 0, .10);
+  --shadow-lg:          0 12px 40px rgba(0, 0, 0, .16);
+  --shadow-primary:     0 10px 25px rgba(204, 20, 34, .26);
+  --gradient-primary:   linear-gradient(135deg, #CC1422, #A80F1A);
+  --gradient-luxury:    linear-gradient(135deg, #CC1422, #C8912A);
+  --gradient-heritage:  linear-gradient(135deg, #CC1422, #111118);
+  --gradient-dark:      linear-gradient(135deg, #08080D, #111118);
+  --gradient-light:     linear-gradient(135deg, #FFFFFF, #F5F5F5);
+}
+
+body {
+  @apply bg-surface-100 text-surface-900 font-sans antialiased;
+}
+
+#root {
+  @apply min-h-screen;
+}
+
+.input {
+  @apply w-full rounded-lg border border-surface-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition;
+}
+
+.btn-primary {
+  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+}
+
+.btn-secondary {
+  @apply btn bg-white border border-surface-200 text-surface-700 hover:bg-surface-50;
+}
+
+.card {
+  @apply rounded-xl border border-surface-200 bg-white shadow-card;
+}
