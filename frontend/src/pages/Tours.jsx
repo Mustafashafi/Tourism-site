@@ -37,12 +37,15 @@ const Tours = () => {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
+  // Ensure URL params are mapped to IDs before fetching products
+  const [paramsReady, setParamsReady] = useState(false);
 
   // Load all metadata options on mount
   useEffect(() => {
     const loadMetadata = async () => {
       try {
         setLoadingData(true);
+        setParamsReady(false);
         setError("");
         const [fetchedCities, fetchedCategories, fetchedSubCategories, fetchedTourTypes] = await Promise.all([
           homeApi.getCities(),
@@ -98,6 +101,9 @@ const Tours = () => {
     setMinDuration(urlMinDuration);
     setMaxDuration(urlMaxDuration);
 
+    // mark that params have been processed and mapped to IDs
+    setParamsReady(true);
+
   }, [searchParams, loadingData, cities, categories, subCategories, tourTypes]);
 
   // Handle dropdown/input updates by syncing them to searchParams
@@ -152,7 +158,7 @@ const Tours = () => {
 
   // Fetch products whenever filters are updated
   useEffect(() => {
-    if (loadingData) return;
+    if (loadingData || !paramsReady) return;
 
     const fetchFilteredProducts = async () => {
       try {
