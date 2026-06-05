@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { homeApi } from "../services/homeApi";
+import { toast } from "react-hot-toast";
 
 import { toCategoryRoute } from "../utils/mapping";
 import {
@@ -58,6 +59,17 @@ function BookingCalendar({ product, price, currency = "AED" }) {
   const [guests, setGuests] = useState({ adult: 1, child: 0, infant: 0 });
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const { currency: selectedCurrency, convertPrice, currencySymbol } = useLanguageCurrency();
+
+  const transferOptions = product?.transferOptions?.length 
+    ? product.transferOptions 
+    : [
+        { name: "Without Transfer", type: "without_transfer", adultPrice: 0, childPrice: 0, infantPrice: 0 },
+        { name: "Shared Transfer", type: "shared", adultPrice: 0, childPrice: 0, infantPrice: 0 },
+        { name: "Private Transfer", type: "private", adultPrice: 0, childPrice: 0, infantPrice: 0 }
+      ];
+
+  const [selectedTransfer, setSelectedTransfer] = useState(transferOptions[0] || { name: "Without Transfer", type: "without_transfer", adultPrice: 0 });
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -82,10 +94,18 @@ function BookingCalendar({ product, price, currency = "AED" }) {
     }));
   };
 
+  const transferAdultAddon = Number(selectedTransfer.adultPrice || 0);
+  const transferChildAddon = Number(selectedTransfer.childPrice || 0);
+  const transferInfantAddon = Number(selectedTransfer.infantPrice || 0);
+
+  const adultFinalPrice = price + transferAdultAddon;
+  const childFinalPrice = childPrice + transferChildAddon;
+  const infantFinalPrice = infantPrice + transferInfantAddon;
+
   const totalRaw = price ? (
-    (guests.adult * price) +
-    (guests.child * childPrice) +
-    (guests.infant * infantPrice)
+    (guests.adult * adultFinalPrice) +
+    (guests.child * childFinalPrice) +
+    (guests.infant * infantFinalPrice)
   ) : 0;
 
   const total = totalRaw.toLocaleString();
@@ -141,6 +161,25 @@ function BookingCalendar({ product, price, currency = "AED" }) {
         })}
       </div>
 
+      {/* Transfer Option Dropdown */}
+      <div className="space-y-1">
+        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Select Transfer</label>
+        <select
+          className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-all cursor-pointer"
+          value={selectedTransfer.type}
+          onChange={(e) => {
+            const opt = transferOptions.find(o => o.type === e.target.value);
+            if (opt) setSelectedTransfer(opt);
+          }}
+        >
+          {transferOptions.map((opt) => (
+            <option key={opt.type} value={opt.type}>
+              {opt.name} {Number(opt.adultPrice) > 0 ? `(+ ${currencySymbol} ${convertPrice(opt.adultPrice).toFixed(0)})` : ""}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Guests */}
       <div className="space-y-2">
         {[
@@ -189,6 +228,7 @@ function BookingCalendar({ product, price, currency = "AED" }) {
           addToCart(product, {
             date: new Date(year, month, selected.d).toISOString(),
             guests,
+            transfer: selectedTransfer,
             totalPrice: totalRaw
           });
         }}
@@ -506,6 +546,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isInWishlist, setIsInWishlist] = useState(false);
   const [openSections, setOpenSections] = useState([0]); // First section open by default
   const [reviews, setReviews] = useState([]);
   const [sortedReviews, setSortedReviews] = useState([]);
@@ -537,6 +578,53 @@ const ProductDetail = () => {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  useEffect(() => {
+    if (product) {
+      document.title = product.seo?.metaTitle || product.name || "Carthage Travel";
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.name = 'description';
+        document.head.appendChild(metaDescription);
+      }
+      metaDescription.content = product.seo?.metaDescription || "Book top holiday packages and activities with Carthage Travel.";
+
+      const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+      setIsInWishlist(wishlist.some(item => item._id === product._id));
+    }
+  }, [product]);
+
+  const handleWishlistToggle = () => {
+    let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    if (isInWishlist) {
+      wishlist = wishlist.filter(item => item._id !== product._id);
+      setIsInWishlist(false);
+      toast.success("Removed from wishlist 💔");
+    } else {
+      wishlist.push(product);
+      setIsInWishlist(true);
+      toast.success("Added to wishlist! ❤️");
+    }
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: product.seo?.focusKeyphrase || "Check out this amazing tour!",
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log("Web Share failed", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard! 📋");
+    }
+  };
 
   useEffect(() => {
     if (product?.category?._id) {
@@ -762,23 +850,21 @@ const ProductDetail = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="flex items-center gap-2 cursor-pointer font-medium">
+            <button 
+              onClick={handleShare}
+              className="flex items-center gap-2 cursor-pointer font-medium hover:text-orange-500 transition-colors"
+            >
               <Share size={16} />
               <span>Share</span>
             </button>
             <button
-              onClick={() => {
-                const token = localStorage.getItem("token");
-                if (!token) {
-                  setIsLoginOpen(true);
-                } else {
-                  // Wishlist logic would go here if implemented
-                }
-              }}
-              className="flex items-center gap-2 cursor-pointer font-medium hover:text-orange-500 transition-colors"
+              onClick={handleWishlistToggle}
+              className={`flex items-center gap-2 cursor-pointer font-medium hover:text-orange-500 transition-colors ${
+                isInWishlist ? "text-orange-500 font-semibold" : ""
+              }`}
             >
-              <Heart size={16} />
-              <span>Add to Wishlist</span>
+              <Heart size={16} className={isInWishlist ? "fill-orange-500 text-orange-500" : ""} />
+              <span>{isInWishlist ? "Wishlisted" : "Add to Wishlist"}</span>
             </button>
           </div>
         </div>

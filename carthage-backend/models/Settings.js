@@ -19,6 +19,21 @@ const settingsSchema = new mongoose.Schema(
       address: { type: String, default: "" },
       description: { type: String, default: "" },
     },
+    stripe: {
+      publicKey: { type: String, default: "" },
+      secretKey: { type: String, default: "" },
+      enabled: { type: Boolean, default: false },
+    },
+    paypal: {
+      clientId: { type: String, default: "" },
+      clientSecret: { type: String, default: "" },
+      enabled: { type: Boolean, default: false },
+    },
+    etihadPay: {
+      merchantId: { type: String, default: "" },
+      apiKey: { type: String, default: "" },
+      enabled: { type: Boolean, default: false },
+    },
   },
   { timestamps: true }
 );

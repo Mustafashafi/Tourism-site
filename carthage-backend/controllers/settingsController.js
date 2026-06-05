@@ -49,6 +49,28 @@ exports.updateSettings = async (req, res) => {
       };
     }
 
+    if (req.body.stripe) {
+      settings.stripe = {
+        publicKey: req.body.stripe.publicKey || "",
+        secretKey: req.body.stripe.secretKey || "",
+        enabled: req.body.stripe.enabled ?? false,
+      };
+    }
+    if (req.body.paypal) {
+      settings.paypal = {
+        clientId: req.body.paypal.clientId || "",
+        clientSecret: req.body.paypal.clientSecret || "",
+        enabled: req.body.paypal.enabled ?? false,
+      };
+    }
+    if (req.body.etihadPay) {
+      settings.etihadPay = {
+        merchantId: req.body.etihadPay.merchantId || "",
+        apiKey: req.body.etihadPay.apiKey || "",
+        enabled: req.body.etihadPay.enabled ?? false,
+      };
+    }
+
     await settings.save();
     return res.status(200).json({ message: "Settings updated successfully.", data: settings });
   } catch (error) {

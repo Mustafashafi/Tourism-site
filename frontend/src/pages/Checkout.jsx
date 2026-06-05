@@ -18,6 +18,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { homeApi } from '../services/homeApi';
 
 const COUNTRY_CODES = [
   { code: '+971', iso: 'ae', name: 'UAE' },
@@ -62,6 +63,11 @@ const Checkout = () => {
 
   const [promoCode, setPromoCode] = useState('');
   const [timeLeft, setTimeLeft] = useState(600);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    homeApi.getSettings().then(setSettings).catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (cartCount === 0) {
@@ -111,17 +117,49 @@ const Checkout = () => {
       toast.error('Please fill in your details');
       return;
     }
-    if (paymentMethod === 'card' && (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv)) {
-      toast.error('Please fill in card details');
-      return;
+    if (paymentMethod === 'card') {
+      if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv) {
+        toast.error('Please fill in card details');
+        return;
+      }
+      if (settings?.stripe?.enabled) {
+        console.log("Stripe payment initiated with PK:", settings.stripe.publicKey);
+      }
+    }
+    if (paymentMethod === 'etihad') {
+      if (settings?.etihadPay?.enabled) {
+        console.log("Etihad Guest Pay initiated with Merchant ID:", settings.etihadPay.merchantId);
+      }
     }
 
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      toast.success('Payment Successful! Your booking is confirmed.');
+      // Save booking to booking history in localStorage
+      const newBooking = {
+        id: `BK-${Math.floor(100000 + Math.random() * 900000)}`,
+        date: new Date().toISOString(),
+        items: cartItems.map(item => ({
+          name: item.product?.name,
+          image: item.product?.images?.[0] || item.product?.image,
+          price: item.options?.totalPrice || 0,
+          details: item.options?.transfer?.name || item.options?.visaOption?.title || 'Standard Booking'
+        })),
+        paymentMethod,
+        total: total,
+        status: paymentMethod === 'spot' ? 'Pending Payment (On the spot)' : 'Paid & Confirmed'
+      };
+      const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+      bookings.unshift(newBooking);
+      localStorage.setItem("bookings", JSON.stringify(bookings));
+
+      toast.success(
+        paymentMethod === 'spot'
+          ? 'Booking Confirmed! You can pay on the spot.'
+          : 'Payment Successful! Your booking is confirmed.'
+      );
       clearCart();
-      navigate('/');
+      navigate('/profile');
     }, 2000);
   };
 
@@ -274,7 +312,7 @@ const Checkout = () => {
               <h2 className="text-lg font-semibold text-gray-900 tracking-tight mb-5">Payment Method</h2>
 
               <div className="space-y-5">
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="grid sm:grid-cols-3 gap-3">
                   <label className={`flex items-center justify-between p-3.5 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'card' ? 'border-gray-900 bg-gray-50/50 ring-1 ring-gray-900' : 'border-gray-200 hover:border-gray-300'}`}>
                     <div className="flex items-center gap-2.5">
                       <div className="w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
@@ -307,6 +345,23 @@ const Checkout = () => {
                       <span className={`text-[13px] font-medium ${paymentMethod === 'etihad' ? 'text-gray-900' : 'text-gray-600'}`}>Etihad Guest Pay</span>
                     </div>
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Etihad_Airways_logo.svg/1280px-Etihad_Airways_logo.svg.png" className={`h-3.5 object-contain ${paymentMethod === 'etihad' ? '' : 'grayscale opacity-50'}`} alt="Etihad" />
+                  </label>
+
+                  <label className={`flex items-center justify-between p-3.5 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'spot' ? 'border-gray-900 bg-gray-50/50 ring-1 ring-gray-900' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                        <input
+                          type="radio"
+                          name="payment"
+                          className="peer sr-only"
+                          checked={paymentMethod === 'spot'}
+                          onChange={() => setPaymentMethod('spot')}
+                        />
+                        <div className={`w-2 h-2 rounded-full ${paymentMethod === 'spot' ? 'bg-gray-900' : 'bg-transparent'}`}></div>
+                      </div>
+                      <span className={`text-[13px] font-medium ${paymentMethod === 'spot' ? 'text-gray-900' : 'text-gray-600'}`}>Pay on the Spot</span>
+                    </div>
+                    <MapPin size={16} className={paymentMethod === 'spot' ? 'text-gray-900' : 'text-gray-400'} />
                   </label>
                 </div>
 

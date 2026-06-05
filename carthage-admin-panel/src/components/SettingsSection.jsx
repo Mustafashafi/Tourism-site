@@ -24,6 +24,21 @@ const SettingsSection = () => {
       address: "",
       description: "",
     },
+    stripe: {
+      publicKey: "",
+      secretKey: "",
+      enabled: false,
+    },
+    paypal: {
+      clientId: "",
+      clientSecret: "",
+      enabled: false,
+    },
+    etihadPay: {
+      merchantId: "",
+      apiKey: "",
+      enabled: false,
+    },
   });
 
   const fetchSettings = async () => {
@@ -48,6 +63,21 @@ const SettingsSection = () => {
             email: data.contactDetails?.email || "",
             address: data.contactDetails?.address || "",
             description: data.contactDetails?.description || "",
+          },
+          stripe: {
+            publicKey: data.stripe?.publicKey || "",
+            secretKey: data.stripe?.secretKey || "",
+            enabled: !!data.stripe?.enabled,
+          },
+          paypal: {
+            clientId: data.paypal?.clientId || "",
+            clientSecret: data.paypal?.clientSecret || "",
+            enabled: !!data.paypal?.enabled,
+          },
+          etihadPay: {
+            merchantId: data.etihadPay?.merchantId || "",
+            apiKey: data.etihadPay?.apiKey || "",
+            enabled: !!data.etihadPay?.enabled,
           },
         });
       }
@@ -216,6 +246,122 @@ const SettingsSection = () => {
                 value={form.contactDetails.description}
                 onChange={(e) => handleContactChange("description", e.target.value)}
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Gateway Credentials Setup */}
+        <div className="space-y-4 pt-4 border-t">
+          <h3 className="text-sm font-bold text-surface-700 uppercase tracking-wider border-b pb-1 font-sans">Payment Gateways Setup</h3>
+          
+          {/* Stripe Setup */}
+          <div className="p-4 border border-surface-200 rounded-xl bg-surface-50/50 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-surface-700 uppercase">Stripe Gateway</h4>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.stripe?.enabled}
+                  onChange={(e) => setForm(prev => ({ ...prev, stripe: { ...prev.stripe, enabled: e.target.checked } }))}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-xs font-semibold text-surface-600">Enable Stripe</span>
+              </label>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-surface-500">Public Key</label>
+                <input
+                  className="input bg-white text-xs"
+                  placeholder="pk_live_..."
+                  value={form.stripe?.publicKey}
+                  onChange={(e) => setForm(prev => ({ ...prev, stripe: { ...prev.stripe, publicKey: e.target.value } }))}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-surface-500">Secret Key</label>
+                <input
+                  className="input bg-white text-xs"
+                  type="password"
+                  placeholder="sk_live_..."
+                  value={form.stripe?.secretKey}
+                  onChange={(e) => setForm(prev => ({ ...prev, stripe: { ...prev.stripe, secretKey: e.target.value } }))}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* PayPal Setup */}
+          <div className="p-4 border border-surface-200 rounded-xl bg-surface-50/50 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-surface-700 uppercase">PayPal Gateway</h4>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.paypal?.enabled}
+                  onChange={(e) => setForm(prev => ({ ...prev, paypal: { ...prev.paypal, enabled: e.target.checked } }))}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-xs font-semibold text-surface-600">Enable PayPal</span>
+              </label>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-surface-500">Client ID</label>
+                <input
+                  className="input bg-white text-xs"
+                  placeholder="PayPal Client ID"
+                  value={form.paypal?.clientId}
+                  onChange={(e) => setForm(prev => ({ ...prev, paypal: { ...prev.paypal, clientId: e.target.value } }))}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-surface-500">Client Secret</label>
+                <input
+                  className="input bg-white text-xs"
+                  type="password"
+                  placeholder="PayPal Client Secret"
+                  value={form.paypal?.clientSecret}
+                  onChange={(e) => setForm(prev => ({ ...prev, paypal: { ...prev.paypal, clientSecret: e.target.value } }))}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Etihad Pay Setup */}
+          <div className="p-4 border border-surface-200 rounded-xl bg-surface-50/50 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-surface-700 uppercase">Etihad Guest Pay Gateway</h4>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.etihadPay?.enabled}
+                  onChange={(e) => setForm(prev => ({ ...prev, etihadPay: { ...prev.etihadPay, enabled: e.target.checked } }))}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-xs font-semibold text-surface-600">Enable Etihad Pay</span>
+              </label>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-surface-500">Merchant ID</label>
+                <input
+                  className="input bg-white text-xs"
+                  placeholder="Etihad Merchant ID"
+                  value={form.etihadPay?.merchantId}
+                  onChange={(e) => setForm(prev => ({ ...prev, etihadPay: { ...prev.etihadPay, merchantId: e.target.value } }))}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-surface-500">API Key / Secret</label>
+                <input
+                  className="input bg-white text-xs"
+                  type="password"
+                  placeholder="Etihad API Key"
+                  value={form.etihadPay?.apiKey}
+                  onChange={(e) => setForm(prev => ({ ...prev, etihadPay: { ...prev.etihadPay, apiKey: e.target.value } }))}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Heart,
   Star,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguageCurrency } from "../context/LanguageCurrencyContext";
+import { toast } from "react-hot-toast";
 
 /**
  * TourCard — Universal card for the entire website.
@@ -40,6 +41,8 @@ import { useLanguageCurrency } from "../context/LanguageCurrencyContext";
  * @prop {string}          categorySlug - Category slug (e.g., 'activities', 'holidays')
  */
 const TourCard = ({
+  _id,
+  rawProduct,
   image,
   fallbackImage,
   title,
@@ -62,6 +65,39 @@ const TourCard = ({
   categorySlug,
   citySlug,
 }) => {
+  const [isInWishlist, setIsInWishlist] = useState(false);
+
+  useEffect(() => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    const idToCompare = _id || slug;
+    setIsInWishlist(wishlist.some(item => (item._id === idToCompare || item.slug === idToCompare)));
+  }, [_id, slug]);
+
+  const handleWishlistToggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    const idToCompare = _id || slug;
+    const exists = wishlist.some(item => (item._id === idToCompare || item.slug === idToCompare));
+
+    if (exists) {
+      wishlist = wishlist.filter(item => !(item._id === idToCompare || item.slug === idToCompare));
+      setIsInWishlist(false);
+      toast.success("Removed from wishlist 💔");
+    } else {
+      const productObj = rawProduct || {
+        _id: _id || slug,
+        slug,
+        name: title,
+        pricing: { actualPrice: price, discountPrice: price },
+        images: Array.isArray(image) ? image : [image]
+      };
+      wishlist.push(productObj);
+      setIsInWishlist(true);
+      toast.success("Added to wishlist! ❤️");
+    }
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  };
   // ── Helper to format image paths ────────────────────────────────────────────
   const formatImagePath = (imgSrc) => {
     if (!imgSrc) return "";
@@ -69,7 +105,7 @@ const TourCard = ({
       return imgSrc;
     }
     // Clean any leading slash and prepend base URL (excluding trailing /api if it exists)
-    const base = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, "") : "";
+    const base = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, "") : "http://localhost:5000";
     const cleanSrc = imgSrc.startsWith("/") ? imgSrc : `/${imgSrc}`;
     return `${base}${cleanSrc}`;
   };
@@ -172,10 +208,15 @@ const TourCard = ({
 
         {/* Wishlist heart — shown on non-city cards */}
         {!isCity && !hidePricing && (
-          <button className="absolute top-3 right-3 z-10 transition-transform hover:scale-110">
+          <button 
+            onClick={handleWishlistToggle}
+            className="absolute top-3 right-3 z-10 transition-transform hover:scale-110 cursor-pointer"
+          >
             <Heart
               size={isCruise ? 24 : 18}
-              className="text-white drop-shadow-md stroke-[1.5px]"
+              className={`drop-shadow-md stroke-[1.5px] transition-colors ${
+                isInWishlist ? "text-orange-500 fill-orange-500" : "text-white"
+              }`}
             />
           </button>
         )}

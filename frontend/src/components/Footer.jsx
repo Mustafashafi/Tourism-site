@@ -15,13 +15,17 @@ const Footer = () => {
       .then(data => setSettings(data))
       .catch(err => console.error("Failed to load footer settings:", err));
 
-    homeApi.getSubCategories()
-      .then(data => setSubCategories(Array.isArray(data) ? data.slice(0, 5) : []))
-      .catch(err => console.error("Failed to load subcategories for footer:", err));
-
-    homeApi.getTourTypes()
-      .then(data => setTourTypes(Array.isArray(data) ? data.slice(0, 5) : []))
-      .catch(err => console.error("Failed to load tour types for footer:", err));
+    Promise.all([
+      homeApi.getSubCategories(),
+      homeApi.getTourTypes(),
+      homeApi.getProducts({ limit: 100 })
+    ]).then(([subs, types, prods]) => {
+      const activeSubIds = new Set(prods.map(p => p.subCategory?._id || p.subCategory));
+      const activeTypeIds = new Set(prods.map(p => p.tourType?._id || p.tourType));
+      
+      setSubCategories(Array.isArray(subs) ? subs.filter(s => activeSubIds.has(s._id)) : []);
+      setTourTypes(Array.isArray(types) ? types.filter(t => activeTypeIds.has(t._id)) : []);
+    }).catch(err => console.error("Failed to load footer lists:", err));
   }, []);
 
   const socialLinks = settings?.socialLinks || {};

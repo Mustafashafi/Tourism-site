@@ -107,6 +107,18 @@ const normalizePayload = (payload) => {
     normalized.durationInHours = normalized.durationInHours === "" || normalized.durationInHours === null ? null : Number(normalized.durationInHours);
   }
 
+  if (normalized.durationInDays !== undefined) {
+    normalized.durationInDays = normalized.durationInDays === "" || normalized.durationInDays === null ? null : Number(normalized.durationInDays);
+  }
+
+  if (normalized.seo !== undefined && normalized.seo !== null) {
+    normalized.seo = {
+      metaTitle: String(normalized.seo.metaTitle || "").trim(),
+      metaDescription: String(normalized.seo.metaDescription || "").trim(),
+      focusKeyphrase: String(normalized.seo.focusKeyphrase || "").trim(),
+    };
+  }
+
   if (Array.isArray(normalized.visaOptions)) {
     normalized.visaOptions = normalized.visaOptions
       .filter((v) => v && v.title)
@@ -206,6 +218,8 @@ exports.createProduct = async (req, res) => {
       itinerary,
       duration,
       durationInHours,
+      durationInDays,
+      seo,
       manualCity,
       inclusions,
       exclusions,
@@ -245,6 +259,8 @@ exports.createProduct = async (req, res) => {
       itinerary,
       duration,
       durationInHours,
+      durationInDays,
+      seo,
       manualCity,
       inclusions,
       exclusions,

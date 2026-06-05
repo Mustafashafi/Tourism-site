@@ -49,6 +49,8 @@ export const mapProductToCard = (product) => {
   const rawCategorySlug = product.category?.slug || "";
 
   return {
+    _id: product._id,
+    rawProduct: product,
     title: product.name || "",
     image: images,
     subtext: product.city?.name || product.manualCity || "",

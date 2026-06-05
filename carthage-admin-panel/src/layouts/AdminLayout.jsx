@@ -8,6 +8,7 @@ const navItems = [
   { label: "Cities", to: "/cities" },
   { label: "Tour Types", to: "/tour-types" },
   { label: "Products", to: "/products" },
+  { label: "Testimonials", to: "/testimonials" },
   { label: "Settings", to: "/settings" },
 ];
 

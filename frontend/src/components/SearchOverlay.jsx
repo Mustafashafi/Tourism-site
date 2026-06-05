@@ -16,6 +16,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
 
@@ -25,12 +26,11 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     'Holidays': Palmtree,
   };
 
-
-
-  // Fetch all categories once to map IDs
+  // Fetch all categories & all products once when overlay opens
   useEffect(() => {
     if (isOpen) {
       homeApi.getCategories().then(setAllCategories).catch(console.error);
+      homeApi.getProducts({ limit: 1000 }).then(setAllProducts).catch(console.error);
     }
   }, [isOpen]);
 
@@ -41,18 +41,18 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     }
   }, [isOpen, activeCategory, allCategories]);
 
-  // Handle Search Suggestions
+  // Handle Local AI Search Suggestions
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (searchQuery.trim().length > 1) {
-        handleLiveSearch();
+        handleLocalSearch();
       } else {
         setSuggestions([]);
       }
-    }, 300);
+    }, 150);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
+  }, [searchQuery, allProducts]);
 
   const fetchCategoryData = async () => {
     setLoading(true);
@@ -65,12 +65,10 @@ const SearchOverlay = ({ isOpen, onClose }) => {
       if (category) params.category = category._id;
 
       const [citiesData, productsData] = await Promise.all([
-        homeApi.getCities(), // Ideally this would be filtered by category too if API supported it
+        homeApi.getCities(),
         homeApi.getProducts(params)
       ]);
 
-      // Filter cities that have products in this category if possible, 
-      // or just show top cities for now as per screenshot
       setCities(citiesData.slice(0, 10));
       setTrendingProducts(productsData.slice(0, 6));
     } catch (error) {
@@ -80,16 +78,98 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleLiveSearch = async () => {
+  const handleLocalSearch = () => {
     setSearching(true);
-    try {
-      const results = await homeApi.getProducts({ search: searchQuery, limit: 5 });
-      setSuggestions(results);
-    } catch (error) {
-      console.error("Live search failed", error);
-    } finally {
-      setSearching(false);
+    const query = searchQuery.toLowerCase().trim();
+    
+    // 1. Detect budget (e.g., "under 500", "less than 500", "500 aed", "budget 500")
+    let maxBudget = null;
+    const budgetMatch = query.match(/(?:under|less than|below|budget|max|up to)?\s*(\d+)\s*(?:aed|dhs|dirhams)?/i);
+    if (budgetMatch) {
+      const hasLimitIndicator = /under|less|below|budget|max|cheapest|cheap|up to/i.test(query) || query.includes("aed") || query.includes("dhs");
+      if (hasLimitIndicator) {
+        maxBudget = parseInt(budgetMatch[1], 10);
+      }
     }
+
+    // 2. Tokenize query words
+    const queryTokens = query
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+      .split(/\s+/)
+      .filter(w => w.length > 1 && !["under", "less", "than", "below", "budget", "aed", "dhs", "dirham", "dirhams", "with", "tours", "tour", "and", "the", "for", "in"].includes(w));
+
+    // 3. Score products
+    const scoredProducts = allProducts.map(product => {
+      let score = 0;
+      const matchReasons = [];
+
+      const productName = (product.name || "").toLowerCase();
+      const productDesc = (product.description || "").toLowerCase();
+      const city = (product.city?.name || product.manualCity || "").toLowerCase();
+      const categoryName = (product.category?.name || "").toLowerCase();
+
+      const discountPrice = product.pricing?.discountPrice;
+      const actualPrice = product.pricing?.actualPrice;
+      const price = discountPrice ?? actualPrice ?? 0;
+
+      // Budget scoring
+      if (maxBudget !== null) {
+        if (price <= maxBudget) {
+          score += 70;
+          matchReasons.push(`Under ${maxBudget} AED`);
+        } else {
+          score -= 120; // Penalize strongly if over budget
+        }
+      }
+
+      // Exact phrase match in title
+      if (productName.includes(query)) {
+        score += 100;
+        matchReasons.push("Title match");
+      }
+
+      // City matching
+      if (city && query.includes(city)) {
+        score += 80;
+        matchReasons.push(`City: ${product.city?.name || product.manualCity}`);
+      }
+
+      // Category matching
+      if (categoryName && (query.includes(categoryName) || query.includes(categoryName.replace('s', '')))) {
+        score += 50;
+        matchReasons.push(`Category: ${product.category?.name}`);
+      }
+
+      // Keyword token matching
+      let tokensMatched = 0;
+      queryTokens.forEach(token => {
+        if (productName.includes(token)) {
+          score += 30;
+          tokensMatched++;
+        } else if (productDesc.includes(token)) {
+          score += 10;
+          tokensMatched++;
+        }
+      });
+
+      if (tokensMatched > 0 && matchReasons.length === 0) {
+        matchReasons.push(`Matched ${tokensMatched} keywords`);
+      }
+
+      return {
+        ...product,
+        searchScore: score,
+        matchReasons: matchReasons.slice(0, 2)
+      };
+    });
+
+    const filtered = scoredProducts
+      .filter(p => p.searchScore > 0)
+      .sort((a, b) => b.searchScore - a.searchScore)
+      .slice(0, 8);
+
+    setSuggestions(filtered);
+    setSearching(false);
   };
 
   const getHeadings = () => {
@@ -257,6 +337,15 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                               <MapPin size={12} className="text-gray-400 shrink-0" /> 
                               <span className="truncate">{item.city?.name || item.manualCity}</span>
                             </p>
+                            {item.matchReasons?.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {item.matchReasons.map((reason, idx) => (
+                                  <span key={idx} className="text-[9px] font-bold bg-[#CC1422]/10 text-[#CC1422] px-2 py-0.5 rounded-full uppercase tracking-wider scale-95 origin-left">
+                                    {reason}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                           <div className="text-right shrink-0">
                             <p className="text-[10px] text-gray-400 font-medium">from</p>

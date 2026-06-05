@@ -8,6 +8,7 @@ import SubCategoriesPage from "./pages/SubCategoriesPage";
 import TourTypesPage from "./pages/TourTypesPage";
 import ProductsPage from "./pages/ProductsPage";
 import SettingsPage from "./pages/SettingsPage";
+import TestimonialsPage from "./pages/TestimonialsPage";
 import LoginPage from "./pages/LoginPage";
 
 const App = () => {
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="sub-categories" element={<SubCategoriesPage />} />
         <Route path="tour-types" element={<TourTypesPage />} />
         <Route path="products" element={<ProductsPage />} />
+        <Route path="testimonials" element={<TestimonialsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

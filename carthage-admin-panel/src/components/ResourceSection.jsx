@@ -73,6 +73,8 @@ const ResourceSection = ({
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filterText, setFilterText] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -215,6 +217,7 @@ const ResourceSection = ({
       }
 
       resetForm();
+      setIsModalOpen(false);
       await load();
     } catch (err) {
       setError(err.message);
@@ -247,6 +250,7 @@ const ResourceSection = ({
       : [];
 
     setSlots(withTrailingEmpty(existing.length ? existing : []));
+    setIsModalOpen(true);
   };
 
   // ── Delete ──────────────────────────────────────────────────────────────────
@@ -262,202 +266,277 @@ const ResourceSection = ({
     }
   };
 
+  // Filter items
+  const filteredItems = items.filter((item) => {
+    const term = filterText.toLowerCase();
+    return (
+      (item.name && item.name.toLowerCase().includes(term)) ||
+      (item.slug && item.slug.toLowerCase().includes(term)) ||
+      (item.country_name && item.country_name.toLowerCase().includes(term))
+    );
+  });
+
   // ─── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <section className="card p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-surface-900">{title}</h2>
+      {/* Header with Add Button */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
+        <div>
+          <h2 className="text-xl font-bold text-surface-900">{title}</h2>
+          <p className="text-xs text-surface-500">Add, edit, or delete items instantly.</p>
+        </div>
+        <button
+          className="btn-primary self-start sm:self-auto !px-5 !py-2.5 font-semibold flex items-center gap-2"
+          type="button"
+          onClick={() => {
+            resetForm();
+            setIsModalOpen(true);
+          }}
+        >
+          <span>+ Add New</span>
+        </button>
       </div>
 
-      <form onSubmit={onSubmit} className="grid gap-3 sm:grid-cols-3">
-        {/* Name & Slug */}
+      {/* Filter Toolbar */}
+      <div className="mb-4 flex items-center gap-3">
         <input
-          className="input"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
-          required
+          type="text"
+          className="input max-w-xs"
+          placeholder="🔍 Search items..."
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
         />
-        <input
-          className="input"
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          placeholder="Slug (auto-generated if left blank)"
-        />
-        <div className="flex gap-2">
-          <button className="btn-primary" type="submit" disabled={submitting}>
-            {submitting ? "Saving…" : editingId ? "Update" : "Add"}
-          </button>
-          {editingId && (
-            <button className="btn-secondary" type="button" onClick={resetForm}>
-              Cancel
-            </button>
-          )}
-        </div>
+      </div>
 
-        {enableCityCards && (
-          <div className="sm:col-span-3 grid gap-3 sm:grid-cols-3">
-            <input
-              className="input"
-              value={countryName}
-              onChange={(e) => setCountryName(e.target.value)}
-              placeholder="Country Name"
-            />
-            
-<div className="">
-<select
-              className="input"
-              multiple
-              value={cityCategories}
-              onChange={(e) =>
-                setCityCategories(
-                  Array.from(e.target.selectedOptions).map((o) => o.value)
-                )
-              }
-            >
-              
-              <option value="activity">activity</option>
-              <option value="holiday">holiday</option>
-              <option value="cruise">cruise</option>
-             
-            </select>
-            <p className="text-[12px] text-surface-500">Hold Ctrl+Shift to select multiple categories</p>
-</div>
-            <select
-              className="input"
-              value={cityStatus}
-              onChange={(e) => setCityStatus(e.target.value)}
-            >
-              <option value="active">active</option>
-              <option value="inactive">inactive</option>
-            </select>
+      {/* Popup Modal Dialog */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b pb-3 mb-5">
+              <h3 className="text-lg font-bold text-surface-900">
+                {editingId ? `Edit ${title}` : `Add New ${title}`}
+              </h3>
+              <button
+                type="button"
+                className="text-surface-400 hover:text-surface-600 font-bold p-1 rounded-full hover:bg-surface-100 transition"
+                onClick={() => {
+                  resetForm();
+                  setIsModalOpen(false);
+                }}
+              >
+                ✕
+              </button>
+            </div>
 
-            <div className="sm:col-span-3 flex flex-col gap-2 rounded-xl border border-surface-200 bg-surface-50 p-4">
-              <p className="text-sm font-medium text-surface-700">City Image</p>
-              <div className="flex gap-4 items-start flex-wrap">
-                <div className="relative h-28 w-44 shrink-0 overflow-hidden rounded-lg border border-dashed border-surface-300 bg-white">
-                  {cityImagePreview ? (
-                    <img
-                      src={cityImagePreview}
-                      alt="City"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-xs text-surface-500 px-2 text-center">
-                      No image selected
-                    </div>
-                  )}
+            <form onSubmit={onSubmit} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-surface-600">Name</label>
+                  <input
+                    className="input"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name"
+                    required
+                  />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className="btn-secondary w-fit cursor-pointer">
-                    Upload image
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={submitting}
-                      onChange={(e) => onPickCityImage(e.target.files?.[0])}
-                    />
-                  </label>
-                  {cityImagePreview && (
-                    <button
-                      type="button"
-                      className="btn-secondary w-fit text-red-600"
-                      disabled={submitting}
-                      onClick={() => {
-                        setCityImageFile(null);
-                        setCityImagePreview("");
-                        setCityImageUrl("");
-                      }}
-                    >
-                      Remove
-                    </button>
-                  )}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-surface-600">Slug</label>
+                  <input
+                    className="input"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="Slug (auto-generated if left blank)"
+                  />
                 </div>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* Banner slots */}
-        {enableBanner && (
-          <div className="sm:col-span-3">
-            <p className="mb-3 text-sm font-medium text-surface-700">
-              Banners — upload an image then fill in the slide text
-            </p>
-
-            <div className="flex flex-col gap-4">
-              {slots.map((slot) => (
-                <div
-                  key={slot.id}
-                  className="flex gap-4 rounded-xl border border-surface-200 bg-surface-50 p-4"
-                >
-                  {/* ── Image area ──────────────────────────────────────── */}
-                  <div className="relative h-28 w-44 shrink-0 overflow-hidden rounded-lg border border-dashed border-surface-300 bg-white">
-                    {slot.previewUrl ? (
-                      <>
-                        <img
-                          src={slot.previewUrl}
-                          alt="Banner"
-                          className="h-full w-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          disabled={submitting}
-                          onClick={() => removeSlot(slot.id)}
-                          className="absolute right-1 top-1 rounded bg-black/70 px-2 py-0.5 text-[11px] text-white hover:bg-black"
-                        >
-                          Remove
-                        </button>
-                      </>
-                    ) : (
-                      <label className="flex h-full cursor-pointer flex-col items-center justify-center gap-1 text-center text-xs text-surface-500 px-2">
-                        <span>Click to upload</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          disabled={submitting}
-                          onChange={(e) => onPickFile(slot.id, e.target.files?.[0])}
-                        />
-                      </label>
-                    )}
+              {enableCityCards && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-surface-600">Country Name</label>
+                    <input
+                      className="input"
+                      value={countryName}
+                      onChange={(e) => setCountryName(e.target.value)}
+                      placeholder="Country Name"
+                    />
                   </div>
 
-                  {/* ── Text fields ─────────────────────────────────────── */}
-                  <div className="flex flex-1 flex-col gap-2 min-w-0">
-                    <input
-                      className="input text-sm"
-                      placeholder="Title  (e.g. Dubai Skyline & Luxury Cruises)"
-                      value={slot.title}
-                      disabled={submitting}
-                      onChange={(e) => updateSlot(slot.id, { title: e.target.value })}
-                    />
-                    <input
-                      className="input text-sm"
-                      placeholder="Subtext  (e.g. Sail across the globe)"
-                      value={slot.subtext}
-                      disabled={submitting}
-                      onChange={(e) => updateSlot(slot.id, { subtext: e.target.value })}
-                    />
-                    <textarea
-                      className="input text-sm resize-none"
-                      rows={2}
-                      placeholder="Description  (short paragraph shown on the slide)"
-                      value={slot.description}
-                      disabled={submitting}
-                      onChange={(e) => updateSlot(slot.id, { description: e.target.value })}
-                    />
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-surface-600">City Status</label>
+                    <select
+                      className="input"
+                      value={cityStatus}
+                      onChange={(e) => setCityStatus(e.target.value)}
+                    >
+                      <option value="active">active</option>
+                      <option value="inactive">inactive</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1 sm:col-span-2">
+                    <label className="text-xs font-semibold text-surface-600">City Categories</label>
+                    <select
+                      className="input min-h-[80px]"
+                      multiple
+                      value={cityCategories}
+                      onChange={(e) =>
+                        setCityCategories(
+                          Array.from(e.target.selectedOptions).map((o) => o.value)
+                        )
+                      }
+                    >
+                      <option value="activity">activity</option>
+                      <option value="holiday">holiday</option>
+                      <option value="cruise">cruise</option>
+                    </select>
+                    <p className="text-[11px] text-surface-500">Hold Ctrl (Cmd on Mac) to select multiple categories</p>
+                  </div>
+
+                  <div className="sm:col-span-2 flex flex-col gap-2 rounded-xl border border-surface-200 bg-surface-50 p-4">
+                    <p className="text-sm font-medium text-surface-700">City Image</p>
+                    <div className="flex gap-4 items-start flex-wrap">
+                      <div className="relative h-28 w-44 shrink-0 overflow-hidden rounded-lg border border-dashed border-surface-300 bg-white">
+                        {cityImagePreview ? (
+                          <img
+                            src={cityImagePreview}
+                            alt="City"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-xs text-surface-500 px-2 text-center">
+                            No image selected
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="btn-secondary w-fit cursor-pointer text-xs font-semibold">
+                          Upload image
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={submitting}
+                            onChange={(e) => onPickCityImage(e.target.files?.[0])}
+                          />
+                        </label>
+                        {cityImagePreview && (
+                          <button
+                            type="button"
+                            className="btn-secondary w-fit text-red-600 text-xs font-semibold"
+                            disabled={submitting}
+                            onClick={() => {
+                              setCityImageFile(null);
+                              setCityImagePreview("");
+                              setCityImageUrl("");
+                            }}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </form>
+              )}
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+              {/* Banner slots */}
+              {enableBanner && (
+                <div className="border-t pt-4">
+                  <p className="mb-3 text-sm font-medium text-surface-700">
+                    Banners — upload an image then fill in the slide text
+                  </p>
+
+                  <div className="flex flex-col gap-4">
+                    {slots.map((slot) => (
+                      <div
+                        key={slot.id}
+                        className="flex gap-4 rounded-xl border border-surface-200 bg-surface-50 p-4"
+                      >
+                        <div className="relative h-28 w-44 shrink-0 overflow-hidden rounded-lg border border-dashed border-surface-300 bg-white">
+                          {slot.previewUrl ? (
+                            <>
+                              <img
+                                src={slot.previewUrl}
+                                alt="Banner"
+                                className="h-full w-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                disabled={submitting}
+                                onClick={() => removeSlot(slot.id)}
+                                className="absolute right-1 top-1 rounded bg-black/70 px-2 py-0.5 text-[11px] text-white hover:bg-black"
+                              >
+                                Remove
+                              </button>
+                            </>
+                          ) : (
+                            <label className="flex h-full cursor-pointer flex-col items-center justify-center gap-1 text-center text-xs text-surface-500 px-2">
+                              <span>Click to upload</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                disabled={submitting}
+                                onChange={(e) => onPickFile(slot.id, e.target.files?.[0])}
+                              />
+                            </label>
+                          )}
+                        </div>
+
+                        <div className="flex flex-1 flex-col gap-2 min-w-0">
+                          <input
+                            className="input text-sm"
+                            placeholder="Title  (e.g. Dubai Skyline & Luxury Cruises)"
+                            value={slot.title}
+                            disabled={submitting}
+                            onChange={(e) => updateSlot(slot.id, { title: e.target.value })}
+                          />
+                          <input
+                            className="input text-sm"
+                            placeholder="Subtext  (e.g. Sail across the globe)"
+                            value={slot.subtext}
+                            disabled={submitting}
+                            onChange={(e) => updateSlot(slot.id, { subtext: e.target.value })}
+                          />
+                          <textarea
+                            className="input text-sm resize-none"
+                            rows={2}
+                            placeholder="Description  (short paragraph shown on the slide)"
+                            value={slot.description}
+                            disabled={submitting}
+                            onChange={(e) => updateSlot(slot.id, { description: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <div className="flex justify-end gap-2 border-t pt-4">
+                <button
+                  className="btn-secondary"
+                  type="button"
+                  onClick={() => {
+                    resetForm();
+                    setIsModalOpen(false);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button className="btn-primary" type="submit" disabled={submitting}>
+                  {submitting ? "Saving…" : editingId ? "Update" : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ── Table ──────────────────────────────────────────────────────────── */}
       <div className="mt-5 overflow-auto rounded-lg border border-surface-200">
@@ -470,11 +549,11 @@ const ResourceSection = ({
               {enableCityCards && <th className="px-4 py-3">Status</th>}
               {enableCityCards && <th className="px-4 py-3">Image</th>}
               {enableBanner && <th className="px-4 py-3">Banners</th>}
-              <th className="px-4 py-3">Actions</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {!loading && items.length === 0 && (
+            {!loading && filteredItems.length === 0 && (
               <tr>
                 <td
                   className="px-4 py-4 text-surface-500"
@@ -488,8 +567,8 @@ const ResourceSection = ({
                 </td>
               </tr>
             )}
-            {items.map((item) => (
-              <tr key={item._id} className="border-t border-surface-100">
+            {filteredItems.map((item) => (
+              <tr key={item._id} className="border-t border-surface-100 hover:bg-surface-50 transition">
                 <td className="px-4 py-3 font-medium text-surface-900">
                   {item.name}
                 </td>
@@ -503,7 +582,11 @@ const ResourceSection = ({
                 )}
                 {enableCityCards && (
                   <td className="px-4 py-3 text-surface-600">
-                    {item.status || "active"}
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                      item.status === 'active' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-surface-100 text-surface-600'
+                    }`}>
+                      {item.status || "active"}
+                    </span>
                   </td>
                 )}
                 {enableCityCards && (
@@ -512,7 +595,7 @@ const ResourceSection = ({
                       <img
                         src={resolveImageUrl(item.image)}
                         alt="City"
-                        className="h-10 w-16 rounded object-cover"
+                        className="h-10 w-16 rounded object-cover shadow-sm border border-surface-200"
                       />
                     ) : (
                       <span className="text-xs text-surface-400">—</span>
@@ -531,7 +614,7 @@ const ResourceSection = ({
                               key={i}
                               src={src}
                               alt={`Banner ${i + 1}`}
-                              className="h-10 w-16 rounded object-cover"
+                              className="h-10 w-16 rounded object-cover shadow-sm"
                             />
                           ) : null;
                         })}
@@ -546,17 +629,17 @@ const ResourceSection = ({
                     )}
                   </td>
                 )}
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
+                <td className="px-4 py-3 text-right">
+                  <div className="flex justify-end gap-2">
                     <button
-                      className="btn-secondary !px-3 !py-1"
+                      className="btn-secondary !px-3 !py-1 text-xs font-semibold"
                       onClick={() => onEdit(item)}
                       type="button"
                     >
                       Edit
                     </button>
                     <button
-                      className="btn-secondary !px-3 !py-1 text-red-600"
+                      className="btn-secondary !px-3 !py-1 text-red-600 text-xs font-semibold"
                       onClick={() => onDelete(item._id)}
                       type="button"
                     >

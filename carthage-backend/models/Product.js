@@ -225,6 +225,15 @@ const productSchema = new mongoose.Schema(
       type: Number,
       min: 0,
     },
+    durationInDays: {
+      type: Number,
+      min: 0,
+    },
+    seo: {
+      metaTitle: { type: String, trim: true },
+      metaDescription: { type: String, trim: true },
+      focusKeyphrase: { type: String, trim: true },
+    },
     inclusions: {
       type: [String],
       default: [],

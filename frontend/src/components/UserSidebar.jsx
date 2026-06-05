@@ -3,11 +3,13 @@ import { X, ShoppingCart, Briefcase, Globe, Languages, FileText, ShieldCheck, In
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginModal from './LoginModal';
 import { useCart } from '../context/CartContext';
+import { Link } from 'react-router-dom';
 
 const UserSidebar = ({ isOpen, onClose }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const { clearCart } = useCart();
+  const [bookingCount, setBookingCount] = useState(0);
+  const { clearCart, cartCount } = useCart();
 
   useEffect(() => {
     if (isOpen) {
@@ -17,6 +19,8 @@ const UserSidebar = ({ isOpen, onClose }) => {
       } else {
         setUser(null);
       }
+      const savedBookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+      setBookingCount(savedBookings.length);
     }
   }, [isOpen]);
 
@@ -96,8 +100,8 @@ const UserSidebar = ({ isOpen, onClose }) => {
               <div className='border-t border-b w-full border-gray-100 py-4'>
                 <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">My Account</h3>
                 <div className="space-y-1">
-                  <SidebarItem icon={<ShoppingCart size={20}/>} label="Cart" value="0 Item" />
-                  <SidebarItem icon={<Briefcase size={20}/>} label="My Bookings" value="0 Item" />
+                  <SidebarItem to="/cart" onClick={onClose} icon={<ShoppingCart size={20}/>} label="Cart" value={cartCount > 0 ? `${cartCount} Item${cartCount > 1 ? 's' : ''}` : "Empty"} />
+                  <SidebarItem to="/profile" onClick={onClose} icon={<Briefcase size={20}/>} label="My Bookings" value={bookingCount > 0 ? `${bookingCount} Booking${bookingCount > 1 ? 's' : ''}` : "None"} />
                   <SidebarItem icon={<Globe size={20}/>} label="Currency" value="AED" />
                   <SidebarItem icon={<Languages size={20}/>} label="Language" value="English" />
                 </div>
@@ -107,8 +111,8 @@ const UserSidebar = ({ isOpen, onClose }) => {
               <div className=' border-b w-full border-gray-100 pb-4'>
                 <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Compliance</h3>
                 <div className="space-y-1">
-                  <SidebarItem icon={<FileText size={20}/>} label="Terms & Conditions" />
-                  <SidebarItem icon={<ShieldCheck size={20}/>} label="Privacy Policy" />
+                  <SidebarItem to="/terms-conditions" onClick={onClose} icon={<FileText size={20}/>} label="Terms & Conditions" />
+                  <SidebarItem to="/privacy-policy" onClick={onClose} icon={<ShieldCheck size={20}/>} label="Privacy Policy" />
                 </div>
               </div>
 
@@ -116,8 +120,8 @@ const UserSidebar = ({ isOpen, onClose }) => {
               <div className='w-full border-gray-100 pb-1'>
                 <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Help & Support</h3>
                 <div className="space-y-1">
-                  <SidebarItem icon={<Info size={20}/>} label="About Us" />
-                  <SidebarItem icon={<Phone size={20}/>} label="Contact Us" />
+                  <SidebarItem to="/about-us" onClick={onClose} icon={<Info size={20}/>} label="About Us" />
+                  <SidebarItem to="/contact" onClick={onClose} icon={<Phone size={20}/>} label="Contact Us" />
                 </div>
               </div>
             </div>
@@ -131,17 +135,29 @@ const UserSidebar = ({ isOpen, onClose }) => {
 };
 
 // Reusable Menu Item Component
-const SidebarItem = ({ icon, label, value }) => (
-  <button className="w-full flex items-center justify-between py-4 hover:bg-gray-50 rounded-xl px-2 transition-colors group cursor-pointer">
-    <div className="flex items-center gap-4">
-      <div className="text-gray-400 group-hover:text-gray-800 transition-colors">{icon}</div>
-      <span className="text-gray-700 font-medium">{label}</span>
+const SidebarItem = ({ icon, label, value, to, onClick }) => {
+  const content = (
+    <div className="w-full flex items-center justify-between py-4 hover:bg-gray-50 rounded-xl px-2 transition-colors group cursor-pointer">
+      <div className="flex items-center gap-4">
+        <div className="text-gray-400 group-hover:text-gray-800 transition-colors">{icon}</div>
+        <span className="text-gray-700 font-medium">{label}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        {value && <span className="text-gray-400 text-sm">{value}</span>}
+        <ChevronRight size={18} className="text-gray-300" />
+      </div>
     </div>
-    <div className="flex items-center gap-2">
-      {value && <span className="text-gray-400 text-sm">{value}</span>}
-      <ChevronRight size={18} className="text-gray-300" />
-    </div>
-  </button>
-);
+  );
+
+  if (to) {
+    return (
+      <Link to={to} onClick={onClick} className="block w-full">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
+};
 
 export default UserSidebar;

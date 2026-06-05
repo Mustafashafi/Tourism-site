@@ -21,6 +21,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import RefundPolicy from "./pages/RefundPolicy";
 import ContactUs from "./pages/ContactUs";
+import UserProfile from "./pages/UserProfile";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -81,6 +82,7 @@ function App() {
         {/* ── Other pages ── */}
         <Route path="/cart" element={<Cart/>}/>
         <Route path="/checkout" element={<Checkout/>}/>
+        <Route path="/profile" element={<UserProfile/>}/>
         <Route path="/about-us" element={<AboutUs/>}/>
         <Route path="/privacy-policy" element={<PrivacyPolicy/>}/>
         <Route path="/terms-conditions" element={<TermsAndConditions/>}/>
