@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { apiService } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { APP_NAME } from "../config/appConfig";
+import { Eye, EyeOff, Lock, Mail, ShieldAlert } from "lucide-react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -24,67 +25,92 @@ const LoginPage = () => {
       login({ token: data.token, user: data.user });
       navigate("/");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-6">
-      <div className="card w-full max-w-md p-8">
-        <p className="text-xs uppercase tracking-wider text-brand-600">
-          Admin Portal
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold">Welcome back</h1>
-        <p className="mt-1 text-sm text-surface-600">
-          Sign in to continue to {APP_NAME}.
-        </p>
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 sm:px-6 lg:px-8 overflow-hidden select-none">
+      {/* Background Glow Blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-red-900/20 blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-amber-900/10 blur-[130px] pointer-events-none" />
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <input
-            className="input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            required
-          />
-          <div className="relative">
-            <input
-              className="input"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((s) => !s)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              title={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.58 10.58A3 3 0 0 0 13.42 13.42" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.88 5.06a10.94 10.94 0 0 0-6.33 5.44A1 1 0 0 0 4 12a11 11 0 0 0 8 8.94" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              )}
-            </button>
+      {/* Main glassmorphic wrapper */}
+      <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl shadow-2xl transition-all hover:border-white/15">
+        
+        {/* Branding header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#CC1422] to-amber-500 shadow-xl shadow-[#CC1422]/20 animate-pulse">
+            <span className="text-2xl font-black text-white">CT</span>
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button className="btn-primary w-full" type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-white">Carthage Travel</h1>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">Administration Panel</p>
+          </div>
+        </div>
+
+        {/* Error alert */}
+        {error && (
+          <div className="mt-6 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-xs font-semibold text-red-400">
+            <ShieldAlert size={16} className="shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Login Form */}
+        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Admin Email</label>
+            <div className="relative">
+              <input
+                className="w-full bg-white/5 border border-white/10 focus:border-[#CC1422] rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:ring-4 focus:ring-[#CC1422]/10 transition-all font-medium placeholder-slate-500"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@carthagetravel.com"
+                required
+              />
+              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Password</label>
+            <div className="relative">
+              <input
+                className="w-full bg-white/5 border border-white/10 focus:border-[#CC1422] rounded-xl pl-10 pr-12 py-3 text-sm text-white focus:outline-none focus:ring-4 focus:ring-[#CC1422]/10 transition-all font-medium placeholder-slate-500"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+              <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            className="w-full py-3.5 bg-gradient-to-r from-[#CC1422] to-red-600 hover:from-red-700 hover:to-red-650 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-red-600/25 hover:shadow-red-600/35 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none cursor-pointer mt-2"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Authenticating..." : "Sign In"}
           </button>
+
         </form>
+
       </div>
     </div>
   );

@@ -224,3 +224,15 @@ exports.googleLogin = async (req, res) => {
     res.status(500).json({ message: "Google authentication failed." });
   }
 };
+
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find({ role: "user" }).sort({ createdAt: -1 });
+    return res.status(200).json({
+      data: users
+    });
+  } catch (error) {
+    console.error("Get users error:", error);
+    return res.status(500).json({ message: "Failed to fetch customers." });
+  }
+};

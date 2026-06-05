@@ -40,6 +40,15 @@ exports.updateSettings = async (req, res) => {
       settings.refundPolicy = req.body.refundPolicy;
     }
 
+    if (req.body.faq !== undefined) {
+      settings.faq = Array.isArray(req.body.faq)
+        ? req.body.faq.map((item) => ({
+            question: String(item.question || "").trim(),
+            answer: String(item.answer || "").trim(),
+          }))
+        : [];
+    }
+
     if (req.body.contactDetails) {
       settings.contactDetails = {
         phone: req.body.contactDetails.phone || "",
@@ -68,6 +77,65 @@ exports.updateSettings = async (req, res) => {
         merchantId: req.body.etihadPay.merchantId || "",
         apiKey: req.body.etihadPay.apiKey || "",
         enabled: req.body.etihadPay.enabled ?? false,
+      };
+    }
+
+    if (req.body.smtp) {
+      settings.smtp = {
+        host: req.body.smtp.host || "",
+        port: req.body.smtp.port || 587,
+        user: req.body.smtp.user || "",
+        pass: req.body.smtp.pass || "",
+        secure: req.body.smtp.secure ?? false,
+        fromEmail: req.body.smtp.fromEmail || "",
+        fromName: req.body.smtp.fromName || "",
+      };
+    }
+
+    if (req.body.logos) {
+      settings.logos = {
+        headerLogoLight: req.body.logos.headerLogoLight || "",
+        headerLogoDark: req.body.logos.headerLogoDark || "",
+        footerLogo: req.body.logos.footerLogo || "",
+        favicon: req.body.logos.favicon || "",
+      };
+    }
+
+    if (req.body.emailTemplates) {
+      settings.emailTemplates = {
+        newBookingAdmin: {
+          subject: req.body.emailTemplates.newBookingAdmin?.subject || "",
+          body: req.body.emailTemplates.newBookingAdmin?.body || "",
+        },
+        newBookingCustomer: {
+          subject: req.body.emailTemplates.newBookingCustomer?.subject || "",
+          body: req.body.emailTemplates.newBookingCustomer?.body || "",
+        },
+        bookingCompleted: {
+          subject: req.body.emailTemplates.bookingCompleted?.subject || "",
+          body: req.body.emailTemplates.bookingCompleted?.body || "",
+        },
+      };
+    }
+
+    if (req.body.siteContent) {
+      settings.siteContent = {
+        aboutUs: {
+          title: req.body.siteContent.aboutUs?.title || "",
+          content: req.body.siteContent.aboutUs?.content || "",
+          mission: req.body.siteContent.aboutUs?.mission || "",
+          vision: req.body.siteContent.aboutUs?.vision || "",
+          heroImageUrl: req.body.siteContent.aboutUs?.heroImageUrl || "",
+          sectionImageUrl: req.body.siteContent.aboutUs?.sectionImageUrl || "",
+        },
+      };
+    }
+
+    if (req.body.homepageCuration) {
+      settings.homepageCuration = {
+        activities: req.body.homepageCuration.activities || [],
+        cruises: req.body.homepageCuration.cruises || [],
+        holidays: req.body.homepageCuration.holidays || [],
       };
     }
 

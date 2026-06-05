@@ -167,4 +167,49 @@ export const apiService = {
       throw new Error(extractError(error));
     }
   },
+
+  async listBookings(params = {}) {
+    try {
+      const { data } = await api.get("/bookings", { params });
+      return { items: data.data || [], meta: data.meta || {} };
+    } catch (error) {
+      throw new Error(extractError(error));
+    }
+  },
+
+  async createBooking(payload) {
+    try {
+      const { data } = await api.post("/bookings", payload);
+      return data.data;
+    } catch (error) {
+      throw new Error(extractError(error));
+    }
+  },
+
+  async updateBooking(id, payload) {
+    try {
+      const { data } = await api.put(`/bookings/${id}`, payload);
+      return data.data;
+    } catch (error) {
+      throw new Error(extractError(error));
+    }
+  },
+
+  async getReports() {
+    try {
+      const { data } = await api.get("/bookings/reports");
+      return data;
+    } catch (error) {
+      throw new Error(extractError(error));
+    }
+  },
+
+  async listCustomers() {
+    try {
+      const { data } = await api.get("/auth/users");
+      return data.data || [];
+    } catch (error) {
+      throw new Error(extractError(error));
+    }
+  },
 };

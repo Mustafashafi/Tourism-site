@@ -98,6 +98,7 @@ const HomePage = () => {
   const [cities, setCities] = useState([]);
   const [products, setProducts] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
+  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -137,17 +138,19 @@ const HomePage = () => {
       try {
         setLoading(true);
         setError("");
-        
-        const [fetchedCities, fetchedProducts, fetchedTestimonials] = await Promise.all([
+
+        const [fetchedCities, fetchedProducts, fetchedTestimonials, fetchedSettings] = await Promise.all([
           homeApi.getCities(),
-          homeApi.getProducts({ limit: 100 }), // Get broad catalog of products
-          homeApi.getTestimonials()
+          homeApi.getProducts({ limit: 250 }), // Get a broader product catalog for curated display
+          homeApi.getTestimonials(),
+          homeApi.getSettings(),
         ]);
 
-        const activeCities = (fetchedCities || []).filter(c => c.status === "active");
+        const activeCities = (fetchedCities || []).filter((c) => c.status === "active");
         setCities(activeCities);
         setProducts(fetchedProducts || []);
-        
+        setSettings(fetchedSettings || null);
+
         // Match up to 12 reviews
         setTestimonials((fetchedTestimonials || []).slice(0, 12));
       } catch (err) {
@@ -160,26 +163,44 @@ const HomePage = () => {
   }, []);
 
   // Filter products by category - Slice up to 8 tours instead of 4
+  const getCuratedList = (section, fallbackSelector) => {
+    const curatedIds = settings?.homepageCuration?.[section] || [];
+    const normalizedIds = Array.isArray(curatedIds) ? curatedIds.map((id) => String(id)) : [];
+    if (normalizedIds.length > 0) {
+      const curated = normalizedIds
+        .map((id) => products.find((product) => String(product._id) === id))
+        .filter(Boolean);
+      if (curated.length > 0) return curated.slice(0, 8);
+    }
+    return fallbackSelector().slice(0, 8);
+  };
+
   const activities = useMemo(() => {
-    return products.filter(p => {
-      const slug = p.category?.slug?.toLowerCase() || "";
-      return slug.includes("activity") || slug.includes("activities") || slug.includes("tour");
-    }).slice(0, 8);
-  }, [products]);
+    return getCuratedList("activities", () =>
+      products.filter((p) => {
+        const slug = p.category?.slug?.toLowerCase() || "";
+        return slug.includes("activity") || slug.includes("activities") || slug.includes("tour");
+      })
+    );
+  }, [products, settings]);
 
   const cruises = useMemo(() => {
-    return products.filter(p => {
-      const slug = p.category?.slug?.toLowerCase() || "";
-      return slug.includes("cruise") || slug.includes("cruises");
-    }).slice(0, 8);
-  }, [products]);
+    return getCuratedList("cruises", () =>
+      products.filter((p) => {
+        const slug = p.category?.slug?.toLowerCase() || "";
+        return slug.includes("cruise") || slug.includes("cruises");
+      })
+    );
+  }, [products, settings]);
 
   const holidays = useMemo(() => {
-    return products.filter(p => {
-      const slug = p.category?.slug?.toLowerCase() || "";
-      return slug.includes("holiday") || slug.includes("holidays");
-    }).slice(0, 8);
-  }, [products]);
+    return getCuratedList("holidays", () =>
+      products.filter((p) => {
+        const slug = p.category?.slug?.toLowerCase() || "";
+        return slug.includes("holiday") || slug.includes("holidays");
+      })
+    );
+  }, [products, settings]);
 
   // Construct dynamic hero slider slides based on active cities
   const heroSlides = useMemo(() => {
@@ -193,49 +214,51 @@ const HomePage = () => {
     }));
   }, [cities]);
 
-  // Premium FAQ Accordion data (10 items)
-  const faqs = [
-    {
-      q: "How can I book a tour or activity with Carthage Travel?",
-      a: "For all activities and excursions, you can instantly check online availability via our booking form. For other products like cruises and holiday packages, click on 'Send Inquiry' to submit an email request directly to our reservations team."
-    },
-    {
-      q: "What payment methods are supported?",
-      a: "We support booking and inquiry checkout options, integrating secure standard credit/debit card processing interfaces. For direct custom requests, we can also assist with offline bank transfers."
-    },
-    {
-      q: "Can I customize a travel itinerary?",
-      a: "Absolutely! Contact us via our support page or send an direct inquiry through the Holiday Packages page, and one of our dedicated UAE destination experts will tailor an itinerary to your specific needs."
-    },
-    {
-      q: "Are hotel transfers included in the packages?",
-      a: "Many of our holiday packages and activities offer shared or private transfers. Check the specific 'What is Included' details on each product page for exact information."
-    },
-    {
-      q: "What is the cancellation policy for bookings?",
-      a: "Cancellation policies vary depending on the specific activity or package booked. Generally, activities cancelled 24-48 hours in advance are eligible for a full refund. Please review the refund policy on the checkout screen."
-    },
-    {
-      q: "Do I need a visa to enter the UAE for these tours?",
-      a: "Visa requirements depend on your nationality. Most visitors receive a 30-day or 90-day visa on arrival. We recommend verifying entry requirements with your local embassy prior to travel."
-    },
-    {
-      q: "Is travel insurance included in my holiday package?",
-      a: "Travel insurance is not included in our default packages. We highly recommend purchasing comprehensive travel insurance independently to cover health, delays, and unexpected cancellations."
-    },
-    {
-      q: "Can I book activities for a large private group?",
-      a: "Yes, we specialize in corporate travel, group tours, and private yacht charters. Reach out via our Contact Us form with your group size and requirements to get a custom quote."
-    },
-    {
-      q: "What is the best time of year to visit the UAE?",
-      a: "The best travel season is between October and April when temperatures are cool, ranging from 18°C to 30°C, making it ideal for outdoor excursions, cruises, and desert safaris."
-    },
-    {
-      q: "Who should I contact if I need urgent help during a tour?",
-      a: "Once booked, you will receive our 24/7 hotline support contact number. Our ground assistance team is always available to help you resolve any on-trip issues instantly."
-    }
-  ];
+  // Premium FAQ Accordion data
+  const faqs = settings?.faq?.length > 0
+    ? settings.faq.map((item) => ({ q: item.question, a: item.answer }))
+    : [
+      {
+        q: "How can I book a tour or activity with Carthage Travel?",
+        a: "For all activities and excursions, you can instantly check online availability via our booking form. For other products like cruises and holiday packages, click on 'Send Inquiry' to submit an email request directly to our reservations team."
+      },
+      {
+        q: "What payment methods are supported?",
+        a: "We support booking and inquiry checkout options, integrating secure standard credit/debit card processing interfaces. For direct custom requests, we can also assist with offline bank transfers."
+      },
+      {
+        q: "Can I customize a travel itinerary?",
+        a: "Absolutely! Contact us via our support page or send an direct inquiry through the Holiday Packages page, and one of our dedicated UAE destination experts will tailor an itinerary to your specific needs."
+      },
+      {
+        q: "Are hotel transfers included in the packages?",
+        a: "Many of our holiday packages and activities offer shared or private transfers. Check the specific 'What is Included' details on each product page for exact information."
+      },
+      {
+        q: "What is the cancellation policy for bookings?",
+        a: "Cancellation policies vary depending on the specific activity or package booked. Generally, activities cancelled 24-48 hours in advance are eligible for a full refund. Please review the refund policy on the checkout screen."
+      },
+      {
+        q: "Do I need a visa to enter the UAE for these tours?",
+        a: "Visa requirements depend on your nationality. Most visitors receive a 30-day or 90-day visa on arrival. We recommend verifying entry requirements with your local embassy prior to travel."
+      },
+      {
+        q: "Is travel insurance included in my holiday package?",
+        a: "Travel insurance is not included in our default packages. We highly recommend purchasing comprehensive travel insurance independently to cover health, delays, and unexpected cancellations."
+      },
+      {
+        q: "Can I book activities for a large private group?",
+        a: "Yes, we specialize in corporate travel, group tours, and private yacht charters. Reach out via our Contact Us form with your group size and requirements to get a custom quote."
+      },
+      {
+        q: "What is the best time of year to visit the UAE?",
+        a: "The best travel season is between October and April when temperatures are cool, ranging from 18°C to 30°C, making it ideal for outdoor excursions, cruises, and desert safaris."
+      },
+      {
+        q: "Who should I contact if I need urgent help during a tour?",
+        a: "Once booked, you will receive our 24/7 hotline support contact number. Our ground assistance team is always available to help you resolve any on-trip issues instantly."
+      }
+    ];
 
   return (
     <div className="font-sans bg-gray-50/50 pb-12">
@@ -451,9 +474,10 @@ const HomePage = () => {
                 <div
                   className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? "max-h-48 mt-2 opacity-100" : "max-h-0 opacity-0"}`}
                 >
-                  <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 p-4 rounded-2xl">
-                    {faq.a}
-                  </p>
+                  <div
+                    className="text-sm leading-relaxed bg-gray-50 p-4 rounded-2xl prose prose-sm prose-gray"
+                    dangerouslySetInnerHTML={{ __html: faq.a || "" }}
+                  />
                 </div>
               </div>
             ))}

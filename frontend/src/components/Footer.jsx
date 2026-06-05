@@ -30,6 +30,7 @@ const Footer = () => {
 
   const socialLinks = settings?.socialLinks || {};
   const contactDetails = settings?.contactDetails || {};
+  const footerLogo = settings?.logos?.footerLogo || logo;
 
   const phoneVal = contactDetails.phone || "+971 4 208 7444";
   const emailVal = contactDetails.email || "info@carthagetravel.com";
@@ -45,6 +46,9 @@ const Footer = () => {
           
           {/* Column 1: Destinations */}
           <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <img src={footerLogo} alt="Carthage Travel" className="h-10 object-contain" />
+            </div>
             <h4 className="font-bold text-white text-base tracking-wider uppercase">Destinations</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to="/tours?city=dubai" className="hover:text-white transition-colors">Dubai</Link></li>

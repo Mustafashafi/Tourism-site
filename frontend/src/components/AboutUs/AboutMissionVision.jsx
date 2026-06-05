@@ -3,19 +3,21 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import missionImg from "../../assets/mission.webp";
 import visionImg from "../../assets/vision.webp";
 
-const AboutMissionVision = () => {
+const AboutMissionVision = ({ aboutUs }) => {
   const [activeTab, setActiveTab] = useState("mission");
 
   const data = {
     mission: {
-      title: "Our Mission",
+      title: aboutUs?.title || "Our Mission",
       image: missionImg,
-      content: "At Carthage Group, our mission is to redefine the travel experience by offering seamless, innovative, and fully customizable solutions for both industry partners and individual travelers. We strive to empower travel agencies, corporate clients, and leisure explorers with advanced tools, real-time access, and comprehensive support that simplifies travel planning from start to finish.\n\nThrough unwavering commitment to service excellence, transparent operations, and cutting-edge technology, we aim to create long-term value for our clients. Every interaction reflects our dedication to quality, trust, and meaningful customer relationships, ensuring that every journey—no matter the destination—is smooth, enriching, and memorable."
+      content: aboutUs?.mission ||
+        "At Carthage Group, our mission is to redefine the travel experience by offering seamless, innovative, and fully customizable solutions for both industry partners and individual travelers. We strive to empower travel agencies, corporate clients, and leisure explorers with advanced tools, real-time access, and comprehensive support that simplifies travel planning from start to finish.\n\nThrough unwavering commitment to service excellence, transparent operations, and cutting-edge technology, we aim to create long-term value for our clients. Every interaction reflects our dedication to quality, trust, and meaningful customer relationships, ensuring that every journey—no matter the destination—is smooth, enriching, and memorable.",
     },
     vision: {
-      title: "Our Vision",
+      title: aboutUs?.vision ? "Our Vision" : "Our Vision",
       image: visionImg,
-      content: "Our vision is to be recognized as a global leader in travel and tourism, distinguished by our customer centric approach, technology first mindset, and strong ethical foundation. We envision a connected world where travel is accessible, personalized, and inspiring for all whether for business, leisure, or adventure.\n\nBy continuously expanding our global network and enhancing our service capabilities, we aim to set new benchmarks in the industry. We see ourselves not just as a service provider, but as a trusted partner that brings people closer to the world, promotes cultural exchange, and shapes the future of travel through innovation and integrity."
+      content: aboutUs?.vision ||
+        "Our vision is to be recognized as a global leader in travel and tourism, distinguished by our customer centric approach, technology first mindset, and strong ethical foundation. We envision a connected world where travel is accessible, personalized, and inspiring for all whether for business, leisure, or adventure.\n\nBy continuously expanding our global network and enhancing our service capabilities, we aim to set new benchmarks in the industry. We see ourselves not just as a service provider, but as a trusted partner that brings people closer to the world, promotes cultural exchange, and shapes the future of travel through innovation and integrity.",
     }
   };
 

@@ -46,8 +46,10 @@ const RichTextEditor = ({ value, onChange, placeholder = "Enter description..." 
     table: true,
     toolbar: {
       container: [
+        [{ header: [1, 2, 3, false] }],
         ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        ['blockquote', 'code-block'],
         ['link', 'image'],
         [{ 'table': 'insert' }, { 'table': 'append-row' }, { 'table': 'append-col' }],
         ['clean']

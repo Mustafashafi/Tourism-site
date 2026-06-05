@@ -102,6 +102,8 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
   const [filterSearch, setFilterSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterCity, setFilterCity] = useState("");
+  const [filterSubCategory, setFilterSubCategory] = useState("");
+  const [filterTourType, setFilterTourType] = useState("");
 
   const filteredSubCategories = useMemo(() => {
     if (!form.category) return [];
@@ -304,8 +306,8 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
           typeof entry === "string"
             ? entry
             : entry && typeof entry === "object"
-              ? entry.url || entry.secure_url || ""
-              : ""
+               ? entry.url || entry.secure_url || ""
+               : ""
         )
         .map((url) => String(url || "").trim())
         .filter(Boolean)
@@ -458,10 +460,12 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
 
       const matchCat = !filterCategory || p.category?._id === filterCategory || p.category === filterCategory;
       const matchCity = !filterCity || p.city?._id === filterCity || p.city === filterCity || p.manualCity?.toLowerCase().includes(filterCity.toLowerCase());
+      const matchSubCat = !filterSubCategory || p.subCategory?._id === filterSubCategory || p.subCategory === filterSubCategory;
+      const matchTourType = !filterTourType || p.tourType?._id === filterTourType || p.tourType === filterTourType;
 
-      return matchSearch && matchCat && matchCity;
+      return matchSearch && matchCat && matchCity && matchSubCat && matchTourType;
     });
-  }, [products, filterSearch, filterCategory, filterCity]);
+  }, [products, filterSearch, filterCategory, filterCity, filterSubCategory, filterTourType]);
 
   return (
     <section className="card p-6">
@@ -484,7 +488,7 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
       </div>
 
       {/* Filter toolbar */}
-      <div className="grid gap-3 sm:grid-cols-3 mb-6 bg-surface-50 p-4 rounded-xl border border-surface-200">
+      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5 mb-6 bg-surface-50 p-4 rounded-xl border border-surface-200">
         <input
           type="text"
           className="input bg-white"
@@ -495,12 +499,28 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
         <select
           className="input bg-white"
           value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
+          onChange={(e) => {
+            setFilterCategory(e.target.value);
+            setFilterSubCategory("");
+          }}
         >
           <option value="">Filter by Category</option>
           {categories.map(c => (
             <option key={c._id} value={c._id}>{c.name}</option>
           ))}
+        </select>
+        <select
+          className="input bg-white"
+          value={filterSubCategory}
+          onChange={(e) => setFilterSubCategory(e.target.value)}
+        >
+          <option value="">Filter by Subcategory</option>
+          {subCategories
+            .filter(sc => !filterCategory || sc.category === filterCategory || sc.category?._id === filterCategory)
+            .map(sc => (
+              <option key={sc._id} value={sc._id}>{sc.name}</option>
+            ))
+          }
         </select>
         <select
           className="input bg-white"
@@ -510,6 +530,16 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
           <option value="">Filter by City</option>
           {cities.map(c => (
             <option key={c._id} value={c._id}>{c.name}</option>
+          ))}
+        </select>
+        <select
+          className="input bg-white"
+          value={filterTourType}
+          onChange={(e) => setFilterTourType(e.target.value)}
+        >
+          <option value="">Filter by Tour Type</option>
+          {tourTypes.map(tt => (
+            <option key={tt._id} value={tt._id}>{tt.name}</option>
           ))}
         </select>
       </div>
@@ -1121,6 +1151,7 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
               <th className="px-4 py-3 font-semibold">Name</th>
               <th className="px-4 py-3 font-semibold">Category</th>
               <th className="px-4 py-3 font-semibold">SubCategory</th>
+              <th className="px-4 py-3 font-semibold">Tour Type</th>
               <th className="px-4 py-3 font-semibold">City</th>
               <th className="px-4 py-3 font-semibold">Price</th>
               <th className="px-4 py-3 font-semibold text-right">Actions</th>
@@ -1129,7 +1160,7 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
           <tbody>
             {!loading && filteredProducts.length === 0 && (
               <tr>
-                <td className="px-4 py-4 text-surface-500 text-center" colSpan={6}>
+                <td className="px-4 py-4 text-surface-500 text-center" colSpan={7}>
                   No products found.
                 </td>
               </tr>
@@ -1139,6 +1170,11 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
                 <td className="px-4 py-3 font-medium text-surface-900">{item.name}</td>
                 <td className="px-4 py-3 text-surface-600">{item.category?.name || "-"}</td>
                 <td className="px-4 py-3 text-surface-600">{item.subCategory?.name || "-"}</td>
+                <td className="px-4 py-3 text-surface-600">
+                  {item.tourType?.name ? (
+                    <span className="inline-block px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium">{item.tourType.name}</span>
+                  ) : "-"}
+                </td>
                 <td className="px-4 py-3 text-surface-600">{item.city?.name || item.manualCity || "-"}</td>
                 <td className="px-4 py-3 text-surface-900 font-semibold">
                   {item.pricing?.currency || "AED"}{" "}

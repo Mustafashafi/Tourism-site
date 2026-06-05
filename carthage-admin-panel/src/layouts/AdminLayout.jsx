@@ -3,12 +3,16 @@ import { useAuth } from "../context/AuthContext";
 
 const navItems = [
   { label: "Overview", to: "/" },
+  { label: "Bookings", to: "/bookings" },
+  { label: "Customers", to: "/customers" },
+  { label: "Reports", to: "/reports" },
   { label: "Categories", to: "/categories" },
   { label: "SubCategories", to: "/sub-categories" },
   { label: "Cities", to: "/cities" },
   { label: "Tour Types", to: "/tour-types" },
   { label: "Products", to: "/products" },
   { label: "Testimonials", to: "/testimonials" },
+  { label: "CMS Editor", to: "/cms-editor" },
   { label: "Settings", to: "/settings" },
 ];
 

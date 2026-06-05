@@ -98,6 +98,8 @@ const Navbar = ({ onOpenUserMenu }) => {
   const [user, setUser] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [settings, setSettings] = useState(null);
+
+  const headerLogo = settings?.logos?.headerLogoDark || settings?.logos?.headerLogoLight || logo;
   
   const location = useLocation();
   const { language, setLanguage, currency, setCurrency, currencySymbol } = useLanguageCurrency();
@@ -243,7 +245,7 @@ const Navbar = ({ onOpenUserMenu }) => {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Left: Logo */}
           <Link to="/" className="shrink-0">
-            <img src={logo} alt="Carthage Travel & Tourism" className="h-10 lg:h-12 w-auto object-contain" />
+            <img src={headerLogo} alt="Carthage Travel & Tourism" className="h-10 lg:h-12 w-auto object-contain" />
           </Link>
 
           {/* Center: Desktop Nav Items */}

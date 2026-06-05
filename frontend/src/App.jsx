@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import AboutUs from "./pages/AboutUs";
 import Footer from "./components/Footer";
 import UserSidebar from "./components/UserSidebar";
+import WhatsAppWidget from "./components/WhatsAppWidget";
 import ProductDetail from "./pages/ProductDetail";
 import Booking from "./pages/Booking";
 import SubmitRequest from "./pages/SubmitRequest";
@@ -93,6 +94,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
       </Routes>
       <Footer/>
+      <WhatsAppWidget />
         </CartProvider>
       </LanguageCurrencyProvider>
     </GoogleOAuthProvider>

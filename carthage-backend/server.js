@@ -14,6 +14,7 @@ const tourTypeRoutes = require("./routes/tourTypeRoutes");
 const subCategoryRoutes = require("./routes/subCategoryRoutes");
 const testimonialRoutes = require("./routes/testimonialRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 
 dotenv.config();
 
@@ -52,6 +53,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Carthage Travel & Tourism API is running" });

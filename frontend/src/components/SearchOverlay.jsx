@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, ArrowLeft, Sparkles, MapPin, 
@@ -15,10 +15,12 @@ const SearchOverlay = ({ isOpen, onClose }) => {
   const [cities, setCities] = useState([]);
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [autoComplete, setAutoComplete] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
 
   const categoryIcons = {
     'Activities': Binoculars,
@@ -41,7 +43,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     }
   }, [isOpen, activeCategory, allCategories]);
 
-  // Handle Local AI Search Suggestions
+  // Handle Local AI Search Suggestions (debounced)
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (searchQuery.trim().length > 1) {
@@ -53,6 +55,69 @@ const SearchOverlay = ({ isOpen, onClose }) => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, allProducts]);
+
+  // Build a small in-memory index for autocomplete
+  const productIndex = useMemo(() => {
+    return allProducts.map(p => ({
+      id: p._id,
+      name: (p.name || '').toLowerCase(),
+      meta: ((p.name || '') + ' ' + (p.description || '') + ' ' + (p.city?.name || '') + ' ' + (p.category?.name || '')).toLowerCase()
+    }));
+  }, [allProducts]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('recent_searches');
+    if (saved) setRecentSearches(JSON.parse(saved));
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim().length > 0) {
+      const q = searchQuery.toLowerCase().trim();
+      const matches = productIndex
+        .map(p => ({ ...p, score: autocompleteScore(p.name, q) }))
+        .filter(p => p.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6);
+      setAutoComplete(matches);
+    } else {
+      setAutoComplete([]);
+    }
+  }, [searchQuery, productIndex]);
+
+  // Small synonyms map for basic semantic boosts
+  const synonyms = {
+    'family': ['family', 'kids', 'children'],
+    'dhow': ['dhow', 'cruise', 'boat'],
+    'desert': ['desert', 'safari'],
+    'helicopter': ['helicopter', 'chopper'],
+    'private': ['private', 'exclusive']
+  };
+
+  // Utility: normalized levenshtein similarity (0..1)
+  const levenshtein = (a, b) => {
+    if (!a || !b) return 0;
+    a = a.toLowerCase(); b = b.toLowerCase();
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+      }
+    }
+    const dist = dp[m][n];
+    const maxLen = Math.max(m, n);
+    return maxLen === 0 ? 1 : 1 - dist / maxLen;
+  };
+
+  const autocompleteScore = (name, q) => {
+    if (name.startsWith(q)) return 100;
+    if (name.includes(q)) return 70;
+    const sim = Math.round(levenshtein(name, q) * 60);
+    return sim;
+  };
 
   const fetchCategoryData = async () => {
     setLoading(true);
@@ -98,6 +163,14 @@ const SearchOverlay = ({ isOpen, onClose }) => {
       .split(/\s+/)
       .filter(w => w.length > 1 && !["under", "less", "than", "below", "budget", "aed", "dhs", "dirham", "dirhams", "with", "tours", "tour", "and", "the", "for", "in"].includes(w));
 
+    // Expand synonyms into tokens
+    const expandedTokens = [...queryTokens];
+    queryTokens.forEach(t => {
+      Object.keys(synonyms).forEach(key => {
+        if (synonyms[key].includes(t) && !expandedTokens.includes(key)) expandedTokens.push(key);
+      });
+    });
+
     // 3. Score products
     const scoredProducts = allProducts.map(product => {
       let score = 0;
@@ -140,20 +213,35 @@ const SearchOverlay = ({ isOpen, onClose }) => {
         matchReasons.push(`Category: ${product.category?.name}`);
       }
 
-      // Keyword token matching
+      // Fuzzy similarity boost between query and product name
+      const nameSim = levenshtein(productName, query);
+      if (nameSim > 0.6) {
+        score += Math.round(nameSim * 80);
+        matchReasons.push('Name similarity');
+      }
+
+      // Keyword token matching (expanded tokens include synonyms)
       let tokensMatched = 0;
-      queryTokens.forEach(token => {
+      expandedTokens.forEach(token => {
         if (productName.includes(token)) {
-          score += 30;
+          score += 28;
           tokensMatched++;
         } else if (productDesc.includes(token)) {
-          score += 10;
+          score += 8;
+          tokensMatched++;
+        } else if (city && token && city.includes(token)) {
+          score += 18;
           tokensMatched++;
         }
       });
 
       if (tokensMatched > 0 && matchReasons.length === 0) {
         matchReasons.push(`Matched ${tokensMatched} keywords`);
+      }
+
+      // short-circuit: if no positive signal at all, deprioritize
+      if (score <= 0) {
+        return { ...product, searchScore: score, matchReasons: [] };
       }
 
       return {
@@ -170,6 +258,16 @@ const SearchOverlay = ({ isOpen, onClose }) => {
 
     setSuggestions(filtered);
     setSearching(false);
+
+    // Save recent search
+    try {
+      if (query.length > 1) {
+        const prev = JSON.parse(localStorage.getItem('recent_searches') || '[]');
+        const updated = [query, ...prev.filter(x => x !== query)].slice(0, 6);
+        localStorage.setItem('recent_searches', JSON.stringify(updated));
+        setRecentSearches(updated);
+      }
+    } catch (e) { /* ignore */ }
   };
 
   const getHeadings = () => {
@@ -270,6 +368,22 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                 </button>
               </div>
 
+              {/* Autocomplete dropdown */}
+              {autoComplete.length > 0 && (
+                <div className="mt-3 relative">
+                  <div className="absolute left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-lg z-50 overflow-hidden">
+                    {autoComplete.map(item => (
+                      <button
+                        key={item.id}
+                        onClick={() => setSearchQuery(item.name)}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3"
+                      >
+                        <span className="text-sm font-medium text-gray-900 truncate">{item.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
 
               {/* Category Tabs */}

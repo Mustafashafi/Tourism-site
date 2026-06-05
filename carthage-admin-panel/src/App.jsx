@@ -2,6 +2,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import OverviewPage from "./pages/OverviewPage";
+import BookingsPage from "./pages/BookingsPage";
+import CustomersPage from "./pages/CustomersPage";
+import ReportsPage from "./pages/ReportsPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import CitiesPage from "./pages/CitiesPage";
 import SubCategoriesPage from "./pages/SubCategoriesPage";
@@ -9,6 +12,7 @@ import TourTypesPage from "./pages/TourTypesPage";
 import ProductsPage from "./pages/ProductsPage";
 import SettingsPage from "./pages/SettingsPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
+import CmsEditorPage from "./pages/CmsEditorPage";
 import LoginPage from "./pages/LoginPage";
 
 const App = () => {
@@ -24,12 +28,16 @@ const App = () => {
         }
       >
         <Route index element={<OverviewPage />} />
+        <Route path="bookings" element={<BookingsPage />} />
+        <Route path="customers" element={<CustomersPage />} />
+        <Route path="reports" element={<ReportsPage />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="cities" element={<CitiesPage />} />
         <Route path="sub-categories" element={<SubCategoriesPage />} />
         <Route path="tour-types" element={<TourTypesPage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="testimonials" element={<TestimonialsPage />} />
+        <Route path="cms-editor" element={<CmsEditorPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
