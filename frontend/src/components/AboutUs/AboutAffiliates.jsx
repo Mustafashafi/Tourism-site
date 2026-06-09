@@ -50,7 +50,7 @@ const AboutAffiliates = () => {
           {affiliationCards.map((card, idx) => (
             <div
               key={idx}
-              className="relative h-[400px] rounded-3xl overflow-hidden group cursor-pointer"
+              className="relative h-[280px] md:h-[400px] rounded-3xl overflow-hidden group cursor-pointer"
             >
               {/* Background Image */}
               <img

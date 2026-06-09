@@ -27,7 +27,9 @@ const UserProfile = () => {
     // Read user details from localStorage
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsedUser = JSON.parse(savedUser);
+      setUser(parsedUser);
+      fetchBookings(parsedUser.email);
     } else {
       // Fallback default guest info if not logged in
       setUser({
@@ -41,11 +43,32 @@ const UserProfile = () => {
     // Read wishlist
     const savedWishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
     setWishlist(savedWishlist);
-
-    // Read bookings
-    const savedBookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-    setBookings(savedBookings);
   }, []);
+
+  const fetchBookings = async (email) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/bookings?search=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (data.data) {
+        const mappedBookings = data.data.map(b => ({
+          id: b.bookingId,
+          date: b.createdAt,
+          items: b.items.map(item => ({
+            name: item.product?.name || "Product Name",
+            image: item.product?.images?.[0] || "https://via.placeholder.com/100",
+            price: item.price,
+            details: item.transferOption || "Standard Booking"
+          })),
+          paymentMethod: b.paymentMethod,
+          total: b.totalAmount,
+          status: b.bookingStatus === 'new' ? (b.paymentStatus === 'pending' ? 'Pending Payment' : 'Paid & Confirmed') : b.bookingStatus
+        }));
+        setBookings(mappedBookings);
+      }
+    } catch (err) {
+      console.error("Failed to fetch bookings", err);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -56,11 +79,7 @@ const UserProfile = () => {
   };
 
   const clearBookings = () => {
-    if (window.confirm("Are you sure you want to clear your booking history?")) {
-      localStorage.removeItem("bookings");
-      setBookings([]);
-      toast.success("Booking history cleared");
-    }
+    toast.error("Cannot delete real booking records.");
   };
 
   return (
@@ -99,16 +118,16 @@ const UserProfile = () => {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-3 gap-3 md:gap-6 bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl shrink-0 w-full md:w-auto">
-              <div className="text-center px-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-6 bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl shrink-0 w-full md:w-auto">
+              <div className="text-center px-2 py-2 sm:py-0">
                 <span className="block text-2xl font-black text-white">{stats.toursBooked}</span>
                 <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider">Bookings</span>
               </div>
-              <div className="text-center px-2 border-x border-white/10">
+              <div className="text-center px-2 py-2 sm:py-0 sm:border-x border-white/10">
                 <span className="block text-2xl font-black text-white">{stats.countriesVisited}</span>
                 <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider">Destinations</span>
               </div>
-              <div className="text-center px-2">
+              <div className="text-center px-2 py-2 sm:py-0">
                 <span className="block text-2xl font-black text-white">{wishlist.length}</span>
                 <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider">Wishlist</span>
               </div>

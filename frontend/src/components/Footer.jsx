@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebookF, FaLinkedinIn, FaTwitter, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
-import logo from '../assets/Horizontal Full Logo.webp'
+import logo from '../assets/carthage-logo.jpg';
 import { Link } from 'react-router-dom';
 import { homeApi } from '../services/homeApi';
 
@@ -47,7 +47,7 @@ const Footer = () => {
           {/* Column 1: Destinations */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <img src={footerLogo} alt="Carthage Travel" className="h-10 object-contain" />
+              <img src={footerLogo} alt="Carthage Travel" className="h-16 object-contain rounded-md" />
             </div>
             <h4 className="font-bold text-white text-base tracking-wider uppercase">Destinations</h4>
             <ul className="space-y-2 text-sm">

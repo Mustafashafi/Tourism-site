@@ -133,41 +133,84 @@ const Checkout = () => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      // Save booking to booking history in localStorage
-      const newBooking = {
-        id: `BK-${Math.floor(100000 + Math.random() * 900000)}`,
-        date: new Date().toISOString(),
-        items: cartItems.map(item => ({
-          name: item.product?.name,
-          image: item.product?.images?.[0] || item.product?.image,
-          price: item.options?.totalPrice || 0,
-          details: item.options?.transfer?.name || item.options?.visaOption?.title || 'Standard Booking'
-        })),
-        paymentMethod,
-        total: total,
-        status: paymentMethod === 'spot' ? 'Pending Payment (On the spot)' : 'Paid & Confirmed'
+
+    try {
+      // Build items array matching backend schema
+      const items = cartItems.map(item => ({
+        product: item.product?._id || item.product?.id,
+        transferOption: item.options?.transfer?.name || "Standard",
+        guests: {
+          adult: item.options?.guests?.adult || 1,
+          child: item.options?.guests?.child || 0,
+          infant: item.options?.guests?.infant || 0,
+        },
+        price: item.options?.totalPrice || 0,
+        date: item.options?.date || new Date().toISOString()
+      }));
+
+      // Try to attach user ID if logged in
+      const savedUser = localStorage.getItem("user");
+      let customerId = undefined;
+      if (savedUser) {
+        try {
+          const userObj = JSON.parse(savedUser);
+          customerId = userObj._id || userObj.id;
+        } catch (e) {
+          console.error("Error parsing user from localStorage:", e);
+        }
+      }
+
+      const selectedCountryObj = COUNTRY_CODES.find(c => c.code === userDetails.countryCode) || COUNTRY_CODES[0];
+
+      const bookingPayload = {
+        customerId,
+        customerDetails: {
+          fullName: userDetails.fullName,
+          email: userDetails.email,
+          phone: `${selectedCountryObj.code}${userDetails.phone}`
+        },
+        items,
+        totalAmount: total,
+        paymentMethod: paymentMethod === 'spot' ? 'spot' : (paymentMethod === 'etihad' ? 'etihad' : 'card'),
+        paymentStatus: paymentMethod === 'spot' ? 'pending' : 'paid',
+        bookingStatus: 'new'
       };
-      const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-      bookings.unshift(newBooking);
-      localStorage.setItem("bookings", JSON.stringify(bookings));
+
+      const response = await fetch("http://localhost:5000/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(bookingPayload)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create booking");
+      }
 
       toast.success(
         paymentMethod === 'spot'
           ? 'Booking Confirmed! You can pay on the spot.'
           : 'Payment Successful! Your booking is confirmed.'
       );
+      
       clearCart();
       navigate('/profile');
-    }, 2000);
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast.error(error.message || "An error occurred while processing your booking.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const selectedCountry = COUNTRY_CODES.find(c => c.code === userDetails.countryCode) || COUNTRY_CODES[0];
 
   return (
     <div className="min-h-screen bg-[#f8f9fb] pt-6 pb-20">
-      <div className="max-w-[97%] mx-auto px-6">
+      <div className="max-w-[97%] mx-auto px-3 sm:px-6">
 
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-[11px] text-gray-400 mb-6 font-medium">

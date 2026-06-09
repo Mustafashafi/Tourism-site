@@ -14,7 +14,7 @@ import s9 from "../../assets/service9.webp";
 import s10 from "../../assets/service10.webp";
 
 // Logos
-import l1 from "../../assets/Horizontal Full Logo.webp"; // Since Carthage Travel & Tourism is the first one, let's use the main logo or fallback
+import l1 from "../../assets/carthage-logo.jpg"; // Since Carthage Travel & Tourism is the first one, let's use the main logo or fallback
 import l2 from "../../assets/service2-logo.webp";
 import l3 from "../../assets/service3-logo.webp";
 import l4 from "../../assets/service4-logo.webp";
@@ -82,7 +82,7 @@ const AboutServices = () => {
               <img
                 src={activeService.logo}
                 alt={`${activeService.title} Logo`}
-                className="h-10 object-contain mb-2 self-start"
+                className="h-20 w-auto object-contain mx-auto lg:mx-0 rounded-xl shadow-md mb-6"
               />
             )}
 

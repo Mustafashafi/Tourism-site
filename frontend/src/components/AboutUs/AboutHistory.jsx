@@ -61,14 +61,14 @@ const AboutHistory = () => {
       </div>
 
       {/* Content Container - Edge to Edge */}
-      <div className="relative h-[450px]  w-full overflow-hidden shadow-xl group">
+      <div className="relative h-[300px] md:h-[450px] w-full overflow-hidden shadow-xl group">
 
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 transition-all duration-700">
           <img
             src={current.image}
             alt={current.year}
-            className="w-full object-cover transition-transform duration-1000 scale-105 group-hover:scale-100"
+            className="w-full h-full object-cover transition-transform duration-1000 scale-105 group-hover:scale-100"
           />
           <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
         </div>
@@ -78,7 +78,7 @@ const AboutHistory = () => {
           {/* Left/Middle Content */}
           <div className="flex-1 pl-12 pr-24 md:pr-48 text-center md:text-left animate-fadeIn">
             <div className="mb-6">
-              <span className="text-white text-5xl font-black  tracking-tighter">
+              <span className="text-white text-3xl md:text-5xl font-black tracking-tighter">
                 {current.year}
               </span>
               <h3 className="text-white text-3xl font-bold">

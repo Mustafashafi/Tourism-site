@@ -47,7 +47,7 @@ const MainCarousel = ({ slides }) => {
   };
 
   return (
-    <div className="relative w-[95%] lg:w-[80%] max-w-[1400px] mx-auto my-6 rounded-[24px] md:rounded-[32px] h-[350px] md:h-[500px] overflow-hidden bg-black shadow-lg">
+    <div className="relative w-[95%] lg:w-[80%] max-w-[1400px] mx-auto my-6 rounded-[24px] md:rounded-[32px] h-[250px] md:h-[500px] overflow-hidden bg-black shadow-lg">
       <AnimatePresence initial={false} mode="fade">
         <motion.div
           key={current}

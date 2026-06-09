@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Phone, Mail, MapPin, Globe, Search, ShoppingCart, User, X, Menu, ChevronDown, ChevronRight } from "lucide-react";
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube, FaWhatsapp } from "react-icons/fa";
-import logo from "../assets/Horizontal Full Logo.webp";
+import logo from "../assets/carthage-logo.jpg";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useLanguageCurrency } from "../context/LanguageCurrencyContext";
 import { useCart } from "../context/CartContext";
@@ -245,7 +245,7 @@ const Navbar = ({ onOpenUserMenu }) => {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Left: Logo */}
           <Link to="/" className="shrink-0">
-            <img src={headerLogo} alt="Carthage Travel & Tourism" className="h-10 lg:h-12 w-auto object-contain" />
+            <img src={headerLogo} alt="Carthage Travel & Tourism" className="h-14 lg:h-16 w-auto object-contain rounded-md" />
           </Link>
 
           {/* Center: Desktop Nav Items */}
@@ -416,7 +416,7 @@ const Navbar = ({ onOpenUserMenu }) => {
           <div className="relative flex flex-col w-[85vw] max-w-sm ml-auto bg-white/98 backdrop-blur-md h-full shadow-2xl animate-in slide-in-from-right duration-300 z-10">
             {/* Drawer Header */}
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
-              <img src={logo} alt="Carthage" className="h-8 w-auto" />
+              <img src={logo} alt="Carthage" className="h-12 w-auto rounded-md shadow-sm" />
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 cursor-pointer"

@@ -164,7 +164,7 @@ const Booking = () => {
     <div className="min-h-screen bg-gray-50/30 pb-20">
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-[1200px] mx-auto px-6 py-3">
+        <div className="max-w-[1200px] mx-auto px-3 sm:px-6 py-3">
           <div className="flex items-center gap-2 text-[13px] text-gray-500">
             <Link to="/" className="hover:text-gray-900 transition-colors">Home</Link>
             <ChevronRight size={14} />
@@ -175,7 +175,7 @@ const Booking = () => {
         </div>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 py-10">
+      <div className="max-w-[1200px] mx-auto px-3 sm:px-6 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
           {/* Main Content */}

@@ -50,7 +50,7 @@ const AboutContact = () => {
         </div>
 
         {/* Map Area */}
-        <div className="relative w-full h-[500px] rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-gray-100">
+        <div className="relative w-full h-[350px] md:h-[500px] rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-gray-100">
 
           {/* Live Google Map */}
           <iframe

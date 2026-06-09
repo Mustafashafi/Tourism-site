@@ -105,14 +105,14 @@ const SubmitRequest = () => {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-inter pb-20">
-      <div className="max-w-[1200px] mx-auto px-6 py-10">
+      <div className="max-w-[1200px] mx-auto px-3 sm:px-6 py-10">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* Main Content (Left Side) */}
           <div className="lg:col-span-2 space-y-6">
 
             {/* Enter Your Details */}
-            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+            <div className="bg-white p-4 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
               <h2 className="text-xl font-bold text-gray-900 tracking-tight">Enter Your Details</h2>
 
               <div className="space-y-5">
@@ -177,7 +177,7 @@ const SubmitRequest = () => {
             </div>
 
             {/* Update Additional Details */}
-            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+            <div className="bg-white p-4 md:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
               <h2 className="text-xl font-bold text-gray-900 tracking-tight">Update Additional Details</h2>
 
               <div>

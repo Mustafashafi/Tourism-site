@@ -55,7 +55,7 @@ const Cart = () => {
   return (
     <>
       <div className="min-h-screen bg-[#f8f9fb] pb-20 pt-6">
-        <div className="max-w-[97%] mx-auto px-6">
+        <div className="max-w-[97%] mx-auto px-3 sm:px-6">
 
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 text-[11px] text-gray-400 mb-6 font-medium">

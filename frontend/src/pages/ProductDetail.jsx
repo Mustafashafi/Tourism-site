@@ -323,7 +323,7 @@ function Gallery({ images }) {
 
         {/* Right 2×2 grid — only shown if there are additional images */}
         {gridImgs.length > 0 && (
-          <div className="flex flex-col gap-2 w-[48%]">
+          <div className="hidden md:flex flex-col gap-2 w-1/2">
             {/* Top row */}
             <div className="flex gap-2 flex-1">
               {gridImgs.slice(0, 2).map((img, i) => (

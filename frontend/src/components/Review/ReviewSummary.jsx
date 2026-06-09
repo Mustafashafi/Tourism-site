@@ -23,7 +23,7 @@ const ReviewSummary = ({ rating, totalReviews, reviews }) => {
       <div className="flex items-center justify-between border-b border-gray-50 pb-6">
         <div className="flex items-center gap-3">
           <Star className="text-amber-400 fill-amber-400" size={32} />
-          <h3 className="text-4xl font-bold text-gray-900 tracking-tight">
+          <h3 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
             {Number(rating || 0).toFixed(1)}
           </h3>
         </div>
