@@ -15,14 +15,29 @@ const UserSidebar = ({ isOpen, onClose }) => {
     if (isOpen) {
       const savedUser = localStorage.getItem("user");
       if (savedUser) {
-        setUser(JSON.parse(savedUser));
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        // Fetch real booking count from the backend (same as UserProfile)
+        fetchBookingCount(parsedUser.email);
       } else {
         setUser(null);
+        setBookingCount(0);
       }
-      const savedBookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-      setBookingCount(savedBookings.length);
     }
   }, [isOpen]);
+
+  const fetchBookingCount = async (email) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/bookings?search=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (data.data) {
+        setBookingCount(data.data.length);
+      }
+    } catch (err) {
+      console.error("Failed to fetch booking count", err);
+      setBookingCount(0);
+    }
+  };
 
   const handleLogout = () => {
     clearCart();

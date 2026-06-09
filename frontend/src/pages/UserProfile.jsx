@@ -15,10 +15,14 @@ const UserProfile = () => {
   const [wishlist, setWishlist] = useState([]);
   const [bookings, setBookings] = useState([]);
 
-  // Mock stats or achievements for gamified / premium look
+  // Compute unique destinations from all booked item names (each booking item is a tour/destination)
+  const uniqueDestinations = new Set(
+    bookings.flatMap(b => b.items.map(item => item.name))
+  ).size;
+
   const stats = {
     toursBooked: bookings.length,
-    countriesVisited: 1, // Default/Mock for UAE
+    countriesVisited: uniqueDestinations || 0,
     reviewsWritten: 0,
     memberSince: "2026"
   };
