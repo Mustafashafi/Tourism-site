@@ -1,39 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { homeApi } from '../services/homeApi';
 
-const PHONE_NUMBER = '+971501234567';
 const DEFAULT_MESSAGE = encodeURIComponent(
   "Hello Carthage Travel! I'd like to inquire about a tour."
 );
 
 export default function WhatsAppWidget() {
-  const href = `https://wa.me/${PHONE_NUMBER.replace(/\D/g, '')}?text=${DEFAULT_MESSAGE}`;
+  const [phoneNumber, setPhoneNumber] = useState('+971501234567');
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await homeApi.getSettings();
+        if (settings?.socialLinks?.whatsapp) {
+          setPhoneNumber(settings.socialLinks.whatsapp);
+        } else if (settings?.contactDetails?.phone) {
+          setPhoneNumber(settings.contactDetails.phone);
+        }
+      } catch (error) {
+        console.error("Failed to fetch settings for WhatsApp widget", error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const href = `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${DEFAULT_MESSAGE}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-[68px] h-[68px] group">
+      {/* Outer pulsing ring for continuous glow */}
+      <div className="absolute inset-0 rounded-full bg-[#25D366] opacity-40 animate-[ping_2.5s_ease-in-out_infinite]"></div>
+      
+      {/* Inner glowing ring */}
+      <div className="absolute inset-0 rounded-full bg-[#25D366] opacity-50 animate-[pulse_2s_ease-in-out_infinite]"></div>
+
       <a
         href={href}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with us on WhatsApp"
+        className="relative z-10 flex items-center justify-center w-full h-full rounded-full transition-transform duration-300 group-hover:scale-110"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '68px',
-          height: '68px',
-          borderRadius: '50%',
           background: 'radial-gradient(circle at 35% 35%, #5de88a 0%, #25D366 45%, #128C4A 100%)',
-          boxShadow: '0 0 0 12px rgba(37, 211, 102, 0.15), 0 0 40px 10px rgba(37, 211, 102, 0.35)',
-          transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-          textDecoration: 'none',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.transform = 'scale(1.08)';
-          e.currentTarget.style.boxShadow = '0 0 0 16px rgba(37, 211, 102, 0.18), 0 0 55px 15px rgba(37, 211, 102, 0.45)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 0 0 12px rgba(37, 211, 102, 0.15), 0 0 40px 10px rgba(37, 211, 102, 0.35)';
+          boxShadow: '0 4px 20px rgba(37, 211, 102, 0.4)',
         }}
       >
         {/* Official WhatsApp phone icon */}

@@ -4,12 +4,13 @@ import { apiService } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { APP_NAME } from "../config/appConfig";
 import { Eye, EyeOff, Lock, Mail, ShieldAlert } from "lucide-react";
+import logo from "../assets/carthage-logo.jpg";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, login } = useAuth();
-  const [email, setEmail] = useState("admin@carthagetravel.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -41,9 +42,9 @@ const LoginPage = () => {
       <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl shadow-2xl transition-all hover:border-white/15">
         
         {/* Branding header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#CC1422] to-amber-500 shadow-xl shadow-[#CC1422]/20 animate-pulse">
-            <span className="text-2xl font-black text-white">CT</span>
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <img src={logo} alt="Carthage Travel" className="h-20 object-contain rounded-xl shadow-lg border border-white/10" />
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tight text-white">Carthage Travel</h1>
@@ -70,7 +71,7 @@ const LoginPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@carthagetravel.com"
+                placeholder="example@gmail.com"
                 required
               />
               <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />

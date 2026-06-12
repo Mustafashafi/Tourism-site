@@ -26,10 +26,8 @@ const Tours = () => {
   // Price & Duration Filter States
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [minDuration, setMinDuration] = useState("");
-  const [maxDuration, setMaxDuration] = useState("");
-  const [minDurationDays, setMinDurationDays] = useState("");
-  const [maxDurationDays, setMaxDurationDays] = useState("");
+  const [durationHours, setDurationHours] = useState("");
+  const [durationDays, setDurationDays] = useState("");
 
   // Pagination State
   const [visibleCount, setVisibleCount] = useState(24);
@@ -80,10 +78,8 @@ const Tours = () => {
     const urlTourTypeSlug = searchParams.get("tourType") || "";
     const urlMinPrice = searchParams.get("minPrice") || "";
     const urlMaxPrice = searchParams.get("maxPrice") || "";
-    const urlMinDuration = searchParams.get("minDuration") || "";
-    const urlMaxDuration = searchParams.get("maxDuration") || "";
-    const urlMinDurationDays = searchParams.get("minDurationDays") || "";
-    const urlMaxDurationDays = searchParams.get("maxDurationDays") || "";
+    const urlDurationHours = searchParams.get("durationHours") || "";
+    const urlDurationDays = searchParams.get("durationDays") || "";
 
     const cityObj = cities.find(c => c.slug === urlCitySlug);
     const catObj = categories.find(c => c.slug === urlCategorySlug);
@@ -102,10 +98,8 @@ const Tours = () => {
 
     setMinPrice(urlMinPrice);
     setMaxPrice(urlMaxPrice);
-    setMinDuration(urlMinDuration);
-    setMaxDuration(urlMaxDuration);
-    setMinDurationDays(urlMinDurationDays);
-    setMaxDurationDays(urlMaxDurationDays);
+    setDurationHours(urlDurationHours);
+    setDurationDays(urlDurationDays);
 
     // mark that params have been processed and mapped to IDs
     setParamsReady(true);
@@ -144,18 +138,12 @@ const Tours = () => {
     } else if (type === "maxPrice") {
       if (value) newParams.maxPrice = value;
       else delete newParams.maxPrice;
-    } else if (type === "minDuration") {
-      if (value) newParams.minDuration = value;
-      else delete newParams.minDuration;
-    } else if (type === "maxDuration") {
-      if (value) newParams.maxDuration = value;
-      else delete newParams.maxDuration;
-    } else if (type === "minDurationDays") {
-      if (value) newParams.minDurationDays = value;
-      else delete newParams.minDurationDays;
-    } else if (type === "maxDurationDays") {
-      if (value) newParams.maxDurationDays = value;
-      else delete newParams.maxDurationDays;
+    } else if (type === "durationHours") {
+      if (value) newParams.durationHours = value;
+      else delete newParams.durationHours;
+    } else if (type === "durationDays") {
+      if (value) newParams.durationDays = value;
+      else delete newParams.durationDays;
     }
 
     setSearchParams(newParams);
@@ -189,17 +177,11 @@ const Tours = () => {
         
         // Filter on the frontend
         let filtered = data || [];
-        if (minDuration) {
-          filtered = filtered.filter(p => (p.durationInHours || 0) >= Number(minDuration));
+        if (durationHours !== "") {
+          filtered = filtered.filter(p => (p.durationInHours || 0) === Number(durationHours));
         }
-        if (maxDuration) {
-          filtered = filtered.filter(p => (p.durationInHours || 0) <= Number(maxDuration));
-        }
-        if (minDurationDays) {
-          filtered = filtered.filter(p => (p.durationInDays || 0) >= Number(minDurationDays));
-        }
-        if (maxDurationDays) {
-          filtered = filtered.filter(p => (p.durationInDays || 0) <= Number(maxDurationDays));
+        if (durationDays !== "") {
+          filtered = filtered.filter(p => (p.durationInDays || 0) === Number(durationDays));
         }
 
         setProducts(filtered);
@@ -211,7 +193,7 @@ const Tours = () => {
     };
 
     fetchFilteredProducts();
-  }, [selectedCityId, selectedCategoryId, selectedSubCategoryId, selectedTourTypeId, minPrice, maxPrice, minDuration, maxDuration, minDurationDays, maxDurationDays, loadingData, paramsReady]);
+  }, [selectedCityId, selectedCategoryId, selectedSubCategoryId, selectedTourTypeId, minPrice, maxPrice, durationHours, durationDays, loadingData, paramsReady]);
 
   // Determine active category banners
   const bannerSlides = useMemo(() => {
@@ -358,43 +340,28 @@ const Tours = () => {
 
           {/* Duration Filter */}
           <div className="flex flex-col gap-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Duration (Hours)</label>
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Duration</label>
             <div className="flex gap-2">
-              <input
-                type="number"
-                placeholder="Min Hours"
-                value={minDuration}
-                onChange={(e) => updateFilter("minDuration", e.target.value)}
-                className="w-1/2 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-500"
-              />
-              <input
-                type="number"
-                placeholder="Max Hours"
-                value={maxDuration}
-                onChange={(e) => updateFilter("maxDuration", e.target.value)}
-                className="w-1/2 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-500"
-              />
-            </div>
-          </div>
-
-          {/* Duration (Days) Filter */}
-          <div className="flex flex-col gap-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Duration (Days)</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                placeholder="Min Days"
-                value={minDurationDays}
-                onChange={(e) => updateFilter("minDurationDays", e.target.value)}
-                className="w-1/2 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-500"
-              />
-              <input
-                type="number"
-                placeholder="Max Days"
-                value={maxDurationDays}
-                onChange={(e) => updateFilter("maxDurationDays", e.target.value)}
-                className="w-1/2 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-500"
-              />
+              <select
+                value={durationDays}
+                onChange={(e) => updateFilter("durationDays", e.target.value)}
+                className="w-1/2 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-500 cursor-pointer"
+              >
+                <option value="">Any Days</option>
+                {[...Array(31)].map((_, i) => (
+                  <option key={i} value={i}>{i} Day{i !== 1 ? 's' : ''}</option>
+                ))}
+              </select>
+              <select
+                value={durationHours}
+                onChange={(e) => updateFilter("durationHours", e.target.value)}
+                className="w-1/2 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-500 cursor-pointer"
+              >
+                <option value="">Any Hours</option>
+                {[...Array(25)].map((_, i) => (
+                  <option key={i} value={i}>{i} Hour{i !== 1 ? 's' : ''}</option>
+                ))}
+              </select>
             </div>
           </div>
 

@@ -721,18 +721,56 @@ const ProductSection = ({ categories, cities, subCategories = [], tourTypes = []
               </div>
 
               {/* Duration Settings */}
-              <div className="md:col-span-2 border border-surface-200 p-4 rounded-xl bg-surface-50 grid gap-3 sm:grid-cols-3">
+              <div className="md:col-span-2 border border-surface-200 p-4 rounded-xl bg-surface-50 grid gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-surface-600 font-semibold">Duration String (e.g. "4 Hours" or "3 Days")</label>
-                  <input className="input bg-white" placeholder="Duration string" value={form.duration} onChange={(e) => onChange("duration", e.target.value)} />
+                  <label className="text-xs text-surface-600 font-semibold">Duration (Days)</label>
+                  <select
+                    className="input bg-white"
+                    value={form.durationInDays || 0}
+                    onChange={(e) => {
+                      const days = Number(e.target.value);
+                      const hours = form.durationInHours || 0;
+                      let durString = "";
+                      if (days > 0) durString += `${days} Day${days > 1 ? 's' : ''} `;
+                      if (hours > 0) durString += `${hours} Hour${hours > 1 ? 's' : ''}`;
+                      
+                      setForm(prev => ({ 
+                        ...prev, 
+                        durationInDays: days,
+                        durationInHours: hours,
+                        duration: durString.trim()
+                      }));
+                    }}
+                  >
+                    {[...Array(31)].map((_, i) => (
+                      <option key={i} value={i}>{i} Days</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-surface-600 font-semibold">Duration in Hours (Numeric)</label>
-                  <input className="input bg-white" type="number" placeholder="e.g. 4" value={form.durationInHours} onChange={(e) => onChange("durationInHours", e.target.value)} />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-surface-600 font-semibold">Duration in Days (Numeric)</label>
-                  <input className="input bg-white" type="number" placeholder="e.g. 3" value={form.durationInDays} onChange={(e) => onChange("durationInDays", e.target.value)} />
+                  <label className="text-xs text-surface-600 font-semibold">Duration (Hours)</label>
+                  <select
+                    className="input bg-white"
+                    value={form.durationInHours || 0}
+                    onChange={(e) => {
+                      const hours = Number(e.target.value);
+                      const days = form.durationInDays || 0;
+                      let durString = "";
+                      if (days > 0) durString += `${days} Day${days > 1 ? 's' : ''} `;
+                      if (hours > 0) durString += `${hours} Hour${hours > 1 ? 's' : ''}`;
+                      
+                      setForm(prev => ({ 
+                        ...prev, 
+                        durationInDays: days,
+                        durationInHours: hours,
+                        duration: durString.trim()
+                      }));
+                    }}
+                  >
+                    {[...Array(25)].map((_, i) => (
+                      <option key={i} value={i}>{i} Hours</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

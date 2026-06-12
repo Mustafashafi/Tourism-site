@@ -132,32 +132,42 @@ const Footer = () => {
           </div>
 
           {/* Center: Payment Icons */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
-              alt="Mastercard" 
-              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
-            />
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg" 
-              alt="Amex" 
-              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
-            />
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" 
-              alt="PayPal" 
-              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
-            />
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" 
-              alt="Apple Pay" 
-              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
-            />
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" 
-              alt="Google Pay" 
-              className="h-7 w-10 bg-white/5 border border-white/10 rounded p-1 object-contain" 
-            />
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="bg-white rounded-lg px-3.5 py-2 flex items-center justify-center hover:-translate-y-1 transition-transform duration-300 shadow-sm min-w-[64px] h-[38px]">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
+                alt="Mastercard" 
+                className="h-[22px] w-auto object-contain" 
+              />
+            </div>
+            <div className="bg-white rounded-lg px-3.5 py-2 flex items-center justify-center hover:-translate-y-1 transition-transform duration-300 shadow-sm min-w-[64px] h-[38px]">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg" 
+                alt="Amex" 
+                className="h-[18px] w-auto object-contain" 
+              />
+            </div>
+            <div className="bg-white rounded-lg px-3.5 py-2 flex items-center justify-center hover:-translate-y-1 transition-transform duration-300 shadow-sm min-w-[64px] h-[38px]">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" 
+                alt="PayPal" 
+                className="h-[18px] w-auto object-contain" 
+              />
+            </div>
+            <div className="bg-white rounded-lg px-3.5 py-2 flex items-center justify-center hover:-translate-y-1 transition-transform duration-300 shadow-sm min-w-[64px] h-[38px]">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" 
+                alt="Apple Pay" 
+                className="h-[18px] w-auto object-contain" 
+              />
+            </div>
+            <div className="bg-white rounded-lg px-3.5 py-2 flex items-center justify-center hover:-translate-y-1 transition-transform duration-300 shadow-sm min-w-[64px] h-[38px]">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" 
+                alt="Google Pay" 
+                className="h-[18px] w-auto object-contain" 
+              />
+            </div>
           </div>
 
           {/* Right: Dynamic Social Icons */}
