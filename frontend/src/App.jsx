@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Routes, Route, useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import Login from "./components/Login";
 import VerifyLogin from "./pages/VerifyLogin";
 import Signup from "./components/Signup";
@@ -48,6 +48,21 @@ function RedirectToTours({ defaultCategory }) {
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    let title = "Carthage Travel";
+    if (location.pathname === "/") title = "Carthage - Home";
+    else if (location.pathname.startsWith("/tours") || location.pathname.startsWith("/activities") || location.pathname.startsWith("/holidays") || location.pathname.startsWith("/cruises")) title = "Carthage - Tours & Packages";
+    else if (location.pathname === "/cart") title = "Carthage - Cart";
+    else if (location.pathname === "/checkout") title = "Carthage - Checkout";
+    else if (location.pathname === "/profile") title = "Carthage - Profile";
+    else if (location.pathname === "/about-us") title = "Carthage - About Us";
+    else if (location.pathname === "/contact") title = "Carthage - Contact Us";
+    else if (location.pathname === "/login") title = "Carthage - Login";
+    else if (location.pathname === "/signup") title = "Carthage - Sign Up";
+    document.title = title;
+  }, [location]);
 
   useEffect(() => {
     homeApi.getSettings()

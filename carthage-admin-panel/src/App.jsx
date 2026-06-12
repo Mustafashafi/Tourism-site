@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import OverviewPage from "./pages/OverviewPage";
@@ -18,6 +18,26 @@ import { useEffect } from "react";
 import { apiService } from "./api";
 
 const App = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    let title = "Carthage Admin Panel";
+    if (location.pathname === "/") title = "Carthage Admin - Overview";
+    else if (location.pathname.startsWith("/bookings")) title = "Carthage Admin - Bookings";
+    else if (location.pathname.startsWith("/customers")) title = "Carthage Admin - Customers";
+    else if (location.pathname.startsWith("/reports")) title = "Carthage Admin - Reports";
+    else if (location.pathname.startsWith("/categories")) title = "Carthage Admin - Categories";
+    else if (location.pathname.startsWith("/cities")) title = "Carthage Admin - Cities";
+    else if (location.pathname.startsWith("/sub-categories")) title = "Carthage Admin - Sub Categories";
+    else if (location.pathname.startsWith("/tour-types")) title = "Carthage Admin - Tour Types";
+    else if (location.pathname.startsWith("/products")) title = "Carthage Admin - Products";
+    else if (location.pathname.startsWith("/testimonials")) title = "Carthage Admin - Testimonials";
+    else if (location.pathname.startsWith("/cms-editor")) title = "Carthage Admin - CMS Editor";
+    else if (location.pathname.startsWith("/settings")) title = "Carthage Admin - Settings";
+    else if (location.pathname.startsWith("/login")) title = "Carthage Admin - Login";
+    document.title = title;
+  }, [location]);
+
   useEffect(() => {
     apiService.getSettings()
       .then(settings => {
