@@ -43,7 +43,7 @@ exports.uploadImage = async (req, res) => {
       const dataUri = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
       return cloudinary.uploader.upload(dataUri, {
         folder: "carthage-tours/products",
-        resource_type: "image",
+        resource_type: "auto",
       });
     });
 

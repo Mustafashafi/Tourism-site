@@ -14,8 +14,25 @@ import SettingsPage from "./pages/SettingsPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
 import CmsEditorPage from "./pages/CmsEditorPage";
 import LoginPage from "./pages/LoginPage";
+import { useEffect } from "react";
+import { apiService } from "./api";
 
 const App = () => {
+  useEffect(() => {
+    apiService.getSettings()
+      .then(settings => {
+        if (settings?.logos?.favicon) {
+          let link = document.querySelector("link[rel~='icon']");
+          if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+          }
+          link.href = settings.logos.favicon;
+        }
+      })
+      .catch(console.error);
+  }, []);
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />

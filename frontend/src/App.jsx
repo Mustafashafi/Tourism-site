@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 import { LanguageCurrencyProvider } from "./context/LanguageCurrencyContext";
 import { CartProvider } from "./context/CartContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { homeApi } from "./services/homeApi";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -47,6 +48,23 @@ function RedirectToTours({ defaultCategory }) {
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    homeApi.getSettings()
+      .then(settings => {
+        if (settings?.logos?.favicon) {
+          let link = document.querySelector("link[rel~='icon']");
+          if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+          }
+          link.href = settings.logos.favicon;
+        }
+      })
+      .catch(console.error);
+  }, []);
+
   return (
     <GoogleOAuthProvider clientId="860874102599-d8jog91f7t0cfb5olp881l2hq6bio6jc.apps.googleusercontent.com">
       <LanguageCurrencyProvider>

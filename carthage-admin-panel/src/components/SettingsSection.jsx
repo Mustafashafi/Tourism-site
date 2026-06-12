@@ -186,7 +186,7 @@ const SettingsSection = () => {
         ...prev,
         logos: {
           ...prev.logos,
-          [key]: imageUrl,
+          [key]: imageUrl?.url || imageUrl,
         },
       }));
       toast.success("Logo uploaded successfully!", { id: toastId });
@@ -246,7 +246,7 @@ const SettingsSection = () => {
                 ) : (
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="*/*"
                     onChange={(e) => handleLogoUpload(item.key, e.target.files[0])}
                     className="w-full text-xs"
                   />
